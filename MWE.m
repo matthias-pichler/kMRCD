@@ -11,7 +11,7 @@
     %%% Contamination amount in the dataset [0, ..., 0.5]
     eps = 0.2;    
     %%% Expected % regular observations [0.5, ..., 1]
-    alpha = 0.75;    
+    alpha = 0.70;    
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
