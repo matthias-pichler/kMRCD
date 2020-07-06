@@ -58,9 +58,10 @@ classdef kMRCD < handle
                 end                
             end 
             
-            % Set rho as max of the rho_i's obtained for each subset in previous step                        
+            %   Set rho as max of the rho_i's obtained for each subset in previous step                        
             rho = max(rhoL(rhoL <= max([0.1, median(rhoL)])));
             
+            %   Refine each initial estimation with C-steps
             Ktt_diag = diag(K); 
             for index=1:numel(solution)                              
                for iteration = 1:this.cStepIterationsAllowed        

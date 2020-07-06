@@ -9,7 +9,7 @@
     %%% Nbr. of observations in the dataset [1, ..., 1000]
     n = 500;    
     %%% Contamination amount in the dataset [0, ..., 0.5]
-    eps = 0.2;    
+    eps = 0.15;    
     %%% Expected % regular observations [0.5, ..., 1]
     alpha = 0.70;    
     
