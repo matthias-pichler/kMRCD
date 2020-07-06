@@ -85,7 +85,7 @@ classdef kMRCD < handle
                         break;                    
                     end                                        
                end
-               assert(iteration<this.cStepIterationsAllowed, 'no c-step convergence');
+               assert(iteration<this.cStepIterationsAllowed, 'no C-step convergence');
             end
 
             %   Select the solution with the lowest objective function            
