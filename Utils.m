@@ -28,14 +28,11 @@ classdef Utils
        function [scale]= W_scale(x)
             
             [n,p]=size(x);
-            %Wc=inline('(1-(x./c).^2).^2.*(abs(x)<c)');
             Wc=@(x)((1-(x./4.5).^2).^2.*(abs(x)<4.5));
             sigma0=mad(x,1);
             w=Wc(x-repmat(median(x),n,1))./repmat(sigma0,n,1);
             loc=diag(x'*w)'./sum(w);
-
-            %c=3;
-            %rc=inline('min(x.^2,c^2)');
+            
             rc=@(x)(min(x.^2,3^2));
             sigma0=mad(x,1);
             b=3*norminv(3/4);
@@ -44,10 +41,8 @@ classdef Utils
             scale=sqrt(scale);
        end
        
-       function [hIndices] = kernel_OGK(hIndices,K)
-           
-            % Init (hIndices is already reduced)
-            n = size(K,1); % Full kernel matrix
+       function [hIndices] = kernel_OGK(hIndices,K)                       
+            n = size(K,1); 
             n_h = length(hIndices);
             K_h = K(hIndices,hIndices);
             Kt = K(:,hIndices);

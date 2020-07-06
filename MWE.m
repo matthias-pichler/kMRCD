@@ -9,10 +9,9 @@
     %%% Nbr. of observations in the dataset [1, ..., 1000]
     n = 500;    
     %%% Contamination amount in the dataset [0, ..., 0.5]
-    eps = 0.15;    
+    eps = 0.20;    
     %%% Expected % regular observations [0.5, ..., 1]
     alpha = 0.70;    
-    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%
@@ -21,7 +20,7 @@
     %%%%%
     
     %%% Generate the dataset x with label vector y 
-    x = [mvnrnd([2, 3], [1 1.5; 1.5 3], n); mvnrnd([-2, 3], 0.1*eye(2,2), floor(n*eps))];
+    x = [mvnrnd([2, 3], [1 1.5; 1.5 3], n); mvnrnd([-3, 3], 0.1*eye(2,2), floor(n*eps))];
     y = [+1 * ones(n,1); -1 * ones(floor(n*eps),1)];    
     %%% Perform robust standarization
     x = rZscores(x);
@@ -50,7 +49,7 @@
     plot(x(:, 1), x(:, 2), '.g'); hold on;
     plot(x(solution.flaggedOutlierIndices, 1), x(solution.flaggedOutlierIndices, 2), '.r');
     title(['kMRCD Flagged outliers for h = ' mat2str(alpha) ' n']);
-    
+    drawnow();
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%
@@ -89,5 +88,10 @@
     plot(x(:, 1), x(:, 2), '.g'); hold on;
     plot(x(solution.flaggedOutlierIndices, 1), x(solution.flaggedOutlierIndices, 2), '.r');
     title(['kMRCD Flagged outliers for h = ' mat2str(alpha) ' n']);
+    drawnow();
+    
+    disp('That is all, folks!');
+    
+    
     
     

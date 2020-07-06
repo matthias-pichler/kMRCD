@@ -1,6 +1,61 @@
 classdef kMRCD < handle
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
+    %
+    %kMRCD: Outlier detection in non-elliptical data by kernel MRCD, J.
+    %       Schreurs, I. Vranckx et al.
+    %
+    %   The minimum regularized covariance determinant (MRCD) is a robust
+    %   estimator for multivariate location and scatter, which detects outliers by fitting a
+    %   robust covariance matrix to the data. The MRCD assumes that the observations
+    %   are elliptically distributed. However, this property does not always apply to modern datasets. 
+    %   Together with the time criticality of industrial processing, small n,
+    %   large p problems pose a challenging problem for any data analytics procedure. Both
+    %   shortcomings are solved with the proposed kernel Minimum Regularized Covariance
+    %   Determinant estimator, where we exploit the kernel trick to speed-up computations.
+    %   More specifically, the MRCD location and scatter matrix estimate are computed in
+    %   a kernel induced feature space, where regularization ensures that the covariance matrix is well-conditioned, 
+    %   invertible and defined for any dataset dimension.
+    %
+    %   Required input argument:
+    %   x : a vector or matrix whose columns represent variables, and rows represent observations.
+    %        Missing and infinite values are not allowed and should be excluded from the computations by the user.
+    %   alpha : (1-alpha) measures the fraction of outliers the algorithm should
+    %          resist. Any value between [0.5 <= alpha <= 1] may be specified. (default = 0.75)
+    %   kModel : the kernel transformation used.
+    %   
+    %   Output :  The output structure 'solution' contains the final results, with the following fields :
+    %       -   solution.outlyingnessIndices: outlyingness weight of each
+    %       observation according.
+    %       -   solution.name: the name of the best initial estimator which was used to construct the final solution.
+    %       -   solution.hsubsetIndices: the h-subset element indices after
+    %       C-step convergence.
+    %       -   solution.obj: the MRCD objective value.
+    %       -   solution.smd: the Squared Mahanobis Distance values of each
+    %       observation
+    %       -   solution.rho: regularisation factor used
+    %       -   solution.scfac: finite sample correction factor used
+    %       -   solution.rd: Mahanobis distance value of each observation.
+    %       -   solution.ld: rescaled Mahanobis distance values, defined as log(0.1 + solution.rd);
+    %       -   solution.cutoff: outlier flagging cut-off
+    %       -   solution.flaggedOutlierIndices: indices of the flagged
+    %       outliers
+    %
+    %   Minimal working example :
+    %       -   Create an estimator instance for a linear kernel: 
+    %           kmrcd = kMRCD(LinKernel());    
+    %       -   Run the kMRCD algorithm with alpha = 0.75
+    %           solution = kmrcd.runAlgorithm(x, alpha);
+    %
+    %   Last modified by Iwein Vranckx, 6/07/2020, 
+    %   Git repository: https://github.com/ivranckx/kMRCD.git
+    %   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0) 
+    %
+    %   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+    %   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+    %   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
+    %   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+    %   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
+    %   THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    
     
     properties (Access = private)        
         kModel;                         %   Used kernel model        
@@ -95,12 +150,11 @@ classdef kMRCD < handle
             solution = solution(mIndex);                             
             disp(['-> Best estimator is ' solution.name]);
             
-            % Determine cut-off for outlier flagging
-            solution.rd = max(sqrt(solution.smd),0);
             solution.rho = rho;
-            solution.scfac = scfac;
+            solution.scfac = scfac;            
             
-            %   Flag outliers
+            % Outlier flagging procedure 
+            solution.rd = max(sqrt(solution.smd),0);
             solution.ld = log(0.1 + solution.rd);                                    
             [tmcd,smcd] = unimcd(solution.ld, numel(solution.hsubsetIndices));
             solution.cutoff = exp(tmcd + norminv(0.995) * smcd) - 0.1;
