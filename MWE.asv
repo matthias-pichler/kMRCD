@@ -1,0 +1,39 @@
+
+    clc;
+    close all;
+    clear all;
+    rng('default');
+    
+    %%% Include the code of all subfolders
+    addpath(genpath(fileparts(which(mfilename)))); 
+    %%% Nbr. of observations in the dataset [1, ..., 1000]
+    n = 500;    
+    %%% Contamination amount in the dataset [0, ..., 0.5]
+    eps = 0.1;    
+    %%% Expected % regular observations [0.5, ..., 1]
+    alpha = 0.75;    
+    %%% Generate the dataset x with label vector y 
+    x = [mvnrnd([2, 3], [1 1.5; 1.5 3], n); mvnrnd([-2, 3], 0.1*eye(2,2), floor(n*eps))];
+    y = [+1 * ones(n,1); -1 * ones(floor(n*eps),1)];    
+    %%% Perform robust standarization
+    x=rZscores(x);
+    
+    %%% Create an estimator instance
+    kmrcd = kMRCD(AutoRbfKernel(x));    
+    %%% Run kMRCD algorithm
+    solution = kmrcd.runAlgorithm(x, alpha);
+    
+    figure; 
+    subplot(2,1,1);
+    plot(x(y>0, 1), x(y>0, 2), '.g'); hold on;
+    plot(x(y<0, 1), x(y<0, 2), '.r');
+    title('Dataset with
+    
+    subplot(2,1,2);
+    plot(x(solution.flagged, 1), x(solution.flagged, 2), '.g'); hold on;
+    plot(x(~solution.flagged, 1), x(~solution.flagged, 2), '.r');
+    
+    
+    
+    
+    
