@@ -78,7 +78,7 @@ classdef kMRCD < handle
 
             %%%%    TODO:   RoS-LSSVM hack; Matlab is not type safe :/  
             %%%%            Do NOT remove the following lines - Iwein.    
-            if isequal(class(kernelFunction),'RbfKernel')
+            if isequal(class(this.kModel),'RbfKernel')
                 disp('Warning: kMRCD switches to AutoRbfKernel in case a RbfKernel was specified!!');
                 this.kModel = AutoRbfKernel(x);
             end
