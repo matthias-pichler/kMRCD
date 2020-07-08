@@ -75,6 +75,14 @@ classdef kMRCD < handle
  
          function solution = runAlgorithm(this, x, alpha)                        
             assert(alpha<=1 && alpha>=0.5, 'The percentage of regular observations, alpha, should be in [0.5-1]'); 
+
+            %%%%    TODO:   RoS-LSSVM hack; Matlab is not type safe :/  
+            %%%%            Do NOT remove the following lines - Iwein.    
+            if isequal(class(kernelFunction),'RbfKernel')
+                disp('Warning: kMRCD switches to AutoRbfKernel in case a RbfKernel was specified!!');
+                this.kModel = AutoRbfKernel(x);
+            end
+
             K = this.kModel.compute(x, x);   
             [n, p] = size(x);
             
