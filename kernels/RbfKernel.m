@@ -10,6 +10,10 @@ classdef RbfKernel < handle
             this.sigma = bandwidth;
         end
         
+        function updateKernel(this, bandwidth)
+           this.sigma = bandwidth; 
+        end
+
         function K = compute(this, Xtrain, Xtest)  
             if nargin<3
                 Xtest = Xtrain;
