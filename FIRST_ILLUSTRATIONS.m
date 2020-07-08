@@ -124,6 +124,8 @@
     plot(1:length(solution.rd),repmat(solution.cutoff,length(solution.rd),1),'k','LineWidth',2)   
     set(gca,'FontSize',FontSize);
     hold off;
+    title('Robust distances and flagging threshold');
+    
     
     
     
