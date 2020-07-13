@@ -140,7 +140,7 @@ classdef kMRCD < handle
                     
                     % Redefine the h-subset
                     solution(index).hsubsetIndices = indices(1:nx);                       
-                    if (setdiff(hSubset, solution(index).hsubsetIndices))
+                    if isempty(setdiff(hSubset, solution(index).hsubsetIndices))
                         disp(['Convergence at iteration ' mat2str(iteration) ', ' solution(index).name]);                                                
                         sigma = svd(Kc);
                         sigma = (1-rho)*scfac*sigma + numel(solution(index).hsubsetIndices)*rho;                        
