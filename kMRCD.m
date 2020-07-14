@@ -114,7 +114,7 @@ classdef kMRCD < handle
                     rhoL(index) = fzero(fncond, [10^(-6),0.99]);
                 catch 
                     % Find value closest to maxcond instead
-                    disp('Running grid search');
+                    %disp('Running grid search');
                     grid = linspace(0.000001,1-0.000001,1000);
                     objgrid = abs(arrayfun(fncond,grid));
                     rhoL(index) = min(grid(objgrid == min(objgrid)));

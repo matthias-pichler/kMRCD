@@ -35,7 +35,7 @@
          kModel = AutoRbfKernel(x); 
     else
         ndm = NewDataModel(ALYZCorrelationType(), ClusterContamination());
-        [x, ~, ~,idxOutliers] = ndm.generateDataset(1000, 2, epsilon, 15);        
+        [x, ~, ~,idxOutliers] = ndm.generateDataset(1000, 2, epsilon, 20);        
         y = ones(1000,1);
         y(idxOutliers) = 0;
         y = logical(y);
