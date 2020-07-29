@@ -9,25 +9,23 @@ The minimum regularized covariance determinant (MRCD) is a robust estimator for 
 Both shortcomings are solved with the proposed kernel Minimum Regularized Covariance Determinant estimator, where we exploit the kernel trick to speed-up computations. More specifically, the MRCD location and scatter matrix estimate are computed in a kernel induced feature space, where regularization ensures that the covariance matrix is well-conditioned, invertible and defined for any dataset dimension. Simulations show the computational reduction and correct outlier detection capability of the proposed method, whereas  experiments on real-life data illustrate its applicability on industrial applications. 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%   Minimal working example :
-%
-%       -   Creates an estimator instance for a linear (runExample = 1) 
-%           or non-linear (runExample = 2) kernel.
-%       -   Run the kMRCD algorithm with alpha = 0.75
-%           solution = kmrcd.runAlgorithm(x, alpha);
-%
-%   Last modified by Iwein Vranckx, 29/07/2020, 
-%   Git repository: https://github.com/ivranckx/kMRCD.git
-%   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0) 
-%
-%   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-%   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-%   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-%   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-%   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
-%   THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+## Minimal Working example
+
+
+
+      -   Creates an estimator instance for a linear (runExample = 1) or non-linear (runExample = 2) kernel.
+      -   Run the kMRCD algorithm with alpha = 0.75, and visualise the solutions.
+
+	Last modified by Iwein Vranckx, 29/07/2020, 
+	Git repository: https://github.com/ivranckx/kMRCD.git
+   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0) 
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
+   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
+   THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
