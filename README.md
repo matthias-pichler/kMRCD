@@ -91,6 +91,20 @@ Both shortcomings are solved with the proposed kernel Minimum Regularized Covari
     disp('We have the following solution:');
     disp(solution);
     
+kMRCD solution is:
+      outlyingnessIndices: [600x1 double]
+                     name: 'SDO'
+           hsubsetIndices: [420x1 double]
+                      obj: 1.3736e+03
+                      smd: [600x1 double]
+                      rho: 0.0619
+                    scfac: 2.0661
+                       rd: [600x1 double]
+                       ld: [600x1 double]
+                   cutoff: 3.9909
+    flaggedOutlierIndices: [100x1 double]
+
+
     rho = solution.rho;
     scfac = solution.scfac;
 
