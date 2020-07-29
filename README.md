@@ -153,6 +153,7 @@ See 'kMRCD/kMRCD.m' for information regarding the output structure.
     ylim([-4, 4]);
     title('the h-subset');
 
+![image info](./images/hsubset.png)
 
     fig = figure(3);        
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;
@@ -165,7 +166,9 @@ See 'kMRCD/kMRCD.m' for information regarding the output structure.
     set(gca,'FontSize',fontSize);
     title('Flagged outliers');
 
-   
+
+![image info](./images/result.png)
+
     
     
     
