@@ -1,3 +1,22 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   Minimal working example :
+%
+%       -   Creates an estimator instance for a linear (runExample = 1) 
+%           or non-linear (runExample = 2) kernel.
+%       -   Run the kMRCD algorithm with alpha = 0.75
+%           solution = kmrcd.runAlgorithm(x, alpha);
+%
+%   Last modified by Iwein Vranckx, 29/07/2020, 
+%   Git repository: https://github.com/ivranckx/kMRCD.git
+%   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0) 
+%
+%   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+%   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+%   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
+%   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+%   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
+%   THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     clc;
     clear all;
@@ -6,21 +25,24 @@
     
     addpath(genpath(fileparts(which(mfilename))));
     
-    FontSizeAxis = 15;
-    FontSizeLabel = 12;
-    FontSize = 10;
-
-    color1 = [0    0.6980    0.9333];
-    color2 = [0.9333    0.4627         0];
+    color_BLUE      = [0 0.6980 0.9333];
+    color_ORANGE    = [0.9333 0.4627 0];
+    color_GREEN     = [0 0.6980 0.1];    
+    color_GREY      = [0.25 0.25 0.25];    
+    color_RED       = [0.80 0 0];
     
     %%%%    Set the example to run    
-    runExample = 1;
+    runExample = 2;
     
     %%%%    Set the contamination degree
     epsilon = 0.2;
     
-    %%%%    Set the expected amaount of regular obs.    
+    %%%%    Set the expected amaount of regular observations.    
     alpha = 0.75;
+    
+    %%%%    Marker and font size
+    fontSize = 10;
+    mSize = 8;
     
     if runExample==2    
          N = 1000; N1 = ceil((1-epsilon)*N); N2 = N - N1;        
@@ -43,12 +65,10 @@
         kModel = LinKernel(); 
     end
     
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%
     %%%     Run the kMRCD algorithm... 
-    %%%    
-    
+    %%%        
     poc = kMRCD(kModel); 
     solution = poc.runAlgorithm(x, alpha);  
     
@@ -67,8 +87,6 @@
     %%%%
     %%%%    Visualisation    
 
-    %mi = [ floor(min(x)); ymin = mi(1); xmin = mi(2);
-    %ma = ceil(max(x)); ymax = ma(1);  xmax = ma(2);  
     [rr, cc] = meshgrid(-5:0.1:5, -5:0.1:5);        
     yy=[rr(:), cc(:)];    
 
@@ -85,9 +103,9 @@
 
     fig = figure(1);         
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;
-    plot(x(ss, 1), x(ss, 2), '.', 'Color', color1, 'MarkerSize', 12);
-    plot(x(~ss, 1), x(~ss, 2), '.', 'Color', color2, 'MarkerSize', 12);
-    set(gca,'FontSize',FontSize);
+    plot(x(y>0, 1), x(y>0, 2), '.', 'color', color_GREY, 'MarkerSize', mSize); hold on;
+    plot(x(y==0, 1), x(y==0, 2), '.', 'color', color_RED, 'MarkerSize', mSize);
+    set(gca,'FontSize',fontSize);
     %plot(x(5000:6000, 1), x(5000:6000, 2), '.m', 'MarkerSize', 20);
     colormap bone;
     set(gcf,'color','w');
@@ -97,34 +115,28 @@
 
     fig = figure(2);         
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;        
-    plot(x(:, 1), x(:, 2), '.', 'Color', color2, 'MarkerSize', 12);
-    plot(x(solution.hsubsetIndices, 1), x(solution.hsubsetIndices, 2), '.', 'Color', color1, 'MarkerSize', 12);        
-    set(gca,'FontSize',FontSize);
+    plot(x(:, 1), x(:, 2), '.', 'color', color_GREY, 'MarkerSize', mSize);
+    plot(x(solution.hsubsetIndices, 1), x(solution.hsubsetIndices, 2), '.', 'color', color_GREEN, 'MarkerSize', mSize);
+    set(gca,'FontSize',fontSize);
     hold off;
     colormap bone;
     set(gcf,'color','w');
     ylim([-4, 4]);
-    title('h-subset');
+    title('the h-subset');
 
 
     fig = figure(3);        
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;
-    plot(x(:, 1), x(:, 2), '.', 'Color', color1, 'MarkerSize', 12);
-    plot(x(solution.flaggedOutlierIndices, 1), x(solution.flaggedOutlierIndices, 2), '.', 'Color', color2, 'MarkerSize', 12);               
+    plot(x(:, 1), x(:, 2), '.', 'color', color_BLUE, 'MarkerSize', mSize);
+    plot(x(solution.flaggedOutlierIndices, 1), x(solution.flaggedOutlierIndices, 2), '.', 'color', color_ORANGE, 'MarkerSize', mSize);
     hold off;
     colormap bone;
     set(gcf,'color','w');
     ylim([-4, 4]);
-    set(gca,'FontSize',FontSize);
+    set(gca,'FontSize',fontSize);
     title('Flagged outliers');
 
-    fig=  figure(4);         
-    scatter(1:length(solution.rd),solution.rd,[],color2,'filled'); hold on;
-    %scatter(x(solution.hsubsetIndices, :), rd(solution.hsubsetIndices),[],color1,'filled'); 
-    plot(1:length(solution.rd),repmat(solution.cutoff,length(solution.rd),1),'k','LineWidth',2)   
-    set(gca,'FontSize',FontSize);
-    hold off;
-    title('Robust distances and flagging threshold');
+   
     
     
     
