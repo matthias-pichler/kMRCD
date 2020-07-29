@@ -110,7 +110,7 @@
     set(gcf,'color','w');
     ylim([-4, 4]);
     title('Input dataset with marked outliers');
-    saveas(fig,'images/inputdataset.pdf','pdf');
+    saveas(fig,'images/inputdataset.png','png');
     
 
     fig = figure(2);         
@@ -123,7 +123,7 @@
     set(gcf,'color','w');
     ylim([-4, 4]);
     title('the h-subset');
-    saveas(fig,'images/hsubset.pdf','pdf');
+    saveas(fig,'images/hsubset.png','png');
 
 
     fig = figure(3);        
@@ -136,7 +136,7 @@
     ylim([-4, 4]);
     set(gca,'FontSize',fontSize);
     title('Flagged outliers');
-    saveas(fig,'images/result.pdf','pdf');
+    saveas(fig,'images/result.png','png');
 
    
     
