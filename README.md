@@ -139,6 +139,8 @@ See 'kMRCD/kMRCD.m' for information regarding the output structure.
     ylim([-4, 4]);
     title('Input dataset with marked outliers');
 
+![image info](./images/inputdataset.pdf)
+
 
     fig = figure(2);         
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;        
