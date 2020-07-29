@@ -14,7 +14,7 @@ Both shortcomings are solved with the proposed kernel Minimum Regularized Covari
 
 
       -   Creates an estimator instance for a linear (runExample = 1) or non-linear (runExample = 2) kernel.
-      -   Run the kMRCD algorithm with alpha = 0.75, and visualise the solutions.
+      -   Run the kMRCD algorithm with alpha = 0.75, and visualise the solution.
 
 	Last modified by Iwein Vranckx, 29/07/2020, 
 	Git repository: https://github.com/ivranckx/kMRCD.git
