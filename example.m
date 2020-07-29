@@ -105,13 +105,13 @@
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;
     plot(x(y>0, 1), x(y>0, 2), '.', 'color', color_GREY, 'MarkerSize', mSize); hold on;
     plot(x(y==0, 1), x(y==0, 2), '.', 'color', color_RED, 'MarkerSize', mSize);
-    set(gca,'FontSize',fontSize);
-    %plot(x(5000:6000, 1), x(5000:6000, 2), '.m', 'MarkerSize', 20);
+    set(gca,'FontSize',fontSize);    
     colormap bone;
     set(gcf,'color','w');
     ylim([-4, 4]);
     title('Input dataset with marked outliers');
-
+    saveas(fig,'images/inputdataset.pdf','pdf');
+    
 
     fig = figure(2);         
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;        
@@ -123,6 +123,7 @@
     set(gcf,'color','w');
     ylim([-4, 4]);
     title('the h-subset');
+    saveas(fig,'images/hsubset.pdf','pdf');
 
 
     fig = figure(3);        
@@ -135,6 +136,7 @@
     ylim([-4, 4]);
     set(gca,'FontSize',fontSize);
     title('Flagged outliers');
+    saveas(fig,'images/result.pdf','pdf');
 
    
     
