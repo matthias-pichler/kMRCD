@@ -8,6 +8,7 @@
 %           solution = kmrcd.runAlgorithm(x, alpha);
 %
 %   Last modified by Iwein Vranckx, 29/07/2020, 
+%   https://be.linkedin.com/in/ivranckx
 %   Git repository: https://github.com/ivranckx/kMRCD.git
 %   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0) 
 %
