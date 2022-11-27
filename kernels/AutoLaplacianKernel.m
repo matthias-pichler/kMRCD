@@ -6,7 +6,7 @@ classdef AutoLaplacianKernel < handle
     
     methods (Access = public)
         
-        function this = LaplacianKernel(x)
+        function this = AutoLaplacianKernel(x)
             distances = pdist(x).^2;
             this.sigma = sqrt(median(distances));            
             disp(['AutoLaplacianKernel: Sigma = ' mat2str(this.sigma)]);            
