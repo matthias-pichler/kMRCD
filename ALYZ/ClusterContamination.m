@@ -3,7 +3,7 @@ classdef ClusterContamination < handle
     %   Detailed explanation goes here
     
     methods
-        function xx = generateContamination(~, m, p, r, tLoc, tCor)
+        function xx = generateContamination(~, m, ~, r, tLoc, tCor)
             xx = mvnrnd((r + tLoc)', tCor, m);
         end
     end

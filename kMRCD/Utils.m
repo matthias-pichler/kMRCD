@@ -27,7 +27,7 @@ classdef Utils
         
         function [scale]= W_scale(x)
             
-            [n,p]=size(x);
+            [n,~]=size(x);
             Wc=@(x)((1-(x./4.5).^2).^2.*(abs(x)<4.5));
             sigma0=mad(x,1);
             w=Wc(x-repmat(median(x),n,1))./repmat(sigma0,n,1);
@@ -196,7 +196,6 @@ classdef Utils
             res=(xorig-initmean).^2/initcov; %raw_robdist^2
             quantile=chi2inv(0.975,1);
             weights=res<=quantile; %raw-weights
-            rawrd=sqrt(res);
             %reweighting procedure
             if size(weights,1)~=size(y,1)
                 weights=weights';
