@@ -1,16 +1,16 @@
 function [tmcd,smcd,weights,initmean,initcov,rawrd,Hopt] = unimcd(y,h,varargin)
 
-%UNIMCD computes the MCD estimator of a univariate data set.  This 
-% estimator is given by the subset of h observations with smallest variance. 
+%UNIMCD computes the MCD estimator of a univariate data set.  This
+% estimator is given by the subset of h observations with smallest variance.
 % The MCD location estimate is then the mean of those h points,
-% and the MCD scale estimate is their standard deviation (multiplied with a 
+% and the MCD scale estimate is their standard deviation (multiplied with a
 % consistency factor). Based on these raw estimates,
 % a reweigthing step is applied as in the FASTMCD algorithm (see mcdcov.m).
 % We recommend to use the function mcdcov.m, which calls unimcd.m.
 %
 % The MCD method was introduced in:
 %
-%   Rousseeuw, P.J. (1984), "Least Median of Squares Regression," 
+%   Rousseeuw, P.J. (1984), "Least Median of Squares Regression,"
 %   Journal of the American Statistical Association, Vol. 79, pp. 871-881.
 %
 % The algorithm to compute the univariate MCD is described in
@@ -19,12 +19,12 @@ function [tmcd,smcd,weights,initmean,initcov,rawrd,Hopt] = unimcd(y,h,varargin)
 %   John Wiley, New York.
 %
 % This function is part of LIBRA: the Matlab Library for Robust Analysis,
-% available at: 
+% available at:
 %              http://wis.kuleuven.be/stat/robust
 %
 % Written by: Katrien Van Driessen
 % Revision by S. Verboven, M. Hubert, Wannes Van den Bossche
-% Last update: 12/10/2014 
+% Last update: 12/10/2014
 
 if nargin > 2
     centered=varargin{1};
