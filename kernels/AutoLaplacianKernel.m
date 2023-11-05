@@ -7,15 +7,22 @@ classdef AutoLaplacianKernel < handle
     methods (Access = public)
         
         function this = AutoLaplacianKernel(x)
+            arguments
+                x (:,:) double
+            end
+            
             distances = pdist(x).^2;
             this.sigma = sqrt(median(distances));
             disp(['AutoLaplacianKernel: Sigma = ' mat2str(this.sigma)]);
         end
         
         function K = compute(this, Xtrain, Xtest)
-            if nargin<3
-                Xtest = Xtrain;
+            arguments
+                this
+                Xtrain (:,:) double
+                Xtest (:,:) double = Xtrain
             end
+            
             n=size(Xtrain, 1);
             m=size(Xtest, 1);
             Ka = repmat(sum(abs(Xtrain),2), 1, m);

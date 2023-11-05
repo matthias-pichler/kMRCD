@@ -1,31 +1,10 @@
 classdef Utils
-    methods (Static)
-        
-        function output = MCDcons(p, alpha)
-            qalpha = chi2inv(alpha, p);
-            caI = gamcdf(qalpha/2, p/2 + 1,1) / alpha ;
-            output = 1/caI;
-        end
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%
-        %%%     Initial estimators, returns the h-subset indices in ascending
-        %%%     order.
-        %%%
-        
-        function [gamma] = SpatialMedian(K)
-            assert(size(K, 1)==size(K, 2));
-            n = size(K, 1);
-            assert(n>0);
-            gamma = ones(n,1)./n;
-            nn = ones(n,1);
-            for i = 1:10
-                w = nn./sqrt(diag(K) - 2*K' * gamma + gamma'*K*gamma);
-                gamma = w./sum(w);
-            end
-        end
-        
+    
+    methods (Static, Access=private)
         function [scale]= W_scale(x)
+            arguments
+                x (:,:) double {mustBeNonempty}
+            end
             
             [n,~]=size(x);
             Wc=@(x)((1-(x./4.5).^2).^2.*(abs(x)<4.5));
@@ -42,6 +21,11 @@ classdef Utils
         end
         
         function [hIndices] = kernel_OGK(hIndices,K)
+            arguments
+                hIndices (:,1) double {mustBeNonempty, mustBeInteger, mustBePositive}
+                K (:,:) double {mustBeNonempty, mustBeSquare}
+            end
+            
             n = size(K,1);
             n_h = length(hIndices);
             K_h = K(hIndices,hIndices);
@@ -75,8 +59,58 @@ classdef Utils
             [~,hIndices] = sort(mahal_F);
         end
         
+        function [gamma] = SpatialMedian(K)
+            arguments
+                K (:,:) double {mustBeNonempty, mustBeSquare}
+            end
+            
+            n = size(K, 1);
+            gamma = ones(n,1)./n;
+            nn = ones(n,1);
+            for i = 1:10
+                w = nn./sqrt(diag(K) - 2*K' * gamma + gamma'*K*gamma);
+                gamma = w./sum(w);
+            end
+        end
+    end
+    
+    methods (Static)
+        function output = MCDcons(p, alpha)
+            %MCDCONS computes the consistency constant for the MCD estimator
+            %   output = MCDcons(p, alpha)
+            %
+            % Input
+            %   p (1,1) double {mustBeInteger, mustBePositive}
+            %       dimension of the data
+            %   alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
+            %       percentage of the data used in the MCD estimator
+            %
+            % Output
+            %   output (1,1) double
+            %       consistency constant for the MCD estimator
+            
+            arguments
+                p (1,1) double {mustBeInteger, mustBePositive}
+                alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
+            end
+            
+            qalpha = chi2inv(alpha, p);
+            caI = gamcdf(qalpha/2, p/2 + 1,1) / alpha ;
+            output = 1/caI;
+        end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%
+        %%%     Initial estimators, returns the h-subset indices in ascending
+        %%%     order.
+        %%%
+        
         function [hIndices, dist, gamma] = SpatialMedianEstimator(K,h)
-            assert(size(K, 1)==size(K, 2));
+            arguments
+                K (:,:) double {mustBeNonempty, mustBeSquare}
+                h (1,1) double {mustBeInRange(h,0.5,1)}
+            end
+            
             n = size(K, 1);
             
             gamma = Utils.SpatialMedian(K);
@@ -92,8 +126,10 @@ classdef Utils
         end
         
         function [hIndices, gamma] = SSCM(K)
+            arguments
+                K (:,:) double {mustBeNonempty, mustBeSquare}
+            end
             
-            assert(size(K, 1)==size(K, 2));
             % Center kernel with spatial median
             n = size(K,1);
             gamma = Utils.SpatialMedian(K);
@@ -131,7 +167,11 @@ classdef Utils
         end
         
         function [hIndices, gamma] = SDO(K, h)
-            assert(size(K, 1)==size(K, 2));
+            arguments
+                K (:,:) double {mustBeNonempty, mustBeSquare}
+                h (1,1) double {mustBeInRange(h,0.5,1)}
+            end
+            
             n = size(K, 1);
             gamma = zeros(n, 1);
             for direction=1:500
@@ -153,8 +193,12 @@ classdef Utils
             hIndices = Utils.kernel_OGK(hIndices(1:ceil(n*h)),K);
         end
         
-        
         function [hIndices, ook] = SpatialRank(K,h)
+            arguments
+                K (:,:) double {mustBeNonempty, mustBeSquare}
+                h (1,1) double {mustBeInRange(h,0.5,1)}
+            end
+            
             n = size(K, 1);
             ook = zeros(n,1);
             for k = 1:n
@@ -173,8 +217,6 @@ classdef Utils
             hIndices = Utils.kernel_OGK(hIndices(1:ceil(n*h)),K);
         end
         
-        
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%
         %%%     Utility functions
@@ -182,6 +224,11 @@ classdef Utils
         
         
         function [tmcd,smcd] = reweightedMean(y, mask)
+            arguments
+                y (:,1) double {mustBeNonempty}
+                mask (:,1) logical {mustBeNonempty}
+            end
+            
             ncas=length(y);
             xorig=y;
             h = length(mask);
@@ -206,6 +253,11 @@ classdef Utils
         
         %   Centering of the kernel matrix
         function [Kc] = center(omega, Kt)
+            arguments
+                omega (:,:) double
+                Kt (:,:) double = []
+            end
+            
             nb_data = size(omega,1);
             Meanvec = mean(omega,2);
             MM = mean(Meanvec);

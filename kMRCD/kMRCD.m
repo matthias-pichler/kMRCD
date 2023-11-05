@@ -75,7 +75,11 @@ classdef kMRCD < handle
         end
         
         function solution = runAlgorithm(this, x, alpha)
-            assert(alpha<=1 && alpha>=0.5, 'The percentage of regular observations, alpha, should be in [0.5-1]');
+            arguments
+                this;
+                x (:,:) double
+                alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
+            end
             
             %%%%    TODO:   RoS-LSSVM hack; Matlab is not type safe :/
             %%%%            Do NOT remove the following lines - Iwein.

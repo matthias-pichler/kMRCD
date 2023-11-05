@@ -7,17 +7,29 @@ classdef RbfKernel < handle
     methods (Access = public)
         
         function this = RbfKernel(bandwidth)
+            arguments
+                bandwidth (1,1) double {mustBePositive}
+            end
+            
             this.sigma = bandwidth;
         end
         
         function updateKernel(this, bandwidth)
+            arguments
+                this
+                bandwidth (1,1) double {mustBePositive}
+            end
+            
             this.sigma = bandwidth;
         end
         
         function K = compute(this, Xtrain, Xtest)
-            if nargin<3
-                Xtest = Xtrain;
+            arguments
+                this
+                Xtrain (:,:) double
+                Xtest (:,:) double = Xtrain
             end
+            
             n=size(Xtrain, 1);
             m=size(Xtest, 1);
             Ka = repmat(sum(Xtrain.^2,2), 1, m);

@@ -5,15 +5,26 @@ classdef ALYZCorrelationType < handle
     properties
     end
     
-    methods
-        
+    methods(Access = private)
         function cor = covariance2correlationInPlace(~, covariance)
+            arguments
+                ~
+                covariance (:, :) double {mustBeSquare}
+            end
+            
             D = diag(diag(covariance).^(-1/2));
             cor= D*covariance*D;
         end
-        
+    end
+    
+    methods(Access = public)
         %	Generate random correlation matrix with given condition number
         function corEstimation = generateCorr(this, p)
+            arguments
+                this
+                p (1, 1) {mustBeInteger, mustBePositive}
+            end
+            
             conditionNumber = 100;
             HI = conditionNumber; % set HI and LO according to your problem.
             LO = 1.0;
@@ -44,6 +55,10 @@ classdef ALYZCorrelationType < handle
         end
         
         function mu = generateLocation(~, p)
+            arguments
+                ~
+                p (1, 1) {mustBeInteger, mustBePositive}
+            end
             mu = zeros(p, 1);
         end
         

@@ -1,4 +1,24 @@
 function [x,mu,sigma] = rZscores( x )
+    %RZSCORES Normalizes the (n,p) matrix x by estimating the mean and standard
+    % deviation of each feature (column) using the univariate MCD estimator and then
+    % subtracting the mean and dividing by the standard deviation
+    %
+    % Input
+    %   x (:, :) double
+    %       The data matrix
+    %
+    % Output
+    %   x (:, :) double
+    %       The normalized data matrix
+    %   mu (1, p) double
+    %       The estimated mean of each feature
+    %   sigma (1, p) double
+    %       The estimated standard deviation of each feature
+
+    arguments
+        x (:, :) double
+    end
+
     [n, p] = size(x);
     mu = nan(1, p);
     sigma = nan(1, p);
