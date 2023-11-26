@@ -11,9 +11,9 @@ function result = evaluation(data, labels, alpha, solution)
     stats = struct();
     scores = struct();
 
-    grouphat = categorical(repmat("inlier", size(labels)), {'inlier' 'outlier'});
+    grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(solution.flaggedOutlierIndices) = "outlier";
-    stats.kMRCD = confusionstats(confusionmat(labels,grouphat));
+    stats.kMRCD = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.kMRCD = solution.rd;
 
     % TODO add scores for kMRCD
@@ -22,28 +22,28 @@ function result = evaluation(data, labels, alpha, solution)
     [~,tf, sc] = lof(data, ContaminationFraction=(1-alpha));
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
-    stats.lof = confusionstats(confusionmat(labels,grouphat));
+    stats.lof = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.lof = sc;
 
     % Isolation Forest
     [~,tf, sc] = iforest(data, ContaminationFraction=(1-alpha));
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
-    stats.iforest = confusionstats(confusionmat(labels,grouphat));
+    stats.iforest = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.iforest = sc;
 
     % Random Robust Cut Forest
     [~,tf,sc] = rrcforest(data, ContaminationFraction=(1-alpha));
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
-    stats.rrcforest = confusionstats(confusionmat(labels,grouphat));
+    stats.rrcforest = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.rrcforest = sc;
 
     % One-Class Support Vector Machine
     [~,tf,sc] = ocsvm(data, ContaminationFraction=(1-alpha));
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
-    stats.ocsvm = confusionstats(confusionmat(labels,grouphat));
+    stats.ocsvm = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.ocsvm = sc;
 
     clear tf;
