@@ -7,13 +7,23 @@ clear all;
 close all;
 rng(1634256, "twister");
 
-mkdir ../images shakespear_trump
-mkdir ../tables shakespear_trump
+projectDir = fileparts(fileparts(which(mfilename)));
+
+imageDir = fullfile(projectDir, 'images', 'shakespear_trump');
+tableDir = fullfile(projectDir, 'tables', 'shakespear_trump');
+datasetDir = fullfile(projectDir, 'datasets', 'shakespear_trump');
+
+file = fullfile(datasetDir,"shakespear_trump_all-mpnet-base-v2.parquet");
+
+mkdir(imageDir);
+mkdir(tableDir);
 
 %% Load Data
 
 N = 1000;
-[data,labels] = generateSample(N, 0.2);
+[eps20, eps20Labels] = generateSample(file, N, 0.2);
+data = eps20;
+labels = eps20Labels;
 
 %% e=0.2, a=0.7
 
@@ -23,8 +33,7 @@ Y = tsne(data, Distance="cosine");
 fig = figure(1);
 textscatter(Y,string(labels),ColorData=labels,TextDensityPercentage=0);
 title("t-SNE Embeddings");
-set(fig,'color','w');
-saveas(fig,'../images/shakespear_trump/eps20_tsne.png','png');
+saveas(fig,fullfile(imageDir, "eps20_tsne.png"),'png');
 
 clear Y;
 
@@ -35,7 +44,7 @@ solution = poc.runAlgorithm(data, alpha);
 % h Subset
 hSubset = table(labels(solution.hsubsetIndices), VariableNames="label");
 hSubsetSummary = groupcounts(hSubset, "label");
-writetable(hSubsetSummary, "../tables/shakespear_trump/eps20_h_subset.csv");
+writetable(hSubsetSummary, fullfile(tableDir, "eps20_h_subset.csv"));
 
 clear hSubset hSubsetSummary;
 
@@ -47,29 +56,29 @@ cm = confusionmat(labels,grouphat);
 
 fig = figure(2);
 confusionchart(fig, cm, categories(labels));
-saveas(fig,'../images/shakespear_trump/eps20_confusion_matrix.png','png');
+saveas(fig, fullfile(imageDir, 'eps20_confusion_matrix.png'),'png');
 
 clear cm grouphat;
 
 % Mahalanobis Distances
 fig = figure(3);
 mahalchart(labels, solution.rd, solution.cutoff);
-saveas(fig,'../images/shakespear_trump/eps20_mahalanobis_distances.png','png');
+saveas(fig, fullfile(imageDir, 'eps20_mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
 stats = evaluation(data, labels, alpha, solution);
-saveas(fig,'../images/shakespear_trump/eps20_pr_curve.png','png');
-writetable(stats, "../tables/shakespear_trump/eps20_comparison.csv");
+saveas(fig, fullfile(imageDir, 'eps20_pr_curve.png'),'png');
+writetable(stats, fullfile(tableDir, "eps20_comparison.csv"));
 
 clear stats;
 
 clear solution kModel alpha poc;
+clear data labels;
 %% Comparison
 
-[eps0, eps0Labels] = generateSample(N, 0);
-[eps20, eps20Labels] = generateSample(N, 0.2);
-[eps40, eps40Labels] = generateSample(N, 0.4);
+[eps0, eps0Labels] = generateSample(file, N, 0);
+[eps40, eps40Labels] = generateSample(file, N, 0.4);
 
 stats = [
         runComparison(eps0, eps0Labels, 0, 0.5); runComparison(eps0, eps0Labels, 0, 0.75); runComparison(eps0, eps0Labels, 0, 0.9); ...
@@ -77,17 +86,18 @@ stats = [
         runComparison(eps40, eps40Labels, 0.4, 0.5); runComparison(eps40, eps40Labels, 0.4, 0.75); runComparison(eps40, eps40Labels, 0.4, 0.9)
         ];
 
-writetable(stats, "../tables/shakespear_trump/comparison.csv");
+writetable(stats, fullfile(tableDir, "comparison.csv"));
 
 %% Functions
 
-function [embeddings,labels] = generateSample(sampleSize, outlierContamination)
+function [embeddings,labels] = generateSample(filepath, sampleSize, outlierContamination)
     arguments
+        filepath (1,1) string {mustBeFile}
         sampleSize (1,1) double {mustBeInteger, mustBePositive}
         outlierContamination (1,1) double {mustBeInRange(outlierContamination,0,1)}
     end
 
-    rawData = parquetread("../datasets/shakespear_trump/shakespear_trump_all-mpnet-base-v2.parquet", SelectedVariableNames=["text", "author", "embedding"]);
+    rawData = parquetread(filepath, SelectedVariableNames=["text", "author", "embedding"]);
     rawData.author = categorical(rawData.author);
 
     shakespearIndices = find(rawData.author == "shakespear");
