@@ -48,27 +48,34 @@ function result = evaluation(data, labels, alpha, solution)
 
     clear tf;
     clear sc;
+
+    % only print prcirves for contaminated datasets
+    if numel(unique(labels)) == 2
+        outlierRatio = sum(labels == "outlier")/numel(labels);
     
-    outlierRatio = sum(labels == "outlier")/numel(labels);
-
-    figure;
-    hold on;
-
-    xlabel("Recall");
-    ylabel("Precision");
-    title("Precision-Recall Curve");
-
-    fn = fieldnames(scores);
-    colors = jet(numel(fn));
-    for k=1:numel(fn)
-        s = scores.(fn{k});
-        auc = prcurve(labels,s,'outlier',DisplayName=fn{k}, Color=colors(k,:));
-        stats.(fn{k}).aucpr = auc;
+        hold on;
+    
+        xlabel("Recall");
+        ylabel("Precision");
+        title("Precision-Recall Curve");
+    
+        fn = fieldnames(scores);
+        colors = jet(numel(fn));
+        for k=1:numel(fn)
+            s = scores.(fn{k});
+            auc = prcurve(labels,s,'outlier',DisplayName=fn{k}, Color=colors(k,:));
+            stats.(fn{k}).aucpr = auc;
+        end
+        yline(outlierRatio, LineStyle="--", ...
+            DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
+        legend;
+        hold off;
+    else
+        fn = fieldnames(scores);
+        for k=1:numel(fn)
+            stats.(fn{k}).aucpr = NaN;
+        end
     end
-    yline(outlierRatio, LineStyle="--", ...
-        DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
-    legend;
-    hold off;
 
 
     result = struct2table( ...
