@@ -13,7 +13,9 @@ imageDir = fullfile(projectDir, 'images', 'shakespear_trump');
 tableDir = fullfile(projectDir, 'tables', 'shakespear_trump');
 datasetDir = fullfile(projectDir, 'datasets', 'shakespear_trump');
 
-file = fullfile(datasetDir,"shakespear_trump_all-mpnet-base-v2.parquet");
+modelName = "all-mpnet-base-v2";
+
+file = fullfile(datasetDir, ['shakespear_trump' '_' char(modelName) '.parquet']);
 
 mkdir(imageDir);
 mkdir(tableDir);
@@ -86,7 +88,7 @@ stats = [
         runComparison(eps40, eps40Labels, 0.4, 0.5); runComparison(eps40, eps40Labels, 0.4, 0.75); runComparison(eps40, eps40Labels, 0.4, 0.9)
         ];
 
-writetable(stats, fullfile(tableDir, "comparison.csv"));
+writetable(stats, fullfile(tableDir, ['comparison' '_' char(modelName) '.csv']));
 
 %% Functions
 
@@ -112,6 +114,10 @@ function [embeddings,labels] = generateSample(filepath, sampleSize, outlierConta
 
     embeddings = cell2mat(cellfun(@transpose,data.embedding, UniformOutput=false));
     labels = renamecats(data.author, {'trump' 'shakespear'}, {'inlier' 'outlier'});
+
+    perm = randperm(height(embeddings));
+    embeddings = embeddings(perm, :);
+    labels = labels(perm, :);
 end
 
 function stats = runComparison(data, labels, outlierContamination, robustness)
