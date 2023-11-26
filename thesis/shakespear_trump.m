@@ -118,7 +118,7 @@ function stats = runComparison(data, labels, outlierContamination, robustness)
 
     stats = evaluation(data, labels, robustness, solution);
 
-    names = arrayfun(@(s) sprintf('%s (\\epsilon=%0.4f, \\alpha=%0.4f)', s, outlierContamination, robustness), string(stats.Properties.RowNames), UniformOutput=false);
+    names = arrayfun(@(s) sprintf('%s (e=%0.2f, a=%0.2f)', s, outlierContamination, robustness), string(stats.Properties.RowNames), UniformOutput=false);
 
     stats = [table(names, VariableNames="Name"), stats];
     stats.Properties.RowNames = names;
