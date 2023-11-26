@@ -26,8 +26,8 @@ classdef RbfKernel < handle
         function K = compute(this, Xtrain, Xtest)
             arguments
                 this
-                Xtrain (:,:) double
-                Xtest (:,:) double = Xtrain
+                Xtrain double
+                Xtest double = Xtrain
             end
             
             n=size(Xtrain, 1);
