@@ -9,13 +9,15 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-imageDir = fullfile(projectDir, 'images', 'shakespear_trump');
-tableDir = fullfile(projectDir, 'tables', 'shakespear_trump');
-datasetDir = fullfile(projectDir, 'datasets', 'shakespear_trump');
-
 modelName = "all-mpnet-base-v2";
+% modelName = "all-MiniLM-L6-v2";
+datasetName = "shakespear_trump";
 
-file = fullfile(datasetDir, ['shakespear_trump' '_' char(modelName) '.parquet']);
+imageDir = fullfile(projectDir, 'images', datasetName);
+tableDir = fullfile(projectDir, 'tables', datasetName);
+datasetDir = fullfile(projectDir, 'datasets', datasetName);
+
+file = fullfile(datasetDir, [char(datasetName) '_' char(modelName) '.parquet']);
 
 mkdir(imageDir);
 mkdir(tableDir);
