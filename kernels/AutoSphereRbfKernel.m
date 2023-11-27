@@ -11,7 +11,7 @@ classdef AutoSphereRbfKernel < handle
                 x double
             end
             
-            distances = pdist(x).^2;
+            distances = pdist(x, "cosine").^2;
             this.sigma = sqrt(median(distances));
             disp(['AutoSphereRbfKernel: Sigma = ' mat2str(this.sigma)]);
         end
