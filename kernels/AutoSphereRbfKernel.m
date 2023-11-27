@@ -27,7 +27,7 @@ classdef AutoSphereRbfKernel < handle
             % K(x,y) = k(x*y) = exp(-2/s*(1-x*y))
             
             K = 1 - (Xtrain * Xtest');
-            K = exp(-(2/this.sigma) * K);
+            K = exp(-(2/this.sigma^2) * K);
         end
     end
     
