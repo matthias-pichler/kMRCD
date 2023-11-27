@@ -42,6 +42,7 @@ saveas(fig,fullfile(imageDir, "eps20_tsne.png"),'png');
 clear Y;
 
 kModel = AutoSphereRbfKernel(data);
+% kModel = AutoRbfKernel(data);
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(data, alpha);
 
@@ -82,12 +83,14 @@ clear data labels;
 %% Comparison
 
 [eps0, eps0Labels] = generateSample(file, N, 0);
-[eps40, eps40Labels] = generateSample(file, N, 0.4);
+[eps10, eps10Labels] = generateSample(file, N, 0.1);
+[eps30, eps30Labels] = generateSample(file, N, 0.3);
 
 stats = [
         runComparison(eps0, eps0Labels, 0, 0.5); runComparison(eps0, eps0Labels, 0, 0.75); runComparison(eps0, eps0Labels, 0, 0.9); ...
+        runComparison(eps10, eps10Labels, 0.1, 0.5); runComparison(eps10, eps10Labels, 0.1, 0.75); runComparison(eps10, eps10Labels, 0.1, 0.9); ...
         runComparison(eps20, eps20Labels, 0.2, 0.5); runComparison(eps20, eps20Labels, 0.2, 0.75); runComparison(eps20, eps20Labels, 0.2, 0.9); ...
-        runComparison(eps40, eps40Labels, 0.4, 0.5); runComparison(eps40, eps40Labels, 0.4, 0.75); runComparison(eps40, eps40Labels, 0.4, 0.9)
+        runComparison(eps30, eps30Labels, 0.3, 0.5); runComparison(eps30, eps30Labels, 0.3, 0.75); runComparison(eps30, eps30Labels, 0.3, 0.9)
         ];
 
 writetable(stats, fullfile(tableDir, ['comparison' '_' char(modelName) '.csv']));
@@ -136,8 +139,9 @@ function stats = runComparison(data, labels, outlierContamination, robustness)
 
     stats = evaluation(data, labels, robustness, solution);
 
-    names = arrayfun(@(s) sprintf('%s (e=%0.2f, a=%0.2f)', s, outlierContamination, robustness), string(stats.Properties.RowNames), UniformOutput=false);
-
-    stats = [table(names, VariableNames="Name"), stats];
-    stats.Properties.RowNames = names;
+    names = string(stats.Properties.RowNames);
+    e = repmat(outlierContamination,size(names));
+    a = repmat(robustness,size(names));
+    stats = [table(e,a,names, VariableNames={'e' 'a' 'Name'}), stats];
+    stats.Properties.RowNames = {};
 end
