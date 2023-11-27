@@ -11,7 +11,8 @@ classdef AutoSphereRbfKernel < handle
                 x double
             end
             
-            distances = pdist(x, "cosine").^2;
+            % TODO: is this still the best way to estimate sigma?
+            distances = pdist(x, "squaredeuclidean");
             this.sigma = sqrt(median(distances));
             disp(['AutoSphereRbfKernel: Sigma = ' mat2str(this.sigma)]);
         end
@@ -24,7 +25,7 @@ classdef AutoSphereRbfKernel < handle
             end
             
             % K(x,y) = k(x*y) = exp(-2/s*(1-x*y))
-
+            
             K = 1 - (Xtrain * Xtest');
             K = exp(-(2/this.sigma) * K);
         end
