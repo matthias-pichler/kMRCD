@@ -11,7 +11,7 @@ classdef AutoRbfKernel < handle
                 x double
             end
             
-            distances = pdist(x).^2;
+            distances = pdist(x, "squaredeuclidean");
             this.sigma = sqrt(median(distances));
             disp(['AutoRbfKernel: Sigma = ' mat2str(this.sigma)]);
         end
