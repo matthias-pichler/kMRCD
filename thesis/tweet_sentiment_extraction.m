@@ -12,7 +12,7 @@ projectDir = fileparts(fileparts(which(mfilename)));
 modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
 % modelName = 'all-MiniLM-L6-v2';
-datasetName = 'toxic_conversations_50k';
+datasetName = 'tweet_sentiment_extraction';
 
 imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);
@@ -30,9 +30,9 @@ N = 1000;
 
 %% e=0.2, a=0.7
 
-alpha = 0.7;
 data = eps20;
 labels = eps20Labels;
+alpha = 0.7;
 
 Y = tsne(data, Distance="cosine");
 fig = figure(1);
@@ -108,18 +108,20 @@ function [embeddings,labels] = generateSample(filepath, sampleSize, contaminatio
     rawData = parquetread(filepath, SelectedVariableNames=["text", "label_text", "embedding"]);
     rawData.label_text = categorical(rawData.label_text);
 
-    nonToxicIndices = find(rawData.label_text == "not toxic");
-    toxicIndices = find(rawData.label_text == "toxic");
+    positiveIndices = find(rawData.label_text == "positive");
+    negativeIndices = find(rawData.label_text == "negative");
     
-    numToxicSamples = round(contamination * sampleSize);
-    numNonToxicSamples = sampleSize - numToxicSamples;
+    numNegativeSamples = round(contamination * sampleSize);
+    numPositiveSamples = sampleSize - numNegativeSamples;
     
-    toxicSampleIndices = datasample(toxicIndices, numToxicSamples, Replace=false);
-    nonToxicSampleIndices = datasample(nonToxicIndices, numNonToxicSamples, Replace=false);
-    data = rawData(sort(cat(1, toxicSampleIndices, nonToxicSampleIndices)),:);
-
+    negativeSampleIndices = datasample(negativeIndices, numNegativeSamples, "Replace", false);
+    positiveSampleIndices = datasample(positiveIndices, numPositiveSamples, "Replace", false);
+    data = rawData(sort(cat(1, positiveSampleIndices, negativeSampleIndices)),:);
+    
     embeddings = cell2mat(cellfun(@transpose,data.embedding, UniformOutput=false));
-    labels = renamecats(data.label_text, {'not toxic' 'toxic'}, {'inlier' 'outlier'});
+    labels = renamecats(data.label_text, {'positive' 'negative'}, {'inlier' 'outlier'});
+    data.label_text = removecats(data.label_text);
+    labels = removecats(labels);
 
     perm = randperm(height(embeddings));
     embeddings = embeddings(perm, :);

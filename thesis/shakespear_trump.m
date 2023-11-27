@@ -27,16 +27,16 @@ mkdir(tableDir, modelName);
 
 N = 1000;
 [eps20, eps20Labels] = generateSample(file, N, 0.2);
-data = eps20;
-labels = eps20Labels;
 
 %% e=0.2, a=0.7
 
 alpha = 0.7;
+data = eps20;
+labels = eps20Labels;
 
 Y = tsne(data, Distance="cosine");
 fig = figure(1);
-textscatter(Y,string(labels),ColorData=labels,TextDensityPercentage=0);
+gscatter(Y(:,1), Y(:,2), labels);
 title("t-SNE Embeddings");
 saveas(fig,fullfile(imageDir, modelName, "e02_tsne.png"),'png');
 
