@@ -9,18 +9,19 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-modelName = "all-mpnet-base-v2";
-% modelName = "all-MiniLM-L6-v2";
-datasetName = "shakespear_trump";
+% modelName = 'all-mpnet-base-v2';
+modelName = 'bge-large-en-v1.5';
+% modelName = 'all-MiniLM-L6-v2';
+datasetName = 'shakespear_trump';
 
 imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);
 datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
-file = fullfile(datasetDir, [char(datasetName) '_' char(modelName) '.parquet']);
+file = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
 
-mkdir(imageDir);
-mkdir(tableDir);
+mkdir(imageDir, modelName);
+mkdir(tableDir, modelName);
 
 %% Load Data
 
@@ -37,7 +38,7 @@ Y = tsne(data, Distance="cosine");
 fig = figure(1);
 textscatter(Y,string(labels),ColorData=labels,TextDensityPercentage=0);
 title("t-SNE Embeddings");
-saveas(fig,fullfile(imageDir, "eps20_tsne.png"),'png');
+saveas(fig,fullfile(imageDir, modelName, "e02_tsne.png"),'png');
 
 clear Y;
 
@@ -49,7 +50,7 @@ solution = poc.runAlgorithm(data, alpha);
 % h Subset
 hSubset = table(labels(solution.hsubsetIndices), VariableNames="label");
 hSubsetSummary = groupcounts(hSubset, "label");
-writetable(hSubsetSummary, fullfile(tableDir, "eps20_h_subset.csv"));
+writetable(hSubsetSummary, fullfile(tableDir, modelName, "e02_h_subset.csv"));
 
 clear hSubset hSubsetSummary;
 
@@ -61,20 +62,20 @@ cm = confusionmat(labels,grouphat);
 
 fig = figure(2);
 confusionchart(fig, cm, categories(labels));
-saveas(fig, fullfile(imageDir, 'eps20_confusion_matrix.png'),'png');
+saveas(fig, fullfile(imageDir, modelName, 'e02_confusion_matrix.png'),'png');
 
 clear cm grouphat;
 
 % Mahalanobis Distances
 fig = figure(3);
 mahalchart(labels, solution.rd, solution.cutoff);
-saveas(fig, fullfile(imageDir, 'eps20_mahalanobis_distances.png'),'png');
+saveas(fig, fullfile(imageDir, modelName, 'e02_mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
 stats = evaluation(data, labels, alpha, solution);
-saveas(fig, fullfile(imageDir, 'eps20_pr_curve.png'),'png');
-writetable(stats, fullfile(tableDir, "eps20_comparison.csv"));
+saveas(fig, fullfile(imageDir, modelName, 'e02_pr_curve.png'),'png');
+writetable(stats, fullfile(tableDir, modelName, "e02_comparison.csv"));
 
 clear stats;
 
@@ -93,7 +94,7 @@ stats = [
         runComparison(eps30, eps30Labels, 0.3, 0.5); runComparison(eps30, eps30Labels, 0.3, 0.75); runComparison(eps30, eps30Labels, 0.3, 0.9)
         ];
 
-writetable(stats, fullfile(tableDir, ['comparison' '_' char(modelName) '.csv']));
+writetable(stats, fullfile(tableDir, modelName, 'comparison.csv'));
 
 %% Functions
 
