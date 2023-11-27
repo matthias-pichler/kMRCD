@@ -80,7 +80,7 @@ classdef NewDataModel < handle
             replacement = U(:,end);
             
             delta = replacement - tLocation;
-            smd = sqrt((delta' * inv(tCorrelation) * delta));
+            smd = sqrt((delta' * (tCorrelation\delta)));
             replacement = replacement * (k/smd);
             
             % Sigma contamination
