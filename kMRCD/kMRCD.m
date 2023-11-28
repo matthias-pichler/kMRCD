@@ -60,17 +60,27 @@ classdef kMRCD < handle
     
     properties (Access = private)
         kModel;                         %   Used kernel model
-        cStepIterationsAllowed = 100;   %   Maximum number of CStep iterations allowed
-        maxcond = 50;                   %   Condition number one wants to achieve
+        cStepIterationsAllowed (1,1) double {mustBePositive, mustBeInteger} = 100;   %   Maximum number of CStep iterations allowed
+        maxcond (1,1) double = 50;                   %   Condition number one wants to achieve
+        estimators cell {mustBeMember(estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'};
     end
     
     methods (Access = public)
         
-        function this = kMRCD(kModel)
+        function this = kMRCD(kModel, NameValueArgs)
+            arguments
+                kModel
+                NameValueArgs.Estimators
+            end
+
             if ~isempty(kModel)
                 this.kModel = kModel;
             else
                 this.kModel = LinKernel();
+            end
+
+            if isfield(NameValueArgs,"Estimators")
+                this.estimators = NameValueArgs.Estimators;
             end
         end
         
@@ -93,14 +103,66 @@ classdef kMRCD < handle
             
             %   Grab observation ranking from initial estimators
             solution = struct();
-            solution(1).outlyingnessIndices = Utils.SDO(K,alpha);
-            solution(1).name = 'SDO';
-            solution(2).outlyingnessIndices = Utils.SpatialRank(K,alpha);
-            solution(2).name = 'SpatialRank';
-            solution(3).outlyingnessIndices = Utils.SpatialMedianEstimator(K,alpha);
-            solution(3).name = 'SpatialMedian';
-            solution(4).outlyingnessIndices = Utils.SSCM(K);
-            solution(4).name = 'SSCM';
+
+            if ismember('SDO', this.estimators)
+                disp("Creating initial estimate for SDO...");
+                
+                tic
+                outlyingnessIndices = Utils.SDO(K,alpha);
+                toc
+
+                res = struct("name", 'SDO', "outlyingnessIndices", outlyingnessIndices);
+                if isempty(fieldnames(solution))
+                    solution = res;
+                else
+                    solution = [solution, res];
+                end
+            end
+
+            if ismember('SpatialRank', this.estimators)
+                disp("Creating initial estimate for SpatialRank...");
+
+                tic
+                outlyingnessIndices = Utils.SpatialRank(K,alpha);
+                toc
+
+                res = struct("name", 'SpatialRank', "outlyingnessIndices", outlyingnessIndices);
+                if isempty(fieldnames(solution))
+                    solution = res;
+                else
+                    solution = [solution, res];
+                end
+            end
+
+            if ismember('SpatialMedian', this.estimators)
+                disp("Creating initial estimate for SpatialMedian...");
+                
+                tic
+                outlyingnessIndices = Utils.SpatialMedianEstimator(K,alpha);
+                toc
+
+                res = struct("name", 'SpatialMedian', "outlyingnessIndices", outlyingnessIndices);
+                if isempty(fieldnames(solution))
+                    solution = res;
+                else
+                    solution = [solution, res];
+                end
+            end
+
+            if ismember('SSCM', this.estimators)
+                disp("Creating initial estimate for SSCM...");
+
+                tic
+                outlyingnessIndices = Utils.SSCM(K);
+                toc
+
+                res = struct("name", 'SSCM', "outlyingnessIndices", outlyingnessIndices);
+                if isempty(fieldnames(solution))
+                    solution = res;
+                else
+                    solution = [solution, res];
+                end
+            end
             
             scfac = Utils.MCDcons(p, alpha) ;
             
@@ -132,6 +194,7 @@ classdef kMRCD < handle
             %   Refine each initial estimation with C-steps
             Ktt_diag = diag(K);
             for index=1:numel(solution)
+                disp(['Running C-Steps for ' solution(index).name '...']);
                 for iteration = 1:this.cStepIterationsAllowed
                     hSubset = solution(index).hsubsetIndices;
                     Kx = this.kModel.compute(x(hSubset, :), x(hSubset, :));
