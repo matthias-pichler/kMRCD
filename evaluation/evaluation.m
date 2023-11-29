@@ -1,9 +1,10 @@
-function result = evaluation(data, labels, alpha, solution)
+function result = evaluation(data, labels, alpha, solution, NameValueArgs)
     arguments
         data (:,:) double
         labels (:,1) categorical
         alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
         solution struct
+        NameValueArgs.CategoricalPredictors = []
     end
 
     assert(isequal(size(labels), [size(data, 1), 1]))
@@ -19,28 +20,44 @@ function result = evaluation(data, labels, alpha, solution)
     % TODO add scores for kMRCD
 
     % Local Outlier Factor
-    [~,tf, sc] = lof(data, ContaminationFraction=(1-alpha));
+    tic;
+    [~,tf, sc] = lof(data, ContaminationFraction=(1-alpha), ...
+        CategoricalPredictors=NameValueArgs.CategoricalPredictors);
+    t = toc;
+    fprintf("lof: %0.4f sec\n", t);
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
     stats.lof = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.lof = sc;
 
     % Isolation Forest
-    [~,tf, sc] = iforest(data, ContaminationFraction=(1-alpha));
+    tic;
+    [~,tf, sc] = iforest(data, ContaminationFraction=(1-alpha), ...
+        CategoricalPredictors=NameValueArgs.CategoricalPredictors);
+    t = toc;
+    fprintf("iforest: %0.4f sec\n", t);
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
     stats.iforest = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.iforest = sc;
 
     % Random Robust Cut Forest
-    [~,tf,sc] = rrcforest(data, ContaminationFraction=(1-alpha));
+    tic;
+    [~,tf,sc] = rrcforest(data, ContaminationFraction=(1-alpha), ...
+        CategoricalPredictors=NameValueArgs.CategoricalPredictors);
+    t = toc;
+    fprintf("rrcforest: %0.4f sec\n", t);
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
     stats.rrcforest = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
     scores.rrcforest = sc;
 
     % One-Class Support Vector Machine
-    [~,tf,sc] = ocsvm(data, ContaminationFraction=(1-alpha));
+    tic;
+    [~,tf,sc] = ocsvm(data, ContaminationFraction=(1-alpha), ...
+        CategoricalPredictors=NameValueArgs.CategoricalPredictors);
+    t = toc;
+    fprintf("ocsvm: %0.4f sec\n", t);
     grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
     grouphat(tf) = "outlier";
     stats.ocsvm = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));

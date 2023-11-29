@@ -105,11 +105,10 @@ classdef kMRCD < handle
             solution = struct();
 
             if ismember('SDO', this.estimators)
-                disp("Creating initial estimate for SDO...");
-                
-                tic
+                tic;
                 outlyingnessIndices = Utils.SDO(K,alpha);
-                toc
+                t = toc;
+                fprintf("SDO: %0.4f sec\n", t);
 
                 res = struct("name", 'SDO', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
@@ -120,11 +119,10 @@ classdef kMRCD < handle
             end
 
             if ismember('SpatialRank', this.estimators)
-                disp("Creating initial estimate for SpatialRank...");
-
-                tic
+                tic;
                 outlyingnessIndices = Utils.SpatialRank(K,alpha);
-                toc
+                t = toc;
+                fprintf("SpatialRank: %0.4f sec\n", t);
 
                 res = struct("name", 'SpatialRank', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
@@ -135,11 +133,10 @@ classdef kMRCD < handle
             end
 
             if ismember('SpatialMedian', this.estimators)
-                disp("Creating initial estimate for SpatialMedian...");
-                
-                tic
+                tic;
                 outlyingnessIndices = Utils.SpatialMedianEstimator(K,alpha);
-                toc
+                t = toc;
+                fprintf("SpatialMedian: %0.4f sec\n", t);
 
                 res = struct("name", 'SpatialMedian', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
@@ -150,11 +147,10 @@ classdef kMRCD < handle
             end
 
             if ismember('SSCM', this.estimators)
-                disp("Creating initial estimate for SSCM...");
-
-                tic
+                tic;
                 outlyingnessIndices = Utils.SSCM(K);
-                toc
+                t = toc;
+                fprintf("SSCM: %0.4f sec\n", t);
 
                 res = struct("name", 'SSCM', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
