@@ -1,4 +1,4 @@
-%% Shakespear vs Trump
+%% Tweet Sentiment
 % Compute the case study of shakespear vs trump
 
 % Setup
@@ -9,9 +9,12 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-modelName = 'all-mpnet-base-v2';
+% modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
+modelName = 'bge-small-en-v1.5';
 % modelName = 'all-MiniLM-L6-v2';
+
+% datasetName = 'tweet_sentiment_extraction_cleaned';
 datasetName = 'tweet_sentiment_extraction';
 
 imageDir = fullfile(projectDir, 'images', datasetName);
