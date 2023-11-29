@@ -12,7 +12,9 @@ projectDir = fileparts(fileparts(which(mfilename)));
 modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
 % modelName = 'all-MiniLM-L6-v2';
+
 datasetName = 'reuters21578';
+% datasetName = 'reuters21578_cleaned';
 
 imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);
