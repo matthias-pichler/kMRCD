@@ -18,7 +18,7 @@ classdef AutoLaplacianKernel < handle
         
         function K = compute(this, Xtrain, Xtest)
             arguments
-                this
+                this AutoSphereRbfKernel
                 Xtrain (:,:) double
                 Xtest (:,:) double = Xtrain
             end

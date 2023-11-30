@@ -1,7 +1,7 @@
 classdef AutoRbfKernel < handle
     
     properties (Access = public)
-        sigma;
+        sigma (1,1) double {mustBePositive};
     end
     
     methods (Access = public)
@@ -18,7 +18,7 @@ classdef AutoRbfKernel < handle
         
         function K = compute(this, Xtrain, Xtest)
             arguments
-                this
+                this AutoRbfKernel
                 Xtrain double
                 Xtest double = Xtrain
             end

@@ -1,7 +1,7 @@
 classdef RbfKernel < handle
     
     properties (Access = public)
-        sigma;
+        sigma (1,1) double {mustBePositive};
     end
     
     methods (Access = public)
@@ -16,7 +16,7 @@ classdef RbfKernel < handle
         
         function updateKernel(this, bandwidth)
             arguments
-                this
+                this RbfKernel
                 bandwidth (1,1) double {mustBePositive}
             end
             
@@ -25,7 +25,7 @@ classdef RbfKernel < handle
         
         function K = compute(this, Xtrain, Xtest)
             arguments
-                this
+                this RbfKernel
                 Xtrain double
                 Xtest double = Xtrain
             end

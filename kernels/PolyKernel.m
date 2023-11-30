@@ -1,7 +1,7 @@
 classdef PolyKernel < handle
     
     properties (Access = private)
-        degree;
+        degree (1,1) double {mustBePositive, mustBeInteger};
     end
     
     methods (Access = public)
@@ -16,7 +16,7 @@ classdef PolyKernel < handle
         
         function K = compute(this, Xtrain, Xtest)
             arguments
-                this
+                this PolyKernel
                 Xtrain (:,:) double
                 Xtest (:,:) double = Xtrain
             end
