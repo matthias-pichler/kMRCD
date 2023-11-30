@@ -1,7 +1,7 @@
 classdef AutoRbfKernel < handle
     
     properties (Access = public)
-        sigma (1,1) double {mustBePositive};
+        sigma (1,1) double
     end
     
     methods (Access = public)
