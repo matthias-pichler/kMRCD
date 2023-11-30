@@ -62,7 +62,7 @@ classdef kMRCD < handle
         kModel;                         %   Used kernel model
         cStepIterationsAllowed (1,1) double {mustBePositive, mustBeInteger} = 100;   %   Maximum number of CStep iterations allowed
         maxcond (1,1) double = 50;                   %   Condition number one wants to achieve
-        estimators cell {mustBeMember(estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'};
+        estimators {mustBeMember(estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialMedian' 'SSCM'};
     end
     
     methods (Access = public)

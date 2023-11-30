@@ -68,7 +68,7 @@ clear Y;
 
 kModel = AutoSphereRbfKernel(embeddings);
 % kModel = AutoRbfKernel(data);
-poc = kMRCD(kModel, Estimators={'SDO' 'SpatialMedian' 'SSCM'}); 
+poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(embeddings, alpha);
 
 %% Evaluation
