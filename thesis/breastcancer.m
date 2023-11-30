@@ -42,7 +42,7 @@ clear opts;
 
 %% Run
 
-alpha = 0.7;
+alpha = 0.5;
 
 Y = tsne(unlabeledData);
 fig = figure(1);
@@ -52,8 +52,10 @@ saveas(fig,fullfile(imageDir, "e02_tsne.png"),'png');
 
 clear Y;
 
-kModel = AutoRbfKernel(unlabeledData);
 % kModel = AutoRbfKernel(unlabeledData);
+kModel = DiracKernel();
+% kModel = M3Kernel(unlabeledData);
+% kModel = K1Kernel(unlabeledData);
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);
 
