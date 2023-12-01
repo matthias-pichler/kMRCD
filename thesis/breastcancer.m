@@ -54,8 +54,8 @@ clear Y;
 
 % kModel = AutoRbfKernel(unlabeledData);
 % kModel = DiracKernel();
-kModel = M3Kernel(unlabeledData);
-% kModel = K1Kernel(unlabeledData);
+% kModel = M3Kernel(unlabeledData);
+kModel = K1Kernel(unlabeledData);
 
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);

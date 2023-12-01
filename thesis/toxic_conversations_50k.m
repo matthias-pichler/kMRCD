@@ -9,10 +9,10 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-% modelName = 'all-mpnet-base-v2';
+modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
 % modelName = 'all-MiniLM-L6-v2';
-modelName = 'bge-small-en-v1.5';
+% modelName = 'bge-small-en-v1.5';
 
 datasetName = 'toxic_conversations_50k';
 
@@ -75,7 +75,7 @@ saveas(fig, fullfile(imageDir, modelName, 'e02_mahalanobis_distances.png'),'png'
 
 % Comparison
 fig = figure(4);
-stats = evaluation(data, labels, alpha, solution);
+stats = evaluation(data, labels, alpha, solution, Estimators={'lof' 'iforest'});
 saveas(fig, fullfile(imageDir, modelName, 'e02_pr_curve.png'),'png');
 writetable(stats, fullfile(tableDir, modelName, "e02_comparison.csv"));
 
@@ -140,7 +140,7 @@ function stats = runComparison(data, labels, outlierContamination, robustness)
     poc = kMRCD(kModel); 
     solution = poc.runAlgorithm(data, robustness);
 
-    stats = evaluation(data, labels, robustness, solution);
+    stats = evaluation(data, labels, robustness, solution, Estimators={'lof' 'iforest'});
 
     names = string(stats.Properties.RowNames);
     e = repmat(outlierContamination,size(names));

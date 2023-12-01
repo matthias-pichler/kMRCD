@@ -9,10 +9,10 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-% modelName = 'all-mpnet-base-v2';
+modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
 % modelName = 'all-MiniLM-L6-v2';
-modelName = 'bge-small-en-v1.5';
+% modelName = 'bge-small-en-v1.5';
 
 datasetName = 'reuters21578';
 % datasetName = 'reuters21578_cleaned';
