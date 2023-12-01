@@ -14,20 +14,23 @@ classdef K1Kernel < handle
         columnCategories cell
         columnPmf cell
     end
-    
-    methods (Static, Access = private)
-        function r = h(z, alpha)
-            arguments
-                z double
-                alpha (1,1) double {mustBePositive} = 1
-            end
 
-            r = (1-z.^alpha).^(1/alpha);
-
-        end
+    properties (Access = public)
+        alpha (1,1) double {mustBePositive} = 1
     end
 
     methods (Access = private)
+        function r = h(this, z)
+            arguments
+                this K1Kernel
+                z double
+                
+            end
+
+            r = (1-z.^this.alpha).^(1/this.alpha);
+
+        end
+
         function d = k1dist(this, ZI, ZJ)
             arguments
                 this K1Kernel
@@ -46,7 +49,7 @@ classdef K1Kernel < handle
             end
 
             mask = ZI == ZJ;
-            summands = K1Kernel.h(P_x);
+            summands = this.h(P_x);
             
             d = (mask * summands')/n;
         end

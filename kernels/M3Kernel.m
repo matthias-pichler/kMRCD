@@ -12,20 +12,23 @@ classdef M3Kernel < handle
         columnCategories cell
         columnPmf cell
     end
+
+    properties (Access = public)
+        alpha (1,1) double {mustBePositive} = 1
+    end
     
-    methods (Static, Access = private)
-        function r = h(z, alpha)
+    methods (Access = private)
+        function r = h(this, z)
             arguments
+                this M3Kernel
                 z double
-                alpha (1,1) double {mustBePositive} = 1
+                
             end
 
-            r = (1-z.^alpha).^(1/alpha);
+            r = (1-z.^this.alpha).^(1/this.alpha);
 
         end
-    end
 
-    methods (Access = private)
         function d = m3distdenom(this, x, y)
             %  n
             % SUM h_a(P(x_i)) + h_a(P(y_i))
@@ -54,7 +57,7 @@ classdef M3Kernel < handle
                 P_y(columnIndex) = pmf;
             end
 
-            d = sum(M3Kernel.h(P_x) + M3Kernel.h(P_y));
+            d = sum(this.h(P_x) + this.h(P_y));
 
         end
 
@@ -77,7 +80,7 @@ classdef M3Kernel < handle
             end
 
             mask = ZI == ZJ;
-            summands = M3Kernel.h(P_x);
+            summands = this.h(P_x);
 
             denom = cellfun(@(y)this.m3distdenom(ZI,y), num2cell(ZJ,2));
             
