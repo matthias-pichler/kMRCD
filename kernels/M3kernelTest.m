@@ -15,8 +15,9 @@ classdef M3kernelTest < matlab.unittest.TestCase
             expected = [[1,   1/4, 1/4]
                         [1/4, 1  , 1/4]
                         [1/4, 1/4, 1  ]];
+            x = eye(3);
 
-            res = M3Kernel(eye(3)).compute(eye(3));
+            res = M3Kernel(x).compute(x);
             testCase.verifyEqual(res, expected, AbsTol=1/10000);
         end
     end

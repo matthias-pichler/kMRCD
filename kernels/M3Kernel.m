@@ -1,12 +1,12 @@
 classdef M3Kernel < handle
     
-% https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
-% 
-%                                 n
-% m3(x,y) =  SUM (h_a(P(x_i))) / SUM (h_a(P(x_i)) + h_a(P(y_i)))
-%          i:x_i=y_i             i=1
-%
-% h_a(z) = (1-z^a)^(1/a)
+    % https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
+    % 
+    %                                 n
+    % m3(x,y) =  SUM (h_a(P(x_i))) / SUM (h_a(P(x_i)) + h_a(P(y_i)))
+    %          i:x_i=y_i             i=1
+    %
+    % h_a(z) = (1-z^a)^(1/a)
 
     properties (Access = private)
         columnCategories cell

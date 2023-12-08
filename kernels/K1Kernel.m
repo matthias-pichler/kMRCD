@@ -1,14 +1,14 @@
 classdef K1Kernel < handle
     
-% https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
-% 
-%                   n
-% k_1(x,y) = 1/n * SUM k_1U(x_i,y_i)
-%                  i=1
-%
-% k_1U(x,y) = h_a(P(x)) if x=y else 0
-% 
-% h_a(z) = (1-z^a)^(1/a)
+    % https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
+    % 
+    %                   n
+    % k_1(x,y) = 1/n * SUM k_1U(x_i,y_i)
+    %                  i=1
+    %
+    % k_1U(x,y) = h_a(P(x)) if x=y else 0
+    % 
+    % h_a(z) = (1-z^a)^(1/a)
 
     properties (Access = private)
         columnCategories cell
