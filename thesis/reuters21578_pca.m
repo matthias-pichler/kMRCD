@@ -1,7 +1,7 @@
 %% Reuters 21578
 % See https://faculty.cc.gatech.edu/~hpark/papers/textoutlier17.pdf
 
-%% Setup
+% Setup
 clc;
 clear all;
 close all;
@@ -17,8 +17,8 @@ modelName = 'all-mpnet-base-v2';
 datasetName = 'reuters21578';
 % datasetName = 'reuters21578_cleaned';
 
-imageDir = fullfile(projectDir, 'images', datasetName);
-tableDir = fullfile(projectDir, 'tables', datasetName);
+imageDir = fullfile(projectDir, 'images', [datasetName '_pca']);
+tableDir = fullfile(projectDir, 'tables', [datasetName '_pca']);
 datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
 file = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
@@ -51,12 +51,18 @@ embeddings = embeddings(perm, :);
 labels = labels(perm, :);
 
 clear rawData inlierIndices outlierIndices perm;
-
-%% Visualize
+%% PCA
 
 alpha = 0.7;
 
-Y = tsne(embeddings, Distance="cosine");
+pcaRes = robpca(embeddings, 'k', 50, 'kmax', 50, 'alpha', alpha, 'mcd', 0, 'plots', 0);
+scores = pcaRes.T;
+
+clear pcaRes embeddings;
+
+%% Visualize
+
+Y = tsne(scores, Distance="cosine");
 fig = figure(1);
 gscatter(Y(:,1), Y(:,2), labels);
 title("t-SNE Embeddings");
@@ -66,10 +72,9 @@ clear Y;
 
 %% Run
 
-kModel = AutoSphereRbfKernel(embeddings);
-% kModel = AutoRbfKernel(data);
+kModel = AutoRbfKernel(scores);
 poc = kMRCD(kModel); 
-solution = poc.runAlgorithm(embeddings, alpha);
+solution = poc.runAlgorithm(scores, alpha);
 
 %% Evaluation
 
@@ -99,12 +104,12 @@ saveas(fig, fullfile(imageDir, modelName, 'mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
-stats = evaluation(embeddings, labels, alpha, solution);
+stats = evaluation(scores, labels, alpha, solution);
 saveas(fig, fullfile(imageDir, modelName, 'pr_curve.png'),'png');
 writetable(stats, fullfile(tableDir, modelName, "comparison.csv"));
 
 clear stats;
 
 clear solution kModel alpha poc;
-clear data labels embeddings;
+clear data labels embeddings scores;
     
