@@ -1,10 +1,9 @@
 classdef AitchisonAitkenKernel < handle
     %
     %
-    % k(x,y) = l^(n-d(x,y)) * PROD (1-l)/(c_i-1)
-    %                      i:x_i != y_i
+    % k(x,y) =   PROD l_i  * PROD (1-l_i)/(c_i-1)
+    %         i:x_i=y_i    i:x_i != y_i
     %
-    % d(x,y) = number of disaggreements
     % c_i = number of categories for variable X_i
 
     properties (Access = private)
@@ -23,20 +22,19 @@ classdef AitchisonAitkenKernel < handle
                 ZJ double
             end
 
-            n = numel(ZI);
-            l = this.lambda';
+            l = this.lambda;
             c = this.categories;
             
             % differences between x_i, y_i
             d_xy = ZI ~= ZJ;
 
             % l^aggreements
-            d = l.^(n-sum(d_xy, 2));
+            d = l.^(~d_xy);
 
-            r = (1-l)./(c-1);
+            r = (1-l)./(c'-1);
             r(~d_xy) = 1;
 
-            d = d .* prod(r, 2);
+            d = prod(d,2) .* prod(r, 2);
         end
     end
     
@@ -68,6 +66,5 @@ classdef AitchisonAitkenKernel < handle
             assert(size(K, 2)==size(Xtest, 1));
         end
     end
-    
 end
 

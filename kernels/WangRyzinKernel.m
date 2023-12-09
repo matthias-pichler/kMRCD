@@ -3,11 +3,9 @@ classdef WangRyzinKernel < handle
     % https://www.jstor.org/stable/2335831
     %
     %
-    % k(x,y) = l^(n-d(x,y)) * PROD 1/2 * l * (1-l)^|x_i-y_i|
-    %                      i:x_i != y_i
+    % k(x,y) =     PROD l_i  *  PROD 1/2 * l_i * (1-l_i)^|x_i-y_i|
+    %           i:x_i = y_i  i:x_i != y_i
     %
-    % d(x,y) = number of disaggreements
-    % c_i = number of categories for variable X_i
 
     properties (Access = public)
         lambda (1,:) double {mustBeInRange(lambda,0.5,1)}
@@ -21,19 +19,18 @@ classdef WangRyzinKernel < handle
                 ZJ double
             end
 
-            n = numel(ZI);
-            l = this.lambda';
+            l = this.lambda;
             
             % differences between x_i, y_i
             d_xy = ZI ~= ZJ;
 
             % l^aggreements
-            d = l.^(n-sum(d_xy, 2));
+            d = l.^(~d_xy);
 
             r = 0.5 * l .* (1-l).^abs(ZI - ZJ);
             r(~d_xy) = 1;
 
-            d = d .* prod(r, 2);
+            d = prod(d,2) .* prod(r, 2);
         end
     end
     

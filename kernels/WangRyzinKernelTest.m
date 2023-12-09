@@ -26,6 +26,23 @@ classdef WangRyzinKernelTest < matlab.unittest.TestCase
             testCase.verifyEqual(res, expected);
         end
 
+        function identity2lambda(testCase)
+            l1 = 0.75;
+            l2 = 0.5;
+
+            x = eye(2) * 2;
+
+            expected = [[l1*l2,                             0.5*l1*(1-l1)^2*0.5*l2*(1-l2)^2]
+                        [0.5*l1*(1-l1)^2*0.5*l2*(1-l2)^2,   l1*l2]];
+
+            kernel = WangRyzinKernel(x);
+            kernel.lambda = [l1 l2];
+
+            res = kernel.compute(x);
+
+            testCase.verifyEqual(res, expected);
+        end
+
         function identity3(testCase)
             l = 0.75;
             x = eye(3) * 4;
