@@ -38,7 +38,7 @@ perm = randperm(height(unlabeledData));
 unlabeledData = unlabeledData(perm, :);
 labels = labels(perm, :);
 
-clear opts;
+clear opts perm;
 
 %% Run
 
