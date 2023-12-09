@@ -26,20 +26,37 @@ classdef LiRacinKernel < handle
             d = prod(d,2);
         end
     end
-    
-    methods (Access = public)
-        
-        function this = LiRacinKernel(x)
+
+    methods (Static, Access = private)
+        function l = pluginbandwidth(x)
             arguments
                 x double
             end
             
-            g = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+            n = height(x);
 
-            categories = cellfun(@length, g);
+            [~, ~, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+
+            pmf = cellfun(@(c)c/100, gp, UniformOutput=false);
+
+            numerator = n * cell2mat(cellfun(@(p){sum((1-p).^2)}, pmf));
+            denominator = cell2mat(cellfun(@(p){sum(p.*(1-p))}, pmf));
+
+            l = 1 ./ (1+(numerator./denominator));
+        end
+    end
+
+    methods (Access = public)
+        
+        function this = LiRacinKernel(x, NameValueArgs)
+            arguments
+                x double
+                NameValueArgs.lambda (1,:) double = LiRacinKernel.pluginbandwidth(x);
+            end
             
-            % TODO: calculate lambda
-            this.lambda = 1./categories;
+            this.lambda = NameValueArgs.lambda;
+
+            disp(['LiRacinKernel: Lambda = ' mat2str(this.lambda)]);
         end
         
         function K = compute(this, Xtrain, Xtest)

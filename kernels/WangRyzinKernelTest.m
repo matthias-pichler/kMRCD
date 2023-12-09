@@ -18,8 +18,7 @@ classdef WangRyzinKernelTest < matlab.unittest.TestCase
             expected = repmat((0.5*l*(1-l)^2)^2, size(x));
             expected(logical(eye(size(expected)))) = l^2;
 
-            kernel = WangRyzinKernel(x);
-            kernel.lambda = [l l];
+            kernel = WangRyzinKernel(x, lambda=[l l]);
 
             res = kernel.compute(x);
 
@@ -35,8 +34,7 @@ classdef WangRyzinKernelTest < matlab.unittest.TestCase
             expected = [[l1*l2,                             0.5*l1*(1-l1)^2*0.5*l2*(1-l2)^2]
                         [0.5*l1*(1-l1)^2*0.5*l2*(1-l2)^2,   l1*l2]];
 
-            kernel = WangRyzinKernel(x);
-            kernel.lambda = [l1 l2];
+            kernel = WangRyzinKernel(x, lambda=[l1 l2]);
 
             res = kernel.compute(x);
 
@@ -50,8 +48,7 @@ classdef WangRyzinKernelTest < matlab.unittest.TestCase
             expected = repmat(l*(0.5*l*(1-l)^4)^2, size(x));
             expected(logical(eye(size(expected)))) = l^3;
 
-            kernel = WangRyzinKernel(x);
-            kernel.lambda = [l l l];
+            kernel = WangRyzinKernel(x, lambda=[l l l]);
 
             res = kernel.compute(x);
 
@@ -65,8 +62,7 @@ classdef WangRyzinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^2*(0.5*l*(1-l))^2, size(x));
             expected(logical(eye(size(expected)))) = l^4;
 
-            kernel = WangRyzinKernel(x);
-            kernel.lambda = [l l l l];
+            kernel = WangRyzinKernel(x, lambda=[l l l l]);
 
             res = kernel.compute(x);
 

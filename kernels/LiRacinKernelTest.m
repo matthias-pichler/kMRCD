@@ -18,8 +18,7 @@ classdef LiRacinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^2, size(x));
             expected(logical(eye(size(expected)))) = 1;
 
-            kernel = LiRacinKernel(x);
-            kernel.lambda = [l l];
+            kernel = LiRacinKernel(x, lambda=[l l]);
 
             res = kernel.compute(x);
 
@@ -34,8 +33,7 @@ classdef LiRacinKernelTest < matlab.unittest.TestCase
             expected = [[1,     l1*l2]
                         [l1*l2, 1]];
 
-            kernel = LiRacinKernel(x);
-            kernel.lambda = [l1 l2];
+            kernel = LiRacinKernel(x, lambda=[l1 l2]);
 
             res = kernel.compute(x);
 
@@ -49,12 +47,25 @@ classdef LiRacinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^2, size(x));
             expected(logical(eye(size(expected)))) = 1;
 
-            kernel = LiRacinKernel(x);
-            kernel.lambda = [l l l];
+            kernel = LiRacinKernel(x, lambda=[l l l]);
 
             res = kernel.compute(x);
 
             testCase.verifyEqual(res, expected);
+        end
+
+        function identity3autolambda(testCase)
+            l = 1 ./ (1+(3*(1/2-1/3*(1-1/3))/(1/3*(1-1/3))));
+            x = eye(3);
+
+            expected = repmat(l^2, size(x));
+            expected(logical(eye(size(expected)))) = 1;
+
+            kernel = LiRacinKernel(x);
+
+            res = kernel.compute(x);
+
+            testCase.verifyEqual(res, expected, AbsTol=0.0001);
         end
 
         function identity3lambda(testCase)
@@ -68,8 +79,7 @@ classdef LiRacinKernelTest < matlab.unittest.TestCase
                         [l1*l2,     1,  l2*l3]
                         [l1*l3, l2*l3,  1]];
 
-            kernel = LiRacinKernel(x);
-            kernel.lambda = [l1 l2 l3];
+            kernel = LiRacinKernel(x, lambda=[l1 l2 l3]);
 
             res = kernel.compute(x);
 
@@ -83,8 +93,7 @@ classdef LiRacinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^2, size(x));
             expected(logical(eye(size(expected)))) = 1;
 
-            kernel = LiRacinKernel(x);
-            kernel.lambda = [l l l l];
+            kernel = LiRacinKernel(x, lambda=[l l l l]);
 
             res = kernel.compute(x);
 

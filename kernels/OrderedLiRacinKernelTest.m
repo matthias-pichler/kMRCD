@@ -18,8 +18,7 @@ classdef OrderedLiRacinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^(2*2), size(x));
             expected(logical(eye(size(expected)))) = 1;
 
-            kernel = OrderedLiRacinKernel(x);
-            kernel.lambda = [l l];
+            kernel = OrderedLiRacinKernel(x, lambda=[l l]);
 
             res = kernel.compute(x);
 
@@ -35,8 +34,7 @@ classdef OrderedLiRacinKernelTest < matlab.unittest.TestCase
             expected = [[1,         l1^2*l2^2]
                         [l1^2*l2^2, 1]];
 
-            kernel = OrderedLiRacinKernel(x);
-            kernel.lambda = [l1 l2];
+            kernel = OrderedLiRacinKernel(x, lambda=[l1 l2]);
 
             res = kernel.compute(x);
 
@@ -50,8 +48,7 @@ classdef OrderedLiRacinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^(2*4), size(x));
             expected(logical(eye(size(expected)))) = 1;
 
-            kernel = OrderedLiRacinKernel(x);
-            kernel.lambda = [l l l];
+            kernel = OrderedLiRacinKernel(x, lambda=[l l l]);
 
             res = kernel.compute(x);
 
@@ -65,8 +62,7 @@ classdef OrderedLiRacinKernelTest < matlab.unittest.TestCase
             expected = repmat(l^2, size(x));
             expected(logical(eye(size(expected)))) = 1;
 
-            kernel = OrderedLiRacinKernel(x);
-            kernel.lambda = [l l l l];
+            kernel = OrderedLiRacinKernel(x, lambda=[l l l l]);
 
             res = kernel.compute(x);
 

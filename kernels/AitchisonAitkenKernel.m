@@ -30,27 +30,49 @@ classdef AitchisonAitkenKernel < handle
 
             % l^aggreements
             d = l.^(~d_xy);
-
-            r = (1-l)./(c'-1);
+            
+            r = repmat((1-l)./(c-1), [height(ZJ), 1]);
             r(~d_xy) = 1;
 
             d = prod(d,2) .* prod(r, 2);
         end
     end
     
-    methods (Access = public)
-        
-        function this = AitchisonAitkenKernel(x)
+    methods (Static, Access = private)
+        function l = pluginbandwidth(x)
             arguments
                 x double
+            end
+            
+            n = height(x);
+
+            [~, gr, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+
+            c = cellfun(@length, gr);
+            pmf = cellfun(@(c)c/100, gp, UniformOutput=false);
+
+            numerator = n * cell2mat(cellfun(@(p){sum((1/numel(p)-p).^2)}, pmf));
+            denominator = cell2mat(cellfun(@(p){sum(p.*(1-p))}, pmf));
+
+            l = 1 - ((c-1)./c) ./ (1+(numerator./denominator));
+        end
+    end
+
+    methods (Access = public)
+        
+        function this = AitchisonAitkenKernel(x, NameValueArgs)
+            arguments
+                x double
+                NameValueArgs.lambda (1,:) double = AitchisonAitkenKernel.pluginbandwidth(x);
             end
             
             g = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
 
             this.categories = cellfun(@length, g);
             
-            % TODO: calculate lambda
-            this.lambda = 1./this.categories;
+            this.lambda = NameValueArgs.lambda;
+
+            disp(['AitchisonAitkenKernel: Lambda = ' mat2str(this.lambda)]);
         end
         
         function K = compute(this, Xtrain, Xtest)

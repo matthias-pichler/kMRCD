@@ -4,7 +4,6 @@ classdef OrderedLiRacinKernel < handle
     % k(x,y) = PROD l_i^|x_i-y_i|
     %           i=1
     %
-    % d(x,y) = number of disaggreements
 
     properties (Access = public)
         lambda (1,:) double {mustBeInRange(lambda,0,1)}
@@ -27,19 +26,33 @@ classdef OrderedLiRacinKernel < handle
         end
     end
     
-    methods (Access = public)
-        
-        function this = OrderedLiRacinKernel(x)
+    methods (Static, Access = private)
+        function l = pluginbandwidth(x)
             arguments
                 x double
             end
             
-            g = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+            n = height(x);
 
-            categories = cellfun(@length, g);
+            [~, gr, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+
+            c = cellfun(@length, gr);
+            pmf = cellfun(@(c)c/100, gp, UniformOutput=false);
+
+            % TODO: find propper calculation
+            l = 1 / c;
+        end
+     end
+
+    methods (Access = public)
+        
+        function this = OrderedLiRacinKernel(x, NameValueArgs)
+            arguments
+                x double
+                NameValueArgs.lambda (1,:) double = OrderedLiRacinKernel.pluginbandwidth(x);
+            end
             
-            % TODO: calculate lambda
-            this.lambda = 1./categories;
+            this.lambda = NameValueArgs.lambda;
         end
         
         function K = compute(this, Xtrain, Xtest)

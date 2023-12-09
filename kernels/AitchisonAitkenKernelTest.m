@@ -17,8 +17,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
                         [(1-l)^2,  l^2]];
 
             x = eye(2);
-            kernel = AitchisonAitkenKernel(x);
-            kernel.lambda = [l l];
+            kernel = AitchisonAitkenKernel(x, lambda=[l l]);
 
             res = kernel.compute(x);
 
@@ -32,8 +31,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
                         [(1-l1)*(1-l2), l1*l2]];
 
             x = eye(2);
-            kernel = AitchisonAitkenKernel(x);
-            kernel.lambda = [l1 l2];
+            kernel = AitchisonAitkenKernel(x, lambda=[l1 l2]);
 
             res = kernel.compute(x);
 
@@ -47,12 +45,26 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
                         [l*(1-l)^2, l*(1-l)^2,  l^3]];
 
             x = eye(3);
-            kernel = AitchisonAitkenKernel(x);
-            kernel.lambda = [l l l];
+            kernel = AitchisonAitkenKernel(x, lambda=[l l l]);
 
             res = kernel.compute(x);
 
             testCase.verifyEqual(res, expected);
+        end
+
+        function identity3autolambda(testCase)
+            l = 1 - 1/2 / (1+(3*(1/2-1/3)^2/(1/3*(1-1/3))));
+            
+            expected = [[l^3,       l*(1-l)^2,  l*(1-l)^2]
+                        [l*(1-l)^2, l^3,        l*(1-l)^2]
+                        [l*(1-l)^2, l*(1-l)^2,  l^3]];
+
+            x = eye(3);
+            kernel = AitchisonAitkenKernel(x);
+
+            res = kernel.compute(x);
+
+            testCase.verifyEqual(res, expected, AbsTol=0.0001);
         end
 
         function identity3lambda(testCase)
@@ -64,8 +76,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
                         [l2*(1-l1)*(1-l3),  l1*(1-l2)*(1-l3),   l1*l2*l3]];
 
             x = eye(3);
-            kernel = AitchisonAitkenKernel(x);
-            kernel.lambda = [l1 l2 l3];
+            kernel = AitchisonAitkenKernel(x, lambda=[l1 l2 l3]);
 
             res = kernel.compute(x);
 
@@ -80,8 +91,39 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
                         [l^2*(1-l)^2,   l^2*(1-l)^2,    l^2*(1-l)^2,    l^4]];
 
             x = eye(4);
-            kernel = AitchisonAitkenKernel(x);
-            kernel.lambda = [l l l l];
+            kernel = AitchisonAitkenKernel(x, lambda=[l l l l]);
+
+            res = kernel.compute(x);
+
+            testCase.verifyEqual(res, expected);
+        end
+    
+        function tall(testCase)
+            l = 0.75;
+            expected = [[l^2,           (1-l)/2*(1-l),  (1-l)/2*(1-l),  (1-l)/2*l]
+                        [(1-l)/2*(1-l), l^2,            (1-l)/2*l,      (1-l)/2*(1-l)]
+                        [(1-l)/2*(1-l), (1-l)/2*l       l^2,            l*(1-l)]
+                        [(1-l)/2*l,     (1-l)/2*(1-l),      l*(1-l),        l^2]];
+
+            x = [[1, 0]
+                 [0, 1]
+                 [2, 1]
+                 [2, 0]];
+            kernel = AitchisonAitkenKernel(x, lambda=[l l]);
+
+            res = kernel.compute(x);
+
+            testCase.verifyEqual(res, expected, AbsTol=0.001);
+        end
+
+        function fat(testCase)
+            l = 0.75;
+            expected = [[l^3,       l*(1-l)^2]
+                        [l*(1-l)^2, l^3]];
+
+            x = [[1, 0, 0]
+                 [0, 1, 0]];
+            kernel = AitchisonAitkenKernel(x, lambda=[l l l]);
 
             res = kernel.compute(x);
 
