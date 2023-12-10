@@ -1,8 +1,8 @@
 classdef AitchisonAitkenKernel < handle
     %
     %
-    % k(x,y) =   PROD l_i  * PROD (1-l_i)/(c_i-1)
-    %         i:x_i=y_i    i:x_i != y_i
+    % k(x,y) =   PROD (1-l_i)  * PROD l_i/(c_i-1)
+    %         i:x_i=y_i      i:x_i != y_i
     %
     % c_i = number of categories for variable X_i
 
@@ -11,7 +11,7 @@ classdef AitchisonAitkenKernel < handle
     end
     
     properties (Access = public)
-        lambda (1,:) double {mustBeInRange(lambda,0.5,1)}
+        lambda (1,:) double {mustBeInRange(lambda,0,1)}
     end
 
     methods (Access = private)
@@ -28,10 +28,10 @@ classdef AitchisonAitkenKernel < handle
             % differences between x_i, y_i
             d_xy = ZI ~= ZJ;
 
-            % l^aggreements
-            d = l.^(~d_xy);
+            % (1-l)^aggreements
+            d = (1-l).^(~d_xy);
             
-            r = repmat((1-l)./(c-1), [height(ZJ), 1]);
+            r = repmat(l./(c-1), [height(ZJ), 1]);
             r(~d_xy) = 1;
 
             d = prod(d,2) .* prod(r, 2);
@@ -54,7 +54,7 @@ classdef AitchisonAitkenKernel < handle
             numerator = n * cell2mat(cellfun(@(p){sum((1/numel(p)-p).^2)}, pmf));
             denominator = cell2mat(cellfun(@(p){sum(p.*(1-p))}, pmf));
 
-            l = 1 - ((c-1)./c) ./ (1+(numerator./denominator));
+            l = ((c-1)./c) ./ (1+(numerator./denominator));
         end
     end
 

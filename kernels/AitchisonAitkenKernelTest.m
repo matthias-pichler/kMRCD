@@ -13,8 +13,8 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         
         function identity2(testCase)
             l = 0.75;
-            expected = [[l^2,      (1-l)^2]
-                        [(1-l)^2,  l^2]];
+            expected = [[(1-l)^2,   l^2]
+                        [l^2,       (1-l)^2]];
 
             x = eye(2);
             kernel = AitchisonAitkenKernel(x, lambda=[l l]);
@@ -27,8 +27,8 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         function identity2lambda(testCase)
             l1 = 0.75;
             l2 = 0.5;
-            expected = [[l1*l2,         (1-l1)*(1-l2)]
-                        [(1-l1)*(1-l2), l1*l2]];
+            expected = [[(1-l1)*(1-l2), l1*l2]
+                        [l1*l2,         (1-l1)*(1-l2)]];
 
             x = eye(2);
             kernel = AitchisonAitkenKernel(x, lambda=[l1 l2]);
@@ -40,9 +40,9 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
 
         function identity3(testCase)
             l = 0.75;
-            expected = [[l^3,       l*(1-l)^2,  l*(1-l)^2]
-                        [l*(1-l)^2, l^3,        l*(1-l)^2]
-                        [l*(1-l)^2, l*(1-l)^2,  l^3]];
+            expected = [[(1-l)^3,   l^2*(1-l),  l^2*(1-l)]
+                        [l^2*(1-l), (1-l)^3,    l^2*(1-l)]
+                        [l^2*(1-l), l^2*(1-l),  (1-l)^3]];
 
             x = eye(3);
             kernel = AitchisonAitkenKernel(x, lambda=[l l l]);
@@ -53,11 +53,11 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
 
         function identity3autolambda(testCase)
-            l = 1 - 1/2 / (1+(3*(1/2-1/3)^2/(1/3*(1-1/3))));
+            l = 1/2 / (1+(3*(1/2-1/3)^2/(1/3*(1-1/3))));
             
-            expected = [[l^3,       l*(1-l)^2,  l*(1-l)^2]
-                        [l*(1-l)^2, l^3,        l*(1-l)^2]
-                        [l*(1-l)^2, l*(1-l)^2,  l^3]];
+            expected = [[(1-l)^3,   l^2*(1-l),  l^2*(1-l)]
+                        [l^2*(1-l), (1-l)^3,    l^2*(1-l)]
+                        [l^2*(1-l), l^2*(1-l),  (1-l)^3]];
 
             x = eye(3);
             kernel = AitchisonAitkenKernel(x);
@@ -71,9 +71,9 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
             l1 = 0.75;
             l2 = 0.5;
             l3 = 0.6;
-            expected = [[l1*l2*l3,          l3*(1-l1)*(1-l2),   l2*(1-l1)*(1-l3)]
-                        [l3*(1-l1)*(1-l2),  l1*l2*l3,           l1*(1-l2)*(1-l3)]
-                        [l2*(1-l1)*(1-l3),  l1*(1-l2)*(1-l3),   l1*l2*l3]];
+            expected = [[(1-l1)*(1-l2)*(1-l3),  (1-l3)*l1*l2,           (1-l2)*l1*l3]
+                        [(1-l3)*l1*l2,          (1-l1)*(1-l2)*(1-l3),   (1-l1)*l2*l3]
+                        [(1-l2)*l1*l3,          (1-l1)*l2*l3,           (1-l1)*(1-l2)*(1-l3)]];
 
             x = eye(3);
             kernel = AitchisonAitkenKernel(x, lambda=[l1 l2 l3]);
@@ -85,10 +85,10 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
 
         function identity4(testCase)
             l = 0.75;
-            expected = [[l^4,           l^2*(1-l)^2,    l^2*(1-l)^2,    l^2*(1-l)^2]
-                        [l^2*(1-l)^2,   l^4,            l^2*(1-l)^2,    l^2*(1-l)^2]
-                        [l^2*(1-l)^2,   l^2*(1-l)^2,    l^4,            l^2*(1-l)^2]
-                        [l^2*(1-l)^2,   l^2*(1-l)^2,    l^2*(1-l)^2,    l^4]];
+            expected = [[(1-l)^4,       l^2*(1-l)^2,    l^2*(1-l)^2,    l^2*(1-l)^2]
+                        [l^2*(1-l)^2,   (1-l)^4,        l^2*(1-l)^2,    l^2*(1-l)^2]
+                        [l^2*(1-l)^2,   l^2*(1-l)^2,    (1-l)^4,        l^2*(1-l)^2]
+                        [l^2*(1-l)^2,   l^2*(1-l)^2,    l^2*(1-l)^2,    (1-l)^4]];
 
             x = eye(4);
             kernel = AitchisonAitkenKernel(x, lambda=[l l l l]);
@@ -100,10 +100,10 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
     
         function tall(testCase)
             l = 0.75;
-            expected = [[l^2,           (1-l)/2*(1-l),  (1-l)/2*(1-l),  (1-l)/2*l]
-                        [(1-l)/2*(1-l), l^2,            (1-l)/2*l,      (1-l)/2*(1-l)]
-                        [(1-l)/2*(1-l), (1-l)/2*l       l^2,            l*(1-l)]
-                        [(1-l)/2*l,     (1-l)/2*(1-l),      l*(1-l),        l^2]];
+            expected = [[(1-l)^2,   l/2*l,      l/2*l,      l/2*(1-l)]
+                        [l/2*l,     (1-l)^2,    l/2*(1-l),  l/2*l]
+                        [l/2*l,     l/2*(1-l)   (1-l)^2,    (1-l)*l]
+                        [l/2*(1-l), l/2*l,      (1-l)*l,    (1-l)^2]];
 
             x = [[1, 0]
                  [0, 1]
@@ -118,8 +118,8 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
 
         function fat(testCase)
             l = 0.75;
-            expected = [[l^3,       l*(1-l)^2]
-                        [l*(1-l)^2, l^3]];
+            expected = [[(1-l)^3,       l^2*(1-l)]
+                        [l^2*(1-l), (1-l)^3]];
 
             x = [[1, 0, 0]
                  [0, 1, 0]];

@@ -19,7 +19,7 @@ classdef OrderedLiRacinKernel < handle
 
             l = this.lambda;
             
-            % l^disaggreements
+            % l^|x_i-y_i|
             d = l.^abs(ZI - ZJ);
 
             d = prod(d,2);

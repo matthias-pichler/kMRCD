@@ -3,12 +3,12 @@ classdef WangRyzinKernel < handle
     % https://www.jstor.org/stable/2335831
     %
     %
-    % k(x,y) =     PROD l_i  *  PROD 1/2 * l_i * (1-l_i)^|x_i-y_i|
-    %           i:x_i = y_i  i:x_i != y_i
+    % k(x,y) =    PROD (1-l_i)  *  PROD 1/2 * (1-l_i) * l_i^|x_i-y_i|
+    %           i:x_i = y_i     i:x_i != y_i
     %
 
     properties (Access = public)
-        lambda (1,:) double {mustBeInRange(lambda,0.5,1)}
+        lambda (1,:) double {mustBeInRange(lambda,0,1)}
     end
 
     methods (Access = private)
@@ -25,9 +25,9 @@ classdef WangRyzinKernel < handle
             d_xy = ZI ~= ZJ;
 
             % l^aggreements
-            d = l.^(~d_xy);
+            d = (1-l).^(~d_xy);
 
-            r = 0.5 * l .* (1-l).^abs(ZI - ZJ);
+            r = 0.5 * (1-l) .* l.^abs(ZI - ZJ);
             r(~d_xy) = 1;
 
             d = prod(d,2) .* prod(r, 2);
@@ -48,7 +48,7 @@ classdef WangRyzinKernel < handle
             pmf = cellfun(@(c)c/100, gp, UniformOutput=false);
 
             % TODO: find propper calculation
-            l = 1 / c;
+            l = (c-1) ./ c;
         end
      end
 
