@@ -86,8 +86,8 @@ classdef kMRCD < handle
         
         function solution = runAlgorithm(this, x, alpha)
             arguments
-                this;
-                x (:,:) double
+                this
+                x
                 alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
             end
             
