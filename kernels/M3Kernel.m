@@ -2,9 +2,9 @@ classdef M3Kernel < handle
     
     % https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
     % 
-    %                                 n
-    % m3(x,y) =  SUM (h_a(P(x_i))) / SUM (h_a(P(x_i)) + h_a(P(y_i)))
-    %          i:x_i=y_i             i=1
+    %                                    n
+    % m3(x,y) = 2 * SUM (h_a(P(x_i))) / SUM (h_a(P(x_i)) + h_a(P(y_i)))
+    %             i:x_i=y_i             i=1
     %
     % h_a(z) = (1-z^a)^(1/a)
 
@@ -27,6 +27,7 @@ classdef M3Kernel < handle
 
             r = (1-z.^this.alpha).^(1/this.alpha);
 
+            assert(isequal(size(r), size(z)));
         end
 
         function d = m3distdenom(this, x, y)
@@ -58,7 +59,6 @@ classdef M3Kernel < handle
             end
 
             d = sum(this.h(P_x) + this.h(P_y));
-
         end
 
         function d = m3dist(this, ZI, ZJ)
@@ -85,6 +85,9 @@ classdef M3Kernel < handle
             denom = cellfun(@(y)this.m3distdenom(ZI,y), num2cell(ZJ,2));
             
             d = 2 * (mask * summands')./denom;
+
+            assert(size(d, 1)==size(ZJ, 1));
+            assert(size(d, 2)==size(ZI, 1));
         end
     end
 
@@ -92,12 +95,14 @@ classdef M3Kernel < handle
 
     methods (Access = public)
         
-        function this = M3Kernel(x)
+        function this = M3Kernel(x, NameValueArgs)
             arguments
                 x double
+                NameValueArgs.alpha (1,1) double = 1
             end
-            
-             [~, gr, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+            this.alpha = NameValueArgs.alpha;
+
+            [~, gr, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
 
             this.columnCategories = gr;
             this.columnPmf = cellfun(@(c)c/100, gp, UniformOutput=false);

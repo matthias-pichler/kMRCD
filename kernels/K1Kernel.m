@@ -28,7 +28,8 @@ classdef K1Kernel < handle
             end
 
             r = (1-z.^this.alpha).^(1/this.alpha);
-
+            
+            assert(isequal(size(r), size(z)));
         end
 
         function d = k1dist(this, ZI, ZJ)
@@ -52,15 +53,21 @@ classdef K1Kernel < handle
             summands = this.h(P_x);
             
             d = (mask * summands')/n;
+
+            assert(size(d, 1)==size(ZJ, 1));
+            assert(size(d, 2)==size(ZI, 1));
         end
     end
 
     methods (Access = public)
         
-        function this = K1Kernel(x)
+        function this = K1Kernel(x, NameValueArgs)
             arguments
                 x double
+                NameValueArgs.alpha (1,1) double = 1
             end
+
+            this.alpha = NameValueArgs.alpha;
             
             [~, gr, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
 
