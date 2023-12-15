@@ -4,7 +4,7 @@ classdef LiRacinKernel < handle
     % k(x,y) =   PROD l_i
     %         i:x_i != y_i
 
-    properties (Access = public)
+    properties (GetAccess = public, SetAccess = private)
         lambda (1,:) double {mustBeInRange(lambda,0,1)}
     end
 

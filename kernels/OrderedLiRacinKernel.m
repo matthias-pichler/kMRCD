@@ -5,7 +5,7 @@ classdef OrderedLiRacinKernel < handle
     %           i=1
     %
 
-    properties (Access = public)
+    properties (GetAccess = public, SetAccess = private)
         lambda (1,:) double {mustBeInRange(lambda,0,1)}
     end
 

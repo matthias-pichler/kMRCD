@@ -13,7 +13,7 @@ classdef M3Kernel < handle
         columnPmf cell
     end
 
-    properties (Access = public)
+    properties (GetAccess = public, SetAccess = private)
         alpha (1,1) double {mustBePositive} = 1
     end
     

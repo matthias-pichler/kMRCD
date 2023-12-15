@@ -7,7 +7,7 @@ classdef WangRyzinKernel < handle
     %           i:x_i = y_i     i:x_i != y_i
     %
 
-    properties (Access = public)
+    properties (GetAccess = public, SetAccess = private)
         lambda (1,:) double {mustBeInRange(lambda,0,1)}
     end
 

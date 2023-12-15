@@ -10,7 +10,7 @@ classdef OrderedAitchisonAitkenKernel < handle
         categories (1,:) double
     end
     
-    properties (Access = public)
+    properties (GetAccess = public, SetAccess = private)
         lambda (1,:) double {mustBeInRange(lambda,0,1)}
     end
 
