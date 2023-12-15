@@ -1,4 +1,4 @@
-%% Wisconsin Breastcancer (Kernel comparison)
+%% Careless Responding (Kernel comparison)
 
 % Setup
 clc;
@@ -8,31 +8,26 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-datasetName = 'breast-cancer-wisconsin';
+datasetName = 'careless_responding';
 
 imageDir = fullfile(projectDir, 'images', [datasetName '_kernels']);
 tableDir = fullfile(projectDir, 'tables', [datasetName '_kernels']);
 datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
-file = fullfile(datasetDir, [datasetName '.data']);
+file = fullfile(datasetDir, 'data_mod_resp.csv');
 
 mkdir(imageDir);
 mkdir(tableDir);
 
 %% Load Data
-opts = delimitedTextImportOptions(NumVariables=11,DataLines=[1, Inf], ...
-    Delimiter=",", ExtraColumnsRule="ignore", EmptyLineRule="skip", ImportErrorRule="omitrow",...
-    VariableNames=["SampleCodeNumber", "ClumpThickness", "UniformityOfCellSize", ...
-        "UniformityOfCellShape", "MarginalAdhesion", "SingleEpithelialCellSize", ...
-        "BareNuclei", "BlandChromatin", "NormalNucleoli", "Mitoses", "Class"], ...
-    VariableTypes = ["int32", "double", "double", "double", "double", ...
-        "double", "double", "double", "double", "double", "categorical"]);
+opts = detectImportOptions(file);
+opts = setvartype(opts, 'double');
 
 data = readtable(file, opts);
-data.Class = renamecats(data.Class, {'2' '4'}, {'benign', 'malignant'});
+data.Careless = categorical(data.Careless, [0 1], {'regular', 'careless'});
 
-unlabeledData = table2array(removevars(data,{'SampleCodeNumber', 'Class'}));
-labels = renamecats(data.Class, {'benign' 'malignant'}, {'inlier' 'outlier'});
+unlabeledData = table2array(removevars(data,{'Var1', 'Careless'}));
+labels = renamecats(data.Careless, {'regular' 'careless'}, {'inlier' 'outlier'});
 
 perm = randperm(height(unlabeledData));
 unlabeledData = unlabeledData(perm, :);

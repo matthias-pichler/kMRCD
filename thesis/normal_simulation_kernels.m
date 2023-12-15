@@ -1,4 +1,4 @@
-%% Wisconsin Breastcancer (Kernel comparison)
+%% Discretized Normal Distribution
 
 % Setup
 clc;
@@ -8,37 +8,30 @@ rng(1634256, "twister");
 
 projectDir = fileparts(fileparts(which(mfilename)));
 
-datasetName = 'breast-cancer-wisconsin';
+datasetName = 'normal_discretized_kernels';
 
-imageDir = fullfile(projectDir, 'images', [datasetName '_kernels']);
-tableDir = fullfile(projectDir, 'tables', [datasetName '_kernels']);
-datasetDir = fullfile(projectDir, 'datasets', datasetName);
-
-file = fullfile(datasetDir, [datasetName '.data']);
+imageDir = fullfile(projectDir, 'images', datasetName);
+tableDir = fullfile(projectDir, 'tables', datasetName);
 
 mkdir(imageDir);
 mkdir(tableDir);
 
-%% Load Data
-opts = delimitedTextImportOptions(NumVariables=11,DataLines=[1, Inf], ...
-    Delimiter=",", ExtraColumnsRule="ignore", EmptyLineRule="skip", ImportErrorRule="omitrow",...
-    VariableNames=["SampleCodeNumber", "ClumpThickness", "UniformityOfCellSize", ...
-        "UniformityOfCellShape", "MarginalAdhesion", "SingleEpithelialCellSize", ...
-        "BareNuclei", "BlandChromatin", "NormalNucleoli", "Mitoses", "Class"], ...
-    VariableTypes = ["int32", "double", "double", "double", "double", ...
-        "double", "double", "double", "double", "double", "categorical"]);
+%% Generate Data
 
-data = readtable(file, opts);
-data.Class = renamecats(data.Class, {'2' '4'}, {'benign', 'malignant'});
+contamination = 0.2;
+numCategories = 5;
+dimensions = 32;
+N = 1000;
 
-unlabeledData = table2array(removevars(data,{'SampleCodeNumber', 'Class'}));
-labels = renamecats(data.Class, {'benign' 'malignant'}, {'inlier' 'outlier'});
+ndm = NewDataModel(ALYZCorrelationType(), ClusterContamination());
+[x, ~, ~,idxOutliers] = ndm.generateDataset(N, dimensions, contamination, 20);        
 
-perm = randperm(height(unlabeledData));
-unlabeledData = unlabeledData(perm, :);
-labels = labels(perm, :);
+unlabeledData = cell2mat(cellfun(@(X)discretize(X, numCategories), num2cell(x, 1), UniformOutput=false));
 
-clear opts perm;
+labels = categorical(repmat("inlier", [N 1]), {'inlier' 'outlier'});
+labels(idxOutliers) = "outlier";
+
+clear x;
 
 %% Visualize
 
@@ -135,7 +128,7 @@ end
 
 yline(outlierRatio, LineStyle="--", ...
       DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
-legend(Location="southwest");
+legend;
 hold off;
 
 % Comparison
