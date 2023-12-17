@@ -137,6 +137,7 @@ yline(outlierRatio, LineStyle="--", ...
       DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
 legend(Location="southwest");
 hold off;
+saveas(fig,fullfile(imageDir, "pr_curve.png"),'png');
 
 % Comparison
 stats = struct2table(s);
