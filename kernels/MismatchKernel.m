@@ -6,7 +6,27 @@ classdef MismatchKernel < handle
     end
 
     properties (Access = private)
-        kernel
+        subsequenceLength (1,1) uint32
+        maxMismatches (1,1) uint32
+        alphabetSize (1,1) uint32
+    end
+
+    methods (Access = private)
+        function d = mismatchdist(this, ZI, ZJ)
+            arguments
+                this MismatchKernel
+                ZI (1,1) string
+                ZJ (:,1) string
+            end
+
+            kernel = this.strkernelModule.MismatchKernel(l=this.alphabetSize, k=this.subsequenceLength, m=this.maxMismatches);
+
+            processed = this.strkernelModule.preprocess(py.list(cellstr([ZI' ZJ'])), ignoreLower=false);
+            K = kernel.get_kernel(processed, normalize=true);
+            K = double(K.kernel);
+
+            d = K(2:end,1);
+        end
     end
     
     methods (Access = public)
@@ -18,26 +38,30 @@ classdef MismatchKernel < handle
                 NameValueArgs.alphabetSize (1,1) double {mustBeInteger, mustBePositive}
             end
             
-            alphabetSize = uint32(NameValueArgs.alphabetSize);
-            subsequenceLength = uint32(NameValueArgs.subsequenceLength);
-            maxMismatches = uint32(NameValueArgs.maxMismatches);
-
-            this.kernel = this.strkernelModule.MismatchKernel(l=alphabetSize, k=subsequenceLength, m=maxMismatches);
+            this.alphabetSize = uint32(NameValueArgs.alphabetSize);
+            this.subsequenceLength = uint32(NameValueArgs.subsequenceLength);
+            this.maxMismatches = uint32(NameValueArgs.maxMismatches);
         end
         
         function K = compute(this, Xtrain, Xtest)
             arguments
                 this MismatchKernel
-                Xtrain (1, :) string
-                Xtest (1, :) string = Xtrain
+                Xtrain (:, 1) string
+                Xtest (:, 1) string = Xtrain
             end
+            
+            [nTrain, ~] = size(Xtrain);
+            [nTest, ~] = size(Xtest);
 
-            processed = this.strkernelModule.preprocess(py.list(cellstr([Xtrain, Xtest])), ignoreLower=false);
-            K = this.kernel.get_kernel(processed);
-            K = double(K.kernel);
+            kernel = this.strkernelModule.MismatchKernel(l=this.alphabetSize, k=this.subsequenceLength, m=this.maxMismatches);
 
-            assert(size(K, 1)==size(Xtrain, 1));
-            assert(size(K, 2)==size(Xtest, 1));
+            processed = this.strkernelModule.preprocess(py.list(cellstr([Xtrain' Xtest'])), ignoreLower=false);
+            res = kernel.get_kernel(processed, normalize=true);
+            K = double(res.kernel);
+
+            K = K(1:nTrain, (nTrain+1):end);
+            
+            assert(isequal(size(K), [nTrain, nTest]));
         end
     end
     

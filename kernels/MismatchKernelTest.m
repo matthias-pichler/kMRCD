@@ -15,8 +15,8 @@ classdef MismatchKernelTest < matlab.unittest.TestCase
     methods (Test)
         % Test methods
 
-        function diagonalis1(testCase)
-            x = ["foo", "bar"];
+        function diag1(testCase)
+            x = ["foo"; "bar"];
 
             kernel = MismatchKernel(alphabetSize=26, subsequenceLength=3, maxMismatches=1);
 
