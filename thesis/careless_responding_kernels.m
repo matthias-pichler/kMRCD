@@ -32,6 +32,7 @@ labels = renamecats(data.Careless, {'regular' 'careless'}, {'inlier' 'outlier'})
 perm = randperm(height(unlabeledData));
 unlabeledData = unlabeledData(perm, :);
 labels = labels(perm, :);
+encodedData = join(string(unlabeledData), "");
 
 clear opts perm;
 
@@ -51,16 +52,16 @@ alpha = 0.7;
 s = struct();
 
 %% Linear
+
 kModel = LinKernel();
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
-
 s(1).kernel = "Linear";
 s(1).solution = solution;
 
 %% RBF
+
 kModel = AutoRbfKernel(unlabeledData);
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
-
 s(2).kernel = "RBF";
 s(2).solution = solution;
 
@@ -72,28 +73,46 @@ s(3).kernel = "Dirac";
 s(3).solution = solution;
 
 %% k1
+
 kModel = K1Kernel(unlabeledData);
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(4).kernel = "k1";
 s(4).solution = solution;
 
 %% m3
+
 kModel = M3Kernel(unlabeledData);
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(5).kernel = "m3";
 s(5).solution = solution;
 
 %% Aitchison-Aitken
+
 kModel = AitchisonAitkenKernel(unlabeledData);
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(6).kernel = "Aitchison-Aitken";
 s(6).solution = solution;
 
 %% Li-Racin
+
 kModel = LiRacinKernel(unlabeledData);
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(7).kernel = "Li-Racin";
 s(7).solution = solution;
+
+%% String-Subsequence
+
+kModel = StringSubsequenceKernel(maxSubsequence=10, lambda=0.6);
+solution = kMRCD(kModel).runAlgorithm(encodedData, alpha);
+s(8).kernel = "SSK";
+s(8).solution = solution;
+
+%% Mismatch
+
+kModel = MismatchKernel(alphabetSize=5, maxMismatches=3, subsequenceLength=10);
+solution = kMRCD(kModel).runAlgorithm(encodedData, alpha);
+s(9).kernel = "Mismatch";
+s(9).solution = solution;
 
 %% Summary
 
@@ -130,8 +149,9 @@ end
 
 yline(outlierRatio, LineStyle="--", ...
       DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
-legend(Location="southwest");
+legend;
 hold off;
+saveas(fig,fullfile(imageDir, "pr_curve.png"),'png');
 
 % Comparison
 stats = struct2table(s);

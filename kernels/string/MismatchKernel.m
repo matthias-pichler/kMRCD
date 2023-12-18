@@ -5,7 +5,7 @@ classdef MismatchKernel < handle
         strkernelModule = py.importlib.import_module('strkernel.mismatch_kernel')
     end
 
-    properties (Access = private)
+    properties (SetAccess = private, GetAccess = public)
         subsequenceLength (1,1) uint32
         maxMismatches (1,1) uint32
         alphabetSize (1,1) uint32
