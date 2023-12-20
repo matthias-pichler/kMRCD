@@ -47,8 +47,6 @@ unlabeledData = table2array(unlabeledData);
 
 %% Visualize
 
-alpha = 0.5;
-
 Y = tsne(unlabeledData);
 fig = figure(1);
 scatter(Y(:,1), Y(:,2));
@@ -58,13 +56,22 @@ saveas(fig,fullfile(imageDir, "e02_tsne.png"),'png');
 clear Y;
 
 %% Run
+
+alpha = 0.7;
+s = struct();
+
 % kModel = AutoRbfKernel(unlabeledData);
 % kModel = DiracKernel();
 % kModel = M3Kernel(unlabeledData);
 kModel = K1Kernel(unlabeledData);
 
+% encodedData = join(string(unlabeledData), "");
+% kModel = StringSubsequenceKernel(maxSubsequence=10, lambda=0.6);
+
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);
+
+alpha = 0.5;
 
 % placeholder
 labels = categorical(repmat("inlier", [height(unlabeledData), 1]), {'inlier' 'outlier'});

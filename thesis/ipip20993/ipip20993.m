@@ -54,6 +54,9 @@ clear Y;
 % kModel = M3Kernel(unlabeledData);
 kModel = K1Kernel(unlabeledData);
 
+% encodedData = join(string(unlabeledData), "");
+% kModel = StringSubsequenceKernel(maxSubsequence=10, lambda=0.6);
+
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);
 
