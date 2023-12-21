@@ -27,6 +27,9 @@ file = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
 mkdir(imageDir, modelName);
 mkdir(tableDir, modelName);
 
+imageDir = fullfile(imageDir, modelName);
+tableDir = fullfile(tableDir, modelName);
+
 %% Visualize
 
 [embeddings, labels] = generateSample(file, 1000, 0.2);
