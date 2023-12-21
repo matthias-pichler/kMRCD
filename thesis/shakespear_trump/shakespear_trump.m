@@ -7,7 +7,8 @@ clear all;
 close all;
 rng(1634256, "twister");
 
-projectDir = fileparts(fileparts(which(mfilename)));
+fileDir = fileparts(which(mfilename));
+projectDir = fileparts(fileparts(fileDir));
 
 modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
@@ -26,29 +27,28 @@ file = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
 mkdir(imageDir, modelName);
 mkdir(tableDir, modelName);
 
-%% Load Data
+%% Visualize
 
-N = 1000;
-[eps20, eps20Labels] = generateSample(file, N, 0.2);
+[embeddings, labels] = generateSample(file, 1000, 0.2);
 
-%% e=0.2, a=0.7
-
-alpha = 0.7;
-data = eps20;
-labels = eps20Labels;
-
-Y = tsne(data, Distance="cosine");
+Y = tsne(embeddings);
 fig = figure(1);
 gscatter(Y(:,1), Y(:,2), labels);
 title("t-SNE Embeddings");
-saveas(fig,fullfile(imageDir, modelName, "e02_tsne.png"),'png');
+saveas(fig,fullfile(imageDir, "e02_tsne.png"),'png');
 
 clear Y;
 
-kModel = AutoSphereRbfKernel(data);
+%% Sample
+
+alpha = 0.7;
+N = 1000;
+
+kModel = AutoSphereRbfKernel(embeddings);
 % kModel = AutoRbfKernel(data);
+
 poc = kMRCD(kModel); 
-solution = poc.runAlgorithm(data, alpha);
+solution = poc.runAlgorithm(embeddings, alpha);
 
 % h Subset
 hSubset = table(labels(solution.hsubsetIndices), VariableNames="label");
@@ -65,38 +65,61 @@ cm = confusionmat(labels,grouphat);
 
 fig = figure(2);
 confusionchart(fig, cm, categories(labels));
-saveas(fig, fullfile(imageDir, modelName, 'e02_confusion_matrix.png'),'png');
+saveas(fig, fullfile(imageDir, modelName, 'confusion_matrix.png'),'png');
 
 clear cm grouphat;
 
 % Mahalanobis Distances
 fig = figure(3);
 mahalchart(labels, solution.rd, solution.cutoff);
-saveas(fig, fullfile(imageDir, modelName, 'e02_mahalanobis_distances.png'),'png');
+saveas(fig, fullfile(imageDir, modelName, 'mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
-stats = evaluation(data, labels, alpha, solution, Estimators={'lof' 'iforest'});
-saveas(fig, fullfile(imageDir, modelName, 'e02_pr_curve.png'),'png');
-writetable(stats, fullfile(tableDir, modelName, "e02_comparison.csv"));
+stats = evaluation(embeddings, labels, alpha, solution, Estimators={'lof' 'iforest'});
+saveas(fig, fullfile(imageDir, modelName, 'pr_curve.png'),'png');
 
 clear stats;
-
 clear solution kModel alpha poc;
-clear data labels;
-%% Comparison
+clear embeddings labels;
 
-[eps0, eps0Labels] = generateSample(file, N, 0);
-[eps10, eps10Labels] = generateSample(file, N, 0.1);
-[eps30, eps30Labels] = generateSample(file, N, 0.3);
+set(0,'DefaultFigureVisible','off');
 
-stats = [
-        runComparison(eps10, eps10Labels, 0.1, 0.5); runComparison(eps10, eps10Labels, 0.1, 0.75); runComparison(eps10, eps10Labels, 0.1, 0.9); ...
-        runComparison(eps20, eps20Labels, 0.2, 0.5); runComparison(eps20, eps20Labels, 0.2, 0.75); runComparison(eps20, eps20Labels, 0.2, 0.9); ...
-        runComparison(eps30, eps30Labels, 0.3, 0.5); runComparison(eps30, eps30Labels, 0.3, 0.75); runComparison(eps30, eps30Labels, 0.3, 0.9)
-        ];
+%% Run a = 0.5, e = 0.1
 
-writetable(stats, fullfile(tableDir, modelName, 'comparison.csv'));
+stats = runComparison(iter=100, alpha=0.5, data=@()generateSample(file, N, 0.1));
+
+writetable(stats, fullfile(tableDir, "comparison_a05_e01.csv"));
+
+%% Run a = 0.75, e = 0.1
+
+stats = runComparison(iter=100, alpha=0.75, data=@()generateSample(file, N, 0.1));
+
+writetable(stats, fullfile(tableDir, "comparison_a075_e01.csv"));
+
+%% Run a = 0.9, e = 0.1
+
+stats = runComparison(iter=100, alpha=0.9, data=@()generateSample(file, N, 0.1));
+
+writetable(stats, fullfile(tableDir, "comparison_a09_e01.csv"));
+
+%% Run a = 0.5, e = 0.2
+
+stats = runComparison(iter=100, alpha=0.5, data=@()generateSample(file, N, 0.2));
+
+writetable(stats, fullfile(tableDir, "comparison_a05_e02.csv"));
+
+%% Run a = 0.75, e = 0.2
+
+stats = runComparison(iter=100, alpha=0.75, data=@()generateSample(file, N, 0.2));
+
+writetable(stats, fullfile(tableDir, "comparison_a075_e02.csv"));
+
+%% Run a = 0.5, e = 0.3
+
+stats = runComparison(iter=100, alpha=0.5, data=@()generateSample(file, N, 0.3));
+
+writetable(stats, fullfile(tableDir, "comparison_a05_e03.csv"));
 
 %% Functions
 
@@ -128,23 +151,42 @@ function [embeddings,labels] = generateSample(filepath, sampleSize, outlierConta
     labels = labels(perm, :);
 end
 
-function stats = runComparison(data, labels, outlierContamination, robustness)
+function stats = runComparison(NameValueArgs)
     arguments
-        data double {mustBeNonempty}
-        labels categorical {mustBeNonempty}
-        outlierContamination (1,1) double {mustBeInRange(outlierContamination,0,1)}
-        robustness (1,1) double {mustBeInRange(robustness,0.5,1)}
+        NameValueArgs.iter (1,1) double {mustBeInteger, mustBePositive} = 100
+        NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
+        NameValueArgs.data
+    end
+
+    alpha = NameValueArgs.alpha;
+    iter = NameValueArgs.iter;
+
+    kMRCDStats = table(Size=[iter, 6], ...
+        VariableNames={'accuracy' 'precision' 'sensitivity' 'specificity' 'f1Score' 'aucpr'}, ...
+        VariableTypes=repmat("double", 1, 6));
+    lofStats = kMRCDStats;
+    iforestStats = kMRCDStats;
+
+    for i = 1:iter
+        fprintf("Iteration: %d\n", i);
+
+        if(isa(NameValueArgs.data, 'function_handle'))
+            [data, labels] = NameValueArgs.data();
+        end
+        
+        kModel = K1Kernel(data);
+        
+        poc = kMRCD(kModel); 
+        solution = poc.runAlgorithm(data, alpha);
+    
+        e = evaluation(data, labels, alpha, solution, Estimators={'lof' 'iforest'});
+    
+        kMRCDStats(i,:) = e('kMRCD',:);
+        lofStats(i,:) = e('lof', :);
+        iforestStats(i,:) = e('iforest', :);
     end
     
-    kModel = AutoSphereRbfKernel(data);
-    poc = kMRCD(kModel); 
-    solution = poc.runAlgorithm(data, robustness);
-
-    stats = evaluation(data, labels, robustness, solution, Estimators={'lof' 'iforest'});
-
-    names = string(stats.Properties.RowNames);
-    e = repmat(outlierContamination,size(names));
-    a = repmat(robustness,size(names));
-    stats = [table(e,a,names, VariableNames={'e' 'a' 'Name'}), stats];
-    stats.Properties.RowNames = {};
+    stats = vertcat(harmmean(kMRCDStats), harmmean(lofStats), harmmean(iforestStats));
+    stats = horzcat(table(["kMRCD";"lof";"iforest"], VariableNames={'name'}),stats);
+    stats.Properties.RowNames = stats.name;
 end

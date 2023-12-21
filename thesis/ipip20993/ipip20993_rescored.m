@@ -6,7 +6,8 @@ clear all;
 close all;
 rng(1634256, "twister");
 
-projectDir = fileparts(fileparts(which(mfilename)));
+fileDir = fileparts(which(mfilename));
+projectDir = fileparts(fileparts(fileDir));
 
 datasetName = 'ipip20993';
 

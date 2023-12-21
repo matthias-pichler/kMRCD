@@ -8,7 +8,8 @@ close all;
 
 rng(1634256, "twister");
 
-projectDir = fileparts(fileparts(which(mfilename)));
+fileDir = fileparts(which(mfilename));
+projectDir = fileparts(fileparts(fileDir));
 
 modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
