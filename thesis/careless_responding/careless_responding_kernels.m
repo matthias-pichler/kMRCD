@@ -103,17 +103,31 @@ s(7).solution = solution;
 
 %% String-Subsequence
 
-kModel = StringSubsequenceKernel(maxSubsequence=10, lambda=0.6);
+kModel = StringSubsequenceKernel(maxSubsequence=8, lambda=0.6);
 solution = kMRCD(kModel).runAlgorithm(encodedData, alpha);
 s(8).kernel = "SSK";
 s(8).solution = solution;
 
-%% Mismatch
+%% Ordered Aitchison-Aitken
 
-kModel = MismatchKernel(alphabetSize=5, maxMismatches=3, subsequenceLength=10);
-solution = kMRCD(kModel).runAlgorithm(encodedData, alpha);
-s(9).kernel = "Mismatch";
+kModel = OrderedAitchisonAitkenKernel(unlabeledData);
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
+s(9).kernel = "Ordered Aitchison-Aitken";
 s(9).solution = solution;
+
+%% Ordered Li-Racin
+
+kModel = OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
+s(10).kernel = "Ordered Li-Racin";
+s(10).solution = solution;
+
+%% Wang-Ryzin
+
+kModel = WangRyzinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
+s(11).kernel = "Wang-Ryzin";
+s(11).solution = solution;
 
 %% Summary
 
@@ -157,5 +171,3 @@ saveas(fig,fullfile(imageDir, "pr_curve.png"),'png');
 % Comparison
 stats = struct2table(s);
 writetable(stats, fullfile(tableDir, "comparison.csv"));
-
-clear s;
