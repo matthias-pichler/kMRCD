@@ -62,7 +62,7 @@ classdef OrderedAitchisonAitkenKernel < handle
             numerator = n * cell2mat(cellfun(@(p){sum((1/numel(p)-p).^2)}, pmf));
             denominator = cell2mat(cellfun(@(p){sum(p.*(1-p))}, pmf));
 
-            l = 1 - ((c-1)./c) ./ (1+(numerator./denominator));
+            l = ((c-1)./c) ./ (1+(numerator./denominator));
         end
     end
 
