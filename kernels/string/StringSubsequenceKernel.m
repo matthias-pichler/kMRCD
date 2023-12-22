@@ -37,11 +37,10 @@ classdef StringSubsequenceKernel < handle
             k = 0;
             for i = 1:this.maxSubsequence
                 for sj = i:length(s)
-                    for tk = i:length(t)
-                        if s(sj) == t(tk)
-                            k = k + this.lambda^2 * k_prim(i, sj, tk);
-                        end
-                    end
+                    tk_range = i:length(t);
+                    matches = (s(sj) == t(tk_range)); % Logical array of matches
+                    k_prim_slice = squeeze(k_prim(i, sj, tk_range))'; % Row vector
+                    k = k + sum(this.lambda^2 * k_prim_slice .* matches);
                 end
             end
         end
