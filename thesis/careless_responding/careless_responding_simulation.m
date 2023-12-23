@@ -20,7 +20,7 @@ mkdir(tableDir);
 
 %% Visualize
 
-[unlabeledData, labels] = loadData(directory=datasetDir, iteration=1, type="uni");
+[unlabeledData, labels] = loadData(directory=datasetDir, iteration=1, distribution="uni");
 
 Y = tsne(unlabeledData);
 fig = figure(1);
@@ -34,10 +34,16 @@ clear Y;
 
 alpha = 0.7;
 
-kModel = K1Kernel(unlabeledData);
-
+% kModel = K1Kernel(unlabeledData);
+kModel = StringSubsequenceKernel(lambda=0.05,maxSubsequence=5);
 poc = kMRCD(kModel);
-solution = poc.runAlgorithm(unlabeledData, alpha);
+
+if isequal(class(kModel), 'StringSubsequenceKernel')
+    encodedData = join(string(unlabeledData), "");
+    solution = poc.runAlgorithm(encodedData, alpha);
+else
+    solution = poc.runAlgorithm(unlabeledData, alpha);
+end
 
 % h Subset
 hSubset = table(labels(solution.hsubsetIndices), VariableNames="label");
@@ -74,19 +80,19 @@ clear data labels;
 
 %% Uniform
 
-stats = runSimulation(directory=datasetDir, type="uni", alpha=0.7);
+stats = runSimulation(directory=datasetDir, distribution="uni", alpha=0.7, maxIterations=5);
 
 writetable(stats, fullfile(tableDir, "comparison_uni_a07.csv"));
 
 %% Middle
 
-stats = runSimulation(directory=datasetDir, type="mid", alpha=0.7);
+stats = runSimulation(directory=datasetDir, distribution="mid", alpha=0.7, maxIterations=5);
 
 writetable(stats, fullfile(tableDir, "comparison_mid_a07.csv"));
 
 %% Pattern
 
-stats = runSimulation(directory=datasetDir, type="pattern", alpha=0.7);
+stats = runSimulation(directory=datasetDir, distribution="pattern", alpha=0.7, maxIterations=5);
 
 writetable(stats, fullfile(tableDir, "comparison_pattern_a07.csv"));
 
@@ -95,11 +101,11 @@ writetable(stats, fullfile(tableDir, "comparison_pattern_a07.csv"));
 function [unlabeledData, labels] = loadData(NameValueArgs)
     arguments
         NameValueArgs.directory (1,1) string
-        NameValueArgs.type (1,1) string {mustBeMember(NameValueArgs.type, ["mid" "uni" "pattern"])}
+        NameValueArgs.distribution (1,1) string {mustBeMember(NameValueArgs.distribution, ["mid" "uni" "pattern"])}
         NameValueArgs.iteration (1,1) double {mustBeInteger, mustBePositive}
     end
 
-    file = fullfile(NameValueArgs.directory, sprintf("dat_%s", NameValueArgs.type), sprintf("dat_%d_%s.csv", NameValueArgs.iteration, NameValueArgs.type));
+    file = fullfile(NameValueArgs.directory, sprintf("dat_%s", NameValueArgs.distribution), sprintf("dat_%d_%s.csv", NameValueArgs.iteration, NameValueArgs.distribution));
     
     opts = detectImportOptions(file);
     opts = setvartype(opts, 'double');
@@ -109,39 +115,45 @@ function [unlabeledData, labels] = loadData(NameValueArgs)
 
     unlabeledData = table2array(removevars(data,{'Careless'}));
     labels = renamecats(data.Careless, {'regular' 'careless'}, {'inlier' 'outlier'});
-    
+
     perm = randperm(height(unlabeledData));
     unlabeledData = unlabeledData(perm, :);
-    labels = labels(perm, :);
+    labels = labels(perm, :);    
 end
 
 function stats = runSimulation(NameValueArgs)
     arguments
         NameValueArgs.directory (1,1) string
-        NameValueArgs.type (1,1) string {mustBeMember(NameValueArgs.type, ["mid" "uni" "pattern"])}
+        NameValueArgs.distribution (1,1) string {mustBeMember(NameValueArgs.distribution, ["mid" "uni" "pattern"])}
         NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
         NameValueArgs.maxIterations (1,1) double {mustBeInteger, mustBePositive, mustBeLessThanOrEqual(NameValueArgs.maxIterations, 1000)} = 1000
     end
 
     alpha = NameValueArgs.alpha;
     
-    kMRCDStats = table(Size=[1000, 6], ...
+    kMRCDStats = table(Size=[NameValueArgs.maxIterations, 6], ...
         VariableNames={'accuracy' 'precision' 'sensitivity' 'specificity' 'f1Score' 'aucpr'}, ...
         VariableTypes=repmat("double", 1, 6));
     lofStats = kMRCDStats;
     iforestStats = kMRCDStats;
     robustcovStats = kMRCDStats;
     
-    for i = 1:1000
+    for i = 1:NameValueArgs.maxIterations
         fprintf("Iteration: %d\n", i);
 
-        [data, labels] = loadData(directory=NameValueArgs.directory, type=NameValueArgs.type, iteration=i);
+        [data, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
         
-        kModel = K1Kernel(data);
-        
-        poc = kMRCD(kModel); 
-        solution = poc.runAlgorithm(data, alpha);
-    
+        % kModel = K1Kernel(data);
+        kModel = StringSubsequenceKernel(lambda=0.05,maxSubsequence=5);
+        poc = kMRCD(kModel);
+
+        if isequal(class(kModel), 'StringSubsequenceKernel')
+            encodedData = join(string(data), "");
+            solution = poc.runAlgorithm(encodedData, alpha);
+        else
+            solution = poc.runAlgorithm(data, alpha);
+        end
+             
         e = evaluation(data, labels, alpha, solution, CategoricalPredictors="all");
     
         kMRCDStats(i,:) = e('kMRCD',:);
@@ -150,7 +162,7 @@ function stats = runSimulation(NameValueArgs)
         robustcovStats(i,:) = e('robustcov',:);
     end
     
-    stats = vertcat(harmmean(kMRCDStats), harmmean(lofStats), harmmean(iforestStats),harmmean(robustcovStats));
+    stats = vertcat(mean(kMRCDStats), mean(lofStats), mean(iforestStats),mean(robustcovStats));
     stats = horzcat(table(["kMRCD";"lof";"iforest";"robustcov"], VariableNames={'name'}),stats);
     stats.Properties.RowNames = stats.name;
 end

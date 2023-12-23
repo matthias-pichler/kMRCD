@@ -34,6 +34,7 @@ clear Y;
 alpha = 0.7;
 
 kModel = K1Kernel(unlabeledData);
+% kModel = AutoRbfKernel(unlabeledData);
 
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);
@@ -75,19 +76,19 @@ clear data labels;
 
 set(0,'DefaultFigureVisible','off');
 
-stats = runSimulation(iter=100, alpha=0.7, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=5));
+stats = runSimulation(iter=100, alpha=0.7, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=16));
 
 writetable(stats, fullfile(tableDir, "comparison_a07_e02.csv"));
 
 %% Run a = 0.5, e = 0.2
 
-stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=5));
+stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=16));
 
 writetable(stats, fullfile(tableDir, "comparison_a05_e02.csv"));
 
 %% Run a = 0.5, e = 0.3
 
-stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.3, dimensions=32, categories=5));
+stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.3, dimensions=32, categories=16));
 
 writetable(stats, fullfile(tableDir, "comparison_a05_e03.csv"));
 
@@ -152,7 +153,8 @@ function stats = runSimulation(NameValueArgs)
         robustcovStats(i,:) = e('robustcov',:);
     end
     
-    stats = vertcat(harmmean(kMRCDStats), harmmean(lofStats), harmmean(iforestStats),harmmean(robustcovStats));
+    % TODO: boxplots
+    stats = vertcat(mean(kMRCDStats), mean(lofStats), mean(iforestStats),mean(robustcovStats));
     stats = horzcat(table(["kMRCD";"lof";"iforest";"robustcov"], VariableNames={'name'}),stats);
     stats.Properties.RowNames = stats.name;
 end

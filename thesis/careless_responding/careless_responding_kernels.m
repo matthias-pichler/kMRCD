@@ -103,7 +103,7 @@ s(7).solution = solution;
 
 %% String-Subsequence
 
-kModel = StringSubsequenceKernel(maxSubsequence=8, lambda=0.6);
+kModel = StringSubsequenceKernel(maxSubsequence=10, lambda=0.1);
 solution = kMRCD(kModel).runAlgorithm(encodedData, alpha);
 s(8).kernel = "SSK";
 s(8).solution = solution;

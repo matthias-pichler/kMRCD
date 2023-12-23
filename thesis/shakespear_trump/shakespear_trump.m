@@ -189,7 +189,7 @@ function stats = runComparison(NameValueArgs)
         iforestStats(i,:) = e('iforest', :);
     end
     
-    stats = vertcat(harmmean(kMRCDStats), harmmean(lofStats), harmmean(iforestStats));
+    stats = vertcat(mean(kMRCDStats), mean(lofStats), mean(iforestStats));
     stats = horzcat(table(["kMRCD";"lof";"iforest"], VariableNames={'name'}),stats);
     stats.Properties.RowNames = stats.name;
 end

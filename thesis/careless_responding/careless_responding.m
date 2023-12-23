@@ -53,10 +53,16 @@ clear Y;
 % kModel = AutoRbfKernel(unlabeledData);
 % kModel = DiracKernel();
 % kModel = M3Kernel(unlabeledData);
-kModel = K1Kernel(unlabeledData);
-
+% kModel = K1Kernel(unlabeledData);
+kModel = StringSubsequenceKernel(lambda=0.05,maxSubsequence=5);
 poc = kMRCD(kModel);
-solution = poc.runAlgorithm(unlabeledData, alpha);
+
+if isequal(class(kModel), 'StringSubsequenceKernel')
+    encodedData = join(string(unlabeledData), "");
+    solution = poc.runAlgorithm(encodedData, alpha);
+else
+    solution = poc.runAlgorithm(unlabeledData, alpha);
+end
 
 % h Subset
 hSubset = table(labels(solution.hsubsetIndices), VariableNames="label");
