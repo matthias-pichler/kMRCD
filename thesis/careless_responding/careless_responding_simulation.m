@@ -80,21 +80,30 @@ clear data labels;
 
 %% Uniform
 
-stats = runSimulation(directory=datasetDir, distribution="uni", alpha=0.7, maxIterations=5);
+stats = runSimulation(directory=datasetDir, distribution="uni", alpha=0.7, maxIterations=100);
 
 writetable(stats, fullfile(tableDir, "comparison_uni_a07.csv"));
+fig = figure(5);
+boxchart(stats.name, stats.aucpr);
+saveas(fig, fullfile(imageDir, 'boxplot_uni_a07.png'),'png');
 
 %% Middle
 
-stats = runSimulation(directory=datasetDir, distribution="mid", alpha=0.7, maxIterations=5);
+stats = runSimulation(directory=datasetDir, distribution="mid", alpha=0.7, maxIterations=100);
 
 writetable(stats, fullfile(tableDir, "comparison_mid_a07.csv"));
+fig = figure(6);
+boxchart(stats.name, stats.aucpr);
+saveas(fig, fullfile(imageDir, 'boxplot_mid_a07.png'),'png');
 
 %% Pattern
 
-stats = runSimulation(directory=datasetDir, distribution="pattern", alpha=0.7, maxIterations=5);
+stats = runSimulation(directory=datasetDir, distribution="pattern", alpha=0.7, maxIterations=100);
 
 writetable(stats, fullfile(tableDir, "comparison_pattern_a07.csv"));
+fig = figure(7);
+boxchart(stats.name, stats.aucpr);
+saveas(fig, fullfile(imageDir, 'boxplot_pattern_a07.png'),'png');
 
 %% Functions
 
@@ -130,15 +139,16 @@ function stats = runSimulation(NameValueArgs)
     end
 
     alpha = NameValueArgs.alpha;
+    iter = NameValueArgs.maxIterations;
     
-    kMRCDStats = table(Size=[NameValueArgs.maxIterations, 6], ...
+    kMRCDStats = table(Size=[iter, 6], ...
         VariableNames={'accuracy' 'precision' 'sensitivity' 'specificity' 'f1Score' 'aucpr'}, ...
         VariableTypes=repmat("double", 1, 6));
     lofStats = kMRCDStats;
     iforestStats = kMRCDStats;
     robustcovStats = kMRCDStats;
     
-    for i = 1:NameValueArgs.maxIterations
+    for i = 1:iter
         fprintf("Iteration: %d\n", i);
 
         [data, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
@@ -162,7 +172,6 @@ function stats = runSimulation(NameValueArgs)
         robustcovStats(i,:) = e('robustcov',:);
     end
     
-    stats = vertcat(mean(kMRCDStats), mean(lofStats), mean(iforestStats),mean(robustcovStats));
-    stats = horzcat(table(["kMRCD";"lof";"iforest";"robustcov"], VariableNames={'name'}),stats);
-    stats.Properties.RowNames = stats.name;
+    stats = vertcat(kMRCDStats, lofStats, iforestStats,robustcovStats);
+    stats = horzcat(table(categorical(repelem(["kMRCD";"lof";"iforest";"robustcov"], iter)), VariableNames={'name'}),stats);
 end
