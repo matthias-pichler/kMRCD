@@ -79,18 +79,27 @@ set(0,'DefaultFigureVisible','off');
 stats = runSimulation(iter=100, alpha=0.7, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=16));
 
 writetable(stats, fullfile(tableDir, "comparison_a07_e02.csv"));
+fig = figure(5);
+boxchart(stats.name, stats.aucpr);
+saveas(fig, fullfile(imageDir, 'boxplot_a07_e02.png'),'png');
 
 %% Run a = 0.5, e = 0.2
 
 stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=16));
 
 writetable(stats, fullfile(tableDir, "comparison_a05_e02.csv"));
+fig = figure(6);
+boxchart(stats.name, stats.aucpr);
+saveas(fig, fullfile(imageDir, 'boxplot_a05_e02.png'),'png');
 
 %% Run a = 0.5, e = 0.3
 
 stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.3, dimensions=32, categories=16));
 
 writetable(stats, fullfile(tableDir, "comparison_a05_e03.csv"));
+fig = figure(7);
+boxchart(stats.name, stats.aucpr);
+saveas(fig, fullfile(imageDir, 'boxplot_a05_e03.png'),'png');
 
 %% Functions
 
@@ -153,8 +162,6 @@ function stats = runSimulation(NameValueArgs)
         robustcovStats(i,:) = e('robustcov',:);
     end
     
-    % TODO: boxplots
-    stats = vertcat(mean(kMRCDStats), mean(lofStats), mean(iforestStats),mean(robustcovStats));
-    stats = horzcat(table(["kMRCD";"lof";"iforest";"robustcov"], VariableNames={'name'}),stats);
-    stats.Properties.RowNames = stats.name;
+    stats = vertcat(kMRCDStats, lofStats, iforestStats,robustcovStats);
+    stats = horzcat(table(categorical(repelem(["kMRCD";"lof";"iforest";"robustcov"], iter)), VariableNames={'name'}),stats);
 end
