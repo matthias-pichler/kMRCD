@@ -80,27 +80,30 @@ clear data labels;
 
 %% Uniform
 
-stats = runSimulation(directory=datasetDir, distribution="uni", alpha=0.7, maxIterations=100);
+filepath = fullfile(tableDir, "simulation_uni_a07.csv");
+fclose(fopen(filepath, 'w'));
+stats = runSimulation(directory=datasetDir, distribution="uni", alpha=0.7, maxIterations=100, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_uni_a07.csv"));
 fig = figure(5);
 boxchart(stats.name, stats.aucpr);
 saveas(fig, fullfile(imageDir, 'boxplot_uni_a07.png'),'png');
 
 %% Middle
 
-stats = runSimulation(directory=datasetDir, distribution="mid", alpha=0.7, maxIterations=100);
+filepath = fullfile(tableDir, "simulation_mid_a07.csv");
+fclose(fopen(filepath, 'w'));
+stats = runSimulation(directory=datasetDir, distribution="mid", alpha=0.7, maxIterations=100, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_mid_a07.csv"));
 fig = figure(6);
 boxchart(stats.name, stats.aucpr);
 saveas(fig, fullfile(imageDir, 'boxplot_mid_a07.png'),'png');
 
 %% Pattern
 
-stats = runSimulation(directory=datasetDir, distribution="pattern", alpha=0.7, maxIterations=100);
+filepath = fullfile(tableDir, "simulation_pattern_a07.csv");
+fclose(fopen(filepath, 'w'));
+stats = runSimulation(directory=datasetDir, distribution="pattern", alpha=0.7, maxIterations=100, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_pattern_a07.csv"));
 fig = figure(7);
 boxchart(stats.name, stats.aucpr);
 saveas(fig, fullfile(imageDir, 'boxplot_pattern_a07.png'),'png');
@@ -113,21 +116,21 @@ function [unlabeledData, labels] = loadData(NameValueArgs)
         NameValueArgs.distribution (1,1) string {mustBeMember(NameValueArgs.distribution, ["mid" "uni" "pattern"])}
         NameValueArgs.iteration (1,1) double {mustBeInteger, mustBePositive}
     end
-
+    
     file = fullfile(NameValueArgs.directory, sprintf("dat_%s", NameValueArgs.distribution), sprintf("dat_%d_%s.csv", NameValueArgs.iteration, NameValueArgs.distribution));
     
     opts = detectImportOptions(file);
     opts = setvartype(opts, 'double');
-
+    
     data = readtable(file, opts);
     data.Careless = categorical(data.Careless, [0 1], {'regular', 'careless'});
-
+    
     unlabeledData = table2array(removevars(data,{'Careless'}));
     labels = renamecats(data.Careless, {'regular' 'careless'}, {'inlier' 'outlier'});
-
+    
     perm = randperm(height(unlabeledData));
     unlabeledData = unlabeledData(perm, :);
-    labels = labels(perm, :);    
+    labels = labels(perm, :);
 end
 
 function stats = runSimulation(NameValueArgs)
@@ -136,8 +139,9 @@ function stats = runSimulation(NameValueArgs)
         NameValueArgs.distribution (1,1) string {mustBeMember(NameValueArgs.distribution, ["mid" "uni" "pattern"])}
         NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
         NameValueArgs.maxIterations (1,1) double {mustBeInteger, mustBePositive, mustBeLessThanOrEqual(NameValueArgs.maxIterations, 1000)} = 1000
+        NameValueArgs.file (1,1) string {mustBeFile}
     end
-
+    
     alpha = NameValueArgs.alpha;
     iter = NameValueArgs.maxIterations;
     
@@ -150,22 +154,22 @@ function stats = runSimulation(NameValueArgs)
     
     for i = 1:iter
         fprintf("Iteration: %d\n", i);
-
+        
         [data, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
         
         % kModel = K1Kernel(data);
         kModel = StringSubsequenceKernel(lambda=0.05,maxSubsequence=5);
         poc = kMRCD(kModel);
-
+        
         if isequal(class(kModel), 'StringSubsequenceKernel')
             encodedData = join(string(data), "");
             solution = poc.runAlgorithm(encodedData, alpha);
         else
             solution = poc.runAlgorithm(data, alpha);
         end
-             
+        
         e = evaluation(data, labels, alpha, solution, CategoricalPredictors="all");
-    
+        
         kMRCDStats(i,:) = e('kMRCD',:);
         lofStats(i,:) = e('lof', :);
         iforestStats(i,:) = e('iforest', :);
