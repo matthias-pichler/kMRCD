@@ -19,7 +19,7 @@ mkdir(tableDir);
 
 %% Visualize
 
-[unlabeledData, labels] = generateData(size=1000, contamination=0.2, dimensions=32, categories=5);
+[unlabeledData, labels] = generateData(size=1000, contamination=0.2, dimensions=30, categories=5);
 
 Y = tsne(unlabeledData);
 fig = figure(1);
@@ -76,29 +76,29 @@ clear data labels;
 
 set(0,'DefaultFigureVisible','off');
 
-stats = runSimulation(iter=100, alpha=0.7, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=16));
+filepath = fullfile(tableDir, "simulation_a07_e02.csv");
+stats = runSimulation(iter=100, alpha=0.7, file=filepath, data=@()generateData(size=1000, contamination=0.2, dimensions=30, categories=5));
 
-writetable(stats, fullfile(tableDir, "comparison_a07_e02.csv"));
 fig = figure(5);
-boxchart(stats.name, stats.aucpr);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
 saveas(fig, fullfile(imageDir, 'boxplot_a07_e02.png'),'png');
 
 %% Run a = 0.5, e = 0.2
 
-stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.2, dimensions=32, categories=16));
+filepath = fullfile(tableDir, "simulation_a05_e02.csv");
+stats = runSimulation(iter=100, alpha=0.5, file=filepath, data=@()generateData(size=1000, contamination=0.2, dimensions=30, categories=5));
 
-writetable(stats, fullfile(tableDir, "comparison_a05_e02.csv"));
 fig = figure(6);
-boxchart(stats.name, stats.aucpr);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
 saveas(fig, fullfile(imageDir, 'boxplot_a05_e02.png'),'png');
 
 %% Run a = 0.5, e = 0.3
 
-stats = runSimulation(iter=100, alpha=0.5, data=@()generateData(size=1000, contamination=0.3, dimensions=32, categories=16));
+filepath = fullfile(tableDir, "simulation_a05_e03.csv");
+stats = runSimulation(iter=100, alpha=0.5, file=filepath, data=@()generateData(size=1000, contamination=0.3, dimensions=30, categories=5));
 
-writetable(stats, fullfile(tableDir, "comparison_a05_e03.csv"));
 fig = figure(7);
-boxchart(stats.name, stats.aucpr);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
 saveas(fig, fullfile(imageDir, 'boxplot_a05_e03.png'),'png');
 
 %% Functions
@@ -130,19 +130,24 @@ function stats = runSimulation(NameValueArgs)
         NameValueArgs.iter (1,1) double {mustBeInteger, mustBePositive} = 100
         NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
         NameValueArgs.data
+        NameValueArgs.file (1,1) string
     end
 
     alpha = NameValueArgs.alpha;
     iter = NameValueArgs.iter;
+    file = NameValueArgs.file;
+
+    start = 1;
+
+    if isfile(file)
+        opts = detectImportOptions(file);
+        opts = setvartype(opts, 'double');
+        opts = setvartype(opts,'name', 'categorical');
+        results = readtable(file, opts);
+        start = max(results.iteration) + 1;
+    end
     
-    kMRCDStats = table(Size=[iter, 6], ...
-        VariableNames={'accuracy' 'precision' 'sensitivity' 'specificity' 'f1Score' 'aucpr'}, ...
-        VariableTypes=repmat("double", 1, 6));
-    lofStats = kMRCDStats;
-    iforestStats = kMRCDStats;
-    robustcovStats = kMRCDStats;
-    
-    for i = 1:iter
+    for i = start:iter
         fprintf("Iteration: %d\n", i);
 
         if(isa(NameValueArgs.data, 'function_handle'))
@@ -156,12 +161,15 @@ function stats = runSimulation(NameValueArgs)
     
         e = evaluation(data, labels, alpha, solution, CategoricalPredictors="all");
     
-        kMRCDStats(i,:) = e('kMRCD',:);
-        lofStats(i,:) = e('lof', :);
-        iforestStats(i,:) = e('iforest', :);
-        robustcovStats(i,:) = e('robustcov',:);
+        results = vertcat(e('kMRCD',:), e('lof',:), e('iforest', :), e('robustcov',:));
+        results.name = ["kMRCD";"lof";"iforest";"robustcov"];
+        results.iteration = repmat(i, 4, 1);
+        
+        writetable(results, file, WriteMode="append");
     end
     
-    stats = vertcat(kMRCDStats, lofStats, iforestStats,robustcovStats);
-    stats = horzcat(table(categorical(repelem(["kMRCD";"lof";"iforest";"robustcov"], iter)), VariableNames={'name'}),stats);
+    opts = detectImportOptions(file);
+    opts = setvartype(opts, 'double');
+    opts = setvartype(opts,'name', 'categorical');
+    stats = readtable(file, opts);
 end
