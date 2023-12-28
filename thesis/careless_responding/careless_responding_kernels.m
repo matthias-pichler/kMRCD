@@ -169,5 +169,5 @@ hold off;
 saveas(fig,fullfile(imageDir, "pr_curve.png"),'png');
 
 % Comparison
-stats = struct2table(s);
+stats = struct2table(rmfield(s, "solution"));
 writetable(stats, fullfile(tableDir, "comparison.csv"));
