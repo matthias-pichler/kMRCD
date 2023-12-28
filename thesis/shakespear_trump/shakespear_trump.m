@@ -22,7 +22,7 @@ imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);
 datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
-file = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
+datasetFile = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
 
 mkdir(imageDir, modelName);
 mkdir(tableDir, modelName);
@@ -32,13 +32,13 @@ tableDir = fullfile(tableDir, modelName);
 
 %% Visualize
 
-[embeddings, labels] = generateSample(file, 1000, 0.2);
+[embeddings, labels] = generateSample(datasetFile, 1000, 0.2);
 
 Y = tsne(embeddings);
 fig = figure(1);
 gscatter(Y(:,1), Y(:,2), labels);
 title("t-SNE Embeddings");
-saveas(fig,fullfile(imageDir, "e02_tsne.png"),'png');
+saveas(fig,fullfile(imageDir, "tsne.png"),'png');
 
 clear Y;
 
@@ -56,7 +56,7 @@ solution = poc.runAlgorithm(embeddings, alpha);
 % h Subset
 hSubset = table(labels(solution.hsubsetIndices), VariableNames="label");
 hSubsetSummary = groupcounts(hSubset, "label");
-writetable(hSubsetSummary, fullfile(tableDir, modelName, "e02_h_subset.csv"));
+writetable(hSubsetSummary, fullfile(tableDir, "h_subset.csv"));
 
 clear hSubset hSubsetSummary;
 
@@ -68,19 +68,19 @@ cm = confusionmat(labels,grouphat);
 
 fig = figure(2);
 confusionchart(fig, cm, categories(labels));
-saveas(fig, fullfile(imageDir, modelName, 'confusion_matrix.png'),'png');
+saveas(fig, fullfile(imageDir, 'confusion_matrix.png'),'png');
 
 clear cm grouphat;
 
 % Mahalanobis Distances
 fig = figure(3);
 mahalchart(labels, solution.rd, solution.cutoff);
-saveas(fig, fullfile(imageDir, modelName, 'mahalanobis_distances.png'),'png');
+saveas(fig, fullfile(imageDir, 'mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
 stats = evaluation(embeddings, labels, alpha, solution, Estimators={'lof' 'iforest'});
-saveas(fig, fullfile(imageDir, modelName, 'pr_curve.png'),'png');
+saveas(fig, fullfile(imageDir, 'pr_curve.png'),'png');
 
 clear stats;
 clear solution kModel alpha poc;
@@ -90,39 +90,57 @@ set(0,'DefaultFigureVisible','off');
 
 %% Run a = 0.5, e = 0.1
 
-stats = runComparison(iter=100, alpha=0.5, data=@()generateSample(file, N, 0.1));
+filepath = fullfile(tableDir, "simulation_a05_e01.csv");
+stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.1, dataset=datasetFile, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_a05_e01.csv"));
+fig = figure(5);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
+saveas(fig, fullfile(imageDir, 'boxplot_a05_e01.png'),'png');
 
 %% Run a = 0.75, e = 0.1
 
-stats = runComparison(iter=100, alpha=0.75, data=@()generateSample(file, N, 0.1));
+filepath = fullfile(tableDir, "simulation_a075_e01.csv");
+stats = runComparison(maxIterations=100, alpha=0.75, contamination=0.1, dataset=datasetFile, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_a075_e01.csv"));
+fig = figure(6);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
+saveas(fig, fullfile(imageDir, 'boxplot_a075_e01.png'),'png');
 
 %% Run a = 0.9, e = 0.1
 
-stats = runComparison(iter=100, alpha=0.9, data=@()generateSample(file, N, 0.1));
+filepath = fullfile(tableDir, "simulation_a09_e01.csv");
+stats = runComparison(maxIterations=100, alpha=0.9, contamination=0.1, dataset=datasetFile, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_a09_e01.csv"));
+fig = figure(7);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
+saveas(fig, fullfile(imageDir, 'boxplot_a09_e01.png'),'png');
 
 %% Run a = 0.5, e = 0.2
 
-stats = runComparison(iter=100, alpha=0.5, data=@()generateSample(file, N, 0.2));
+filepath = fullfile(tableDir, "simulation_a05_e02.csv");
+stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.2, dataset=datasetFile, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_a05_e02.csv"));
+fig = figure(8);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
+saveas(fig, fullfile(imageDir, 'boxplot_a05_e02.png'),'png');
 
 %% Run a = 0.75, e = 0.2
 
-stats = runComparison(iter=100, alpha=0.75, data=@()generateSample(file, N, 0.2));
+filepath = fullfile(tableDir, "simulation_a075_e02.csv");
+stats = runComparison(maxIterations=100, alpha=0.75, contamination=0.2, dataset=datasetFile, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_a075_e02.csv"));
+fig = figure(9);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
+saveas(fig, fullfile(imageDir, 'boxplot_a075_e02.png'),'png');
 
 %% Run a = 0.5, e = 0.3
 
-stats = runComparison(iter=100, alpha=0.5, data=@()generateSample(file, N, 0.3));
+filepath = fullfile(tableDir, "simulation_a05_e03.csv");
+stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.3, dataset=datasetFile, file=filepath);
 
-writetable(stats, fullfile(tableDir, "comparison_a05_e03.csv"));
+fig = figure(10);
+boxchart(stats.name, stats.aucpr, MarkerStyle="none");
+saveas(fig, fullfile(imageDir, 'boxplot_a05_e03.png'),'png');
 
 %% Functions
 
@@ -156,40 +174,48 @@ end
 
 function stats = runComparison(NameValueArgs)
     arguments
-        NameValueArgs.iter (1,1) double {mustBeInteger, mustBePositive} = 100
+        NameValueArgs.dataset (1,1) string {mustBeFile}
+        NameValueArgs.maxIterations (1,1) double {mustBeInteger, mustBePositive} = 100
         NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
-        NameValueArgs.data
+        NameValueArgs.contamination (1,1) double {mustBeInRange(NameValueArgs.contamination, 0, 0.5)}
+        NameValueArgs.file (1,1) string
     end
 
     alpha = NameValueArgs.alpha;
-    iter = NameValueArgs.iter;
+    iter = NameValueArgs.maxIterations;
+    file = NameValueArgs.file;
 
-    kMRCDStats = table(Size=[iter, 6], ...
-        VariableNames={'accuracy' 'precision' 'sensitivity' 'specificity' 'f1Score' 'aucpr'}, ...
-        VariableTypes=repmat("double", 1, 6));
-    lofStats = kMRCDStats;
-    iforestStats = kMRCDStats;
+    start = 1;
 
-    for i = 1:iter
+    if isfile(file)
+        opts = detectImportOptions(file);
+        opts = setvartype(opts, 'double');
+        opts = setvartype(opts,'name', 'categorical');
+        results = readtable(file, opts);
+        start = max(results.iteration) + 1;
+    end
+
+    for i = start:iter
         fprintf("Iteration: %d\n", i);
 
-        if(isa(NameValueArgs.data, 'function_handle'))
-            [data, labels] = NameValueArgs.data();
-        end
+        [data, labels] = generateSample(NameValueArgs.dataset, 1000, NameValueArgs.contamination);
         
-        kModel = K1Kernel(data);
+        kModel = AutoSphereRbfKernel(data);
         
         poc = kMRCD(kModel); 
         solution = poc.runAlgorithm(data, alpha);
     
         e = evaluation(data, labels, alpha, solution, Estimators={'lof' 'iforest'});
     
-        kMRCDStats(i,:) = e('kMRCD',:);
-        lofStats(i,:) = e('lof', :);
-        iforestStats(i,:) = e('iforest', :);
+        results = vertcat(e('kMRCD',:), e('lof',:), e('iforest', :));
+        results.name = ["kMRCD";"lof";"iforest"];
+        results.iteration = repmat(i, 3, 1);
+        
+        writetable(results, file, WriteMode="append");
     end
     
-    stats = vertcat(mean(kMRCDStats), mean(lofStats), mean(iforestStats));
-    stats = horzcat(table(["kMRCD";"lof";"iforest"], VariableNames={'name'}),stats);
-    stats.Properties.RowNames = stats.name;
+    opts = detectImportOptions(file);
+    opts = setvartype(opts, 'double');
+    opts = setvartype(opts,'name', 'categorical');
+    stats = readtable(file, opts);
 end
