@@ -34,7 +34,7 @@ tableDir = fullfile(tableDir, modelName);
 
 [embeddings, labels] = generateSample(datasetFile, 1000, 0.2);
 
-Y = tsne(embeddings);
+Y = tsne(embeddings, Distance="cosine");
 fig = figure(1);
 gscatter(Y(:,1), Y(:,2), labels);
 title("t-SNE Embeddings");
@@ -48,7 +48,7 @@ alpha = 0.7;
 N = 1000;
 
 kModel = AutoSphereRbfKernel(embeddings);
-% kModel = AutoRbfKernel(data);
+% kModel = AutoRbfKernel(embeddings);
 
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(embeddings, alpha);
