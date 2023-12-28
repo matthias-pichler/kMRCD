@@ -54,7 +54,7 @@ clear Y;
 % kModel = DiracKernel();
 % kModel = M3Kernel(unlabeledData);
 % kModel = K1Kernel(unlabeledData);
-kModel = StringSubsequenceKernel(lambda=0.05,maxSubsequence=5);
+kModel = StringSubsequenceKernel(lambda=0.6, maxSubsequence=15);
 poc = kMRCD(kModel);
 
 if isequal(class(kModel), 'StringSubsequenceKernel')
