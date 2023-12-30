@@ -89,6 +89,23 @@ classdef M3Kernel < handle
             assert(size(d, 1)==size(ZJ, 1));
             assert(size(d, 2)==size(ZI, 1));
         end
+        
+        function R = colranks(this, X)
+            arguments
+                this M3Kernel
+                X double 
+            end
+
+            R = splitapply(@this.colrank,X,1:size(X,2));
+        end
+        
+        function r = colrank(this, x)
+            arguments
+                this M3Kernel
+                x (:,1) double 
+            end
+            [~,~,r] = unique(x);
+        end
     end
 
   
