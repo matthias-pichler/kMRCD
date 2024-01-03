@@ -65,7 +65,7 @@ saveas(fig, fullfile(imageDir, 'mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
-stats = evaluation(unlabeledData, labels, alpha, solution);
+stats = evaluation(unlabeledData, labels, alpha, solution, CategoricalPredictors="all");
 saveas(fig, fullfile(imageDir, 'pr_curve.png'),'png');
 
 clear stats cm grouphat;
