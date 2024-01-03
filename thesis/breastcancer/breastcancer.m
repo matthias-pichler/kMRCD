@@ -24,10 +24,10 @@ mkdir(tableDir);
 opts = delimitedTextImportOptions(NumVariables=11,DataLines=[1, Inf], ...
     Delimiter=",", ExtraColumnsRule="ignore", EmptyLineRule="skip", ImportErrorRule="omitrow",...
     VariableNames=["SampleCodeNumber", "ClumpThickness", "UniformityOfCellSize", ...
-        "UniformityOfCellShape", "MarginalAdhesion", "SingleEpithelialCellSize", ...
-        "BareNuclei", "BlandChromatin", "NormalNucleoli", "Mitoses", "Class"], ...
+    "UniformityOfCellShape", "MarginalAdhesion", "SingleEpithelialCellSize", ...
+    "BareNuclei", "BlandChromatin", "NormalNucleoli", "Mitoses", "Class"], ...
     VariableTypes = ["int32", "double", "double", "double", "double", ...
-        "double", "double", "double", "double", "double", "categorical"]);
+    "double", "double", "double", "double", "double", "categorical"]);
 
 data = readtable(file, opts);
 data.Class = renamecats(data.Class, {'2' '4'}, {'benign', 'malignant'});
@@ -58,7 +58,7 @@ clear Y;
 % kModel = M3Kernel(unlabeledData);
 kModel = K1Kernel(unlabeledData);
 
-poc = kMRCD(kModel); 
+poc = kMRCD(kModel);
 solution = poc.runAlgorithm(unlabeledData, alpha);
 
 % h Subset
@@ -87,7 +87,7 @@ saveas(fig, fullfile(imageDir, 'mahalanobis_distances.png'),'png');
 
 % Comparison
 fig = figure(4);
-stats = evaluation(unlabeledData, labels, alpha, solution);
+stats = evaluation(unlabeledData, labels, alpha, solution, CategoricalPredictors="all");
 saveas(fig, fullfile(imageDir, 'pr_curve.png'),'png');
 writetable(stats, fullfile(tableDir, "comparison.csv"));
 
