@@ -9,10 +9,11 @@ rng(1634256, "twister");
 fileDir = fileparts(which(mfilename));
 projectDir = fileparts(fileparts(fileDir));
 
-datasetName = 'normal_discretized_kernels';
+datasetName = 'normal_discretized';
 
-imageDir = fullfile(projectDir, 'images', datasetName);
-tableDir = fullfile(projectDir, 'tables', datasetName);
+imageDir = fullfile(projectDir, 'images', [datasetName '_kernels']);
+tableDir = fullfile(projectDir, 'tables', [datasetName '_kernels']);
+datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
 mkdir(imageDir);
 mkdir(tableDir);
@@ -21,12 +22,16 @@ mkdir(tableDir);
 
 set(0,'DefaultFigureVisible','off');
 
-file = fullfile(tableDir, "simulation_a07_e02.csv");
+file = fullfile(tableDir, "simulation_a05_e02.csv");
 
-alpha = 0.7;
+alpha = 0.5;
 
 iter = 100;
 start = 1;
+
+p = 30;
+c = 5;
+eps = 0.2;
 
 if isfile(file)
     opts = detectImportOptions(file);
@@ -39,8 +44,8 @@ end
 for i = start:iter
     fprintf("Iteration: %d\n", i);
 
-    [data, labels] = generateData(size=1000, contamination=0.2, dimensions=30, categories=5);
-    
+    [data, labels] = loadData(directory=datasetDir, iteration=i, contamination=0.2, dimensions=30, categories=5);
+
     s = struct();
     %%% Linear
     kModel = LinKernel();
@@ -131,33 +136,32 @@ end
 
 opts = detectImportOptions(file);
 opts = setvartype(opts, 'double');
-opts = setvartype(opts,'name', 'categorical');
+opts = setvartype(opts,'kernel', 'categorical');
 stats = readtable(file, opts);
 
 fig = figure(1);
 boxchart(stats.kernel, stats.aucpr, MarkerStyle="none");
-saveas(fig, fullfile(imageDir, 'boxplot_a07_e02.png'),'png');
+saveas(fig, fullfile(imageDir, 'boxplot_a05_e02.png'),'png');
 
 %% Functions
 
-function [data, labels] = generateData(NameValueArgs)
+function [data, labels] = loadData(NameValueArgs)
     arguments
-        NameValueArgs.size (1,1) double {mustBeInteger, mustBePositive}
+        NameValueArgs.directory (1,1) string {mustBeFolder}
+        NameValueArgs.iteration (1,1) double {mustBeInteger, mustBePositive}
         NameValueArgs.contamination (1,1) double {mustBeInRange(NameValueArgs.contamination, 0, 0.5)}
         NameValueArgs.dimensions (1,1) double {mustBeInteger, mustBePositive}
         NameValueArgs.categories (1,1) double {mustBeInteger, mustBePositive}
     end
 
-    contamination = NameValueArgs.contamination;
-    numCategories = NameValueArgs.categories;
-    dimensions = NameValueArgs.dimensions;
-    N = NameValueArgs.size;
-    
-    ndm = NewDataModel(ALYZCorrelationType(), ClusterContamination());
-    [x, ~, ~,idxOutliers] = ndm.generateDataset(N, dimensions, contamination, 20);        
-    
-    data = cell2mat(cellfun(@(X)discretize(X, numCategories), num2cell(x, 1), UniformOutput=false));
-    
-    labels = categorical(repmat("inlier", [N 1]), {'inlier' 'outlier'});
-    labels(idxOutliers) = "outlier";
+    dataDir = fullfile(NameValueArgs.directory, sprintf("data_c%d_d%d_e0%.0f", NameValueArgs.categories, NameValueArgs.dimensions, NameValueArgs.contamination * 10));
+    dataFile = fullfile(dataDir, sprintf("data_%d.csv", NameValueArgs.iteration));
+
+    opts = detectImportOptions(dataFile);
+    opts = setvartype(opts, 'double');
+    opts = setvartype(opts,'labels', 'categorical');
+    data = readtable(dataFile, opts);
+
+    labels = data.labels;
+    data = table2array(removevars(data, {'labels'}));
 end

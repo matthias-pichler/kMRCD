@@ -20,9 +20,14 @@ mkdir(datasetDir);
 iter = 100;
 start = 1;
 
+%% p=30, c=5, e=0.2
+
 p = 30;
 c = 5;
 eps = 0.2;
+
+outDir = fullfile(datasetDir, sprintf("data_c%d_d%d_e0%.0f", c, p, eps * 10));
+mkdir(outDir);
 
 for i = start:iter
     fprintf("Iteration: %d\n", i);
@@ -31,7 +36,27 @@ for i = start:iter
     
     res = horzcat(array2table(data), array2table(labels));
 
-    file = fullfile(datasetDir, sprintf("data_c%d_d%d_e0%.0f_%d.csv", c, p, eps * 10, i));
+    file = fullfile(outDir, sprintf("data_%d.csv", i));
+    writetable(res, file);
+end
+
+%% p=30, c=5, e=0.3
+
+p = 30;
+c = 5;
+eps = 0.3;
+
+outDir = fullfile(datasetDir, sprintf("data_c%d_d%d_e0%.0f", c, p, eps * 10));
+mkdir(outDir);
+
+for i = start:iter
+    fprintf("Iteration: %d\n", i);
+
+    [data, labels] = generateData(size=500, contamination=eps, dimensions=p, categories=c);
+    
+    res = horzcat(array2table(data), array2table(labels));
+
+    file = fullfile(outDir, sprintf("data_%d.csv", i));
     writetable(res, file);
 end
 

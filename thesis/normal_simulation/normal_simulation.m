@@ -13,13 +13,14 @@ datasetName = 'normal_discretized';
 
 imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);
+datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
 mkdir(imageDir);
 mkdir(tableDir);
 
 %% Visualize
 
-[unlabeledData, labels] = generateData(size=1000, contamination=0.2, dimensions=30, categories=5);
+[unlabeledData, labels] = loadData(directory=datasetDir, iteration=1, contamination=0.2, dimensions=30, categories=5);
 
 Y = tsne(unlabeledData);
 fig = figure(1);
@@ -77,7 +78,7 @@ clear data labels;
 set(0,'DefaultFigureVisible','off');
 
 filepath = fullfile(tableDir, "simulation_a07_e02.csv");
-stats = runSimulation(iter=100, alpha=0.7, file=filepath, data=@()generateData(size=1000, contamination=0.2, dimensions=30, categories=5));
+stats = runSimulation(iterations=100, alpha=0.7, file=filepath, dataDirectory=datasetDir, contamination=0.2, dimensions=30, categories=5);
 
 fig = figure(5);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -86,7 +87,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a07_e02.png'),'png');
 %% Run a = 0.5, e = 0.2
 
 filepath = fullfile(tableDir, "simulation_a05_e02.csv");
-stats = runSimulation(iter=100, alpha=0.5, file=filepath, data=@()generateData(size=1000, contamination=0.2, dimensions=30, categories=5));
+stats = runSimulation(iterations=100, alpha=0.5, file=filepath, dataDirectory=datasetDir, contamination=0.2, dimensions=30, categories=5);
 
 fig = figure(6);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -95,7 +96,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a05_e02.png'),'png');
 %% Run a = 0.5, e = 0.3
 
 filepath = fullfile(tableDir, "simulation_a05_e03.csv");
-stats = runSimulation(iter=100, alpha=0.5, file=filepath, data=@()generateData(size=1000, contamination=0.3, dimensions=30, categories=5));
+stats = runSimulation(iterations=100, alpha=0.5, file=filepath, dataDirectory=datasetDir, contamination=0.3, dimensions=30, categories=5);
 
 fig = figure(7);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -103,38 +104,40 @@ saveas(fig, fullfile(imageDir, 'boxplot_a05_e03.png'),'png');
 
 %% Functions
 
-function [data, labels] = generateData(NameValueArgs)
+function [data, labels] = loadData(NameValueArgs)
     arguments
-        NameValueArgs.size (1,1) double {mustBeInteger, mustBePositive}
+        NameValueArgs.directory (1,1) string {mustBeFolder}
+        NameValueArgs.iteration (1,1) double {mustBeInteger, mustBePositive}
         NameValueArgs.contamination (1,1) double {mustBeInRange(NameValueArgs.contamination, 0, 0.5)}
         NameValueArgs.dimensions (1,1) double {mustBeInteger, mustBePositive}
         NameValueArgs.categories (1,1) double {mustBeInteger, mustBePositive}
     end
 
-    contamination = NameValueArgs.contamination;
-    numCategories = NameValueArgs.categories;
-    dimensions = NameValueArgs.dimensions;
-    N = NameValueArgs.size;
-    
-    ndm = NewDataModel(ALYZCorrelationType(), ClusterContamination());
-    [x, ~, ~,idxOutliers] = ndm.generateDataset(N, dimensions, contamination, 20);        
-    
-    data = cell2mat(cellfun(@(X)discretize(X, numCategories), num2cell(x, 1), UniformOutput=false));
-    
-    labels = categorical(repmat("inlier", [N 1]), {'inlier' 'outlier'});
-    labels(idxOutliers) = "outlier";
+    dataDir = fullfile(NameValueArgs.directory, sprintf("data_c%d_d%d_e0%.0f", NameValueArgs.categories, NameValueArgs.dimensions, NameValueArgs.contamination * 10));
+    dataFile = fullfile(dataDir, sprintf("data_%d.csv", NameValueArgs.iteration));
+
+    opts = detectImportOptions(dataFile);
+    opts = setvartype(opts, 'double');
+    opts = setvartype(opts,'labels', 'categorical');
+    data = readtable(dataFile, opts);
+
+    labels = data.labels;
+    data = table2array(removevars(data, {'labels'}));
 end
 
 function stats = runSimulation(NameValueArgs)
     arguments
-        NameValueArgs.iter (1,1) double {mustBeInteger, mustBePositive} = 100
+        NameValueArgs.iterations (1,1) double {mustBeInteger, mustBePositive} = 100
         NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
-        NameValueArgs.data
+        NameValueArgs.dataDirectory (1,1) string {mustBeFolder}
+        NameValueArgs.contamination (1,1) double {mustBeInRange(NameValueArgs.contamination, 0, 0.5)}
+        NameValueArgs.dimensions (1,1) double {mustBeInteger, mustBePositive}
+        NameValueArgs.categories (1,1) double {mustBeInteger, mustBePositive}
         NameValueArgs.file (1,1) string
     end
 
     alpha = NameValueArgs.alpha;
-    iter = NameValueArgs.iter;
+    iter = NameValueArgs.iterations;
     file = NameValueArgs.file;
 
     start = 1;
@@ -150,9 +153,8 @@ function stats = runSimulation(NameValueArgs)
     for i = start:iter
         fprintf("Iteration: %d\n", i);
 
-        if(isa(NameValueArgs.data, 'function_handle'))
-            [data, labels] = NameValueArgs.data();
-        end
+        [data, labels] = loadData(directory=NameValueArgs.dataDirectory, iteration=i, ...
+            contamination=NameValueArgs.contamination, dimensions=NameValueArgs.dimensions, categories=NameValueArgs.categories);
         
         kModel = K1Kernel(data);
         
