@@ -78,5 +78,6 @@
     "format": "cpp",
     "cinttypes": "cpp",
     "complex": "cpp"
-  }
+  },
+  "cSpell.words": ["mrcd"]
 }

@@ -134,4 +134,13 @@ function stats = runSimulation(NameValueArgs)
     opts = setvartype(opts, 'double');
     opts = setvartype(opts,'name', 'categorical');
     stats = readtable(file, opts);
+
+    [path, filename, ext] = fileparts(file);
+    mrcdFile = fullfile(path, sprintf("%s_mrcd%s", filename, ext));
+    opts = detectImportOptions(mrcdFile);
+    opts = setvartype(opts, 'double');
+    opts = setvartype(opts,'name', 'categorical');
+    mrcdStats = readtable(mrcdFile, opts);
+
+    stats = vertcat(stats, mrcdStats);
 end
