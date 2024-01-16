@@ -37,6 +37,7 @@ labels = renamecats(data.Class, {'benign' 'malignant'}, {'inlier' 'outlier'});
 
 perm = randperm(height(unlabeledData));
 unlabeledData = unlabeledData(perm, :);
+[~, scores] = pca(unlabeledData);
 labels = labels(perm, :);
 
 clear opts perm;
@@ -66,12 +67,10 @@ s(1).solution = solution;
 %% RBF
 kModel = AutoRbfKernel(unlabeledData);
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
-
 s(2).kernel = "RBF";
 s(2).solution = solution;
 
 %% Dirac
-
 kModel = DiracKernel();
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(3).kernel = "Dirac";
@@ -121,6 +120,20 @@ kModel = OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabe
 solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(10).kernel = "Ordered Li-Racin";
 s(10).solution = solution;
+
+%% Linear (PCA)
+kModel = LinKernel();
+solution = kMRCD(kModel).runAlgorithm(scores, alpha);
+
+s(11).kernel = "Linear-PCA";
+s(11).solution = solution;
+
+%% RBF (PCA)
+kModel = AutoRbfKernel(scores);
+solution = kMRCD(kModel).runAlgorithm(scores, alpha);
+
+s(12).kernel = "RBF-PCA";
+s(12).solution = solution;
 
 %% Summary
 

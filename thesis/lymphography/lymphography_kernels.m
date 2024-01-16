@@ -38,11 +38,13 @@ data.class = renamecats(data.class, {'1' '2' '3' '4'}, {'normal find' 'metastase
 clear opts;
 
 unlabeledData = table2array(removevars(data,{'class'}));
+
 labels = mergecats(data.class, {'normal find' 'fibrosis'}, 'outlier');
 labels = mergecats(labels, {'metastases' 'malign lymph'}, 'inlier');
 
 perm = randperm(height(unlabeledData));
 unlabeledData = unlabeledData(perm, :);
+[~, scores] = pca(unlabeledData);
 labels = labels(perm, :);
 
 %% Visualize
@@ -61,49 +63,58 @@ alpha = 0.7;
 s = struct();
 
 %% Linear
-rbfModel = LinKernel();
-solution = kMRCD(rbfModel).runAlgorithm(unlabeledData, alpha);
-
+kModel = LinKernel();
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(1).kernel = "Linear";
 s(1).solution = solution;
 
 %% RBF
-rbfModel = AutoRbfKernel(unlabeledData);
-solution = kMRCD(rbfModel).runAlgorithm(unlabeledData, alpha);
-
+kModel = AutoRbfKernel(unlabeledData);
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(2).kernel = "RBF";
 s(2).solution = solution;
 
 %% Dirac
-
-diracModel = DiracKernel();
-solution = kMRCD(diracModel).runAlgorithm(unlabeledData, alpha);
+kModel = DiracKernel();
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(3).kernel = "Dirac";
 s(3).solution = solution;
 
 %% k1
-k1Model = K1Kernel(unlabeledData);
-solution = kMRCD(k1Model).runAlgorithm(unlabeledData, alpha);
+kModel = K1Kernel(unlabeledData);
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(4).kernel = "k1";
 s(4).solution = solution;
 
 %% m3
-m3Model = M3Kernel(unlabeledData);
-solution = kMRCD(m3Model).runAlgorithm(unlabeledData, alpha);
+kModel = M3Kernel(unlabeledData);
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(5).kernel = "m3";
 s(5).solution = solution;
 
 %% Aitchison-Aitken
-aaModel = AitchisonAitkenKernel(unlabeledData);
-solution = kMRCD(aaModel).runAlgorithm(unlabeledData, alpha);
+kModel = AitchisonAitkenKernel(unlabeledData);
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(6).kernel = "Aitchison-Aitken";
 s(6).solution = solution;
 
 %% Li-Racin
-lrModel = LiRacinKernel(unlabeledData);
-solution = kMRCD(lrModel).runAlgorithm(unlabeledData, alpha);
+kModel = LiRacinKernel(unlabeledData);
+solution = kMRCD(kModel).runAlgorithm(unlabeledData, alpha);
 s(7).kernel = "Li-Racin";
 s(7).solution = solution;
+
+%% Linear (PCA)
+kModel = LinKernel();
+solution = kMRCD(kModel).runAlgorithm(scores, alpha);
+s(8).kernel = "Linear-PCA";
+s(8).solution = solution;
+
+%% RBF (PCA)
+kModel = AutoRbfKernel(scores);
+solution = kMRCD(kModel).runAlgorithm(scores, alpha);
+s(9).kernel = "RBF-PCA";
+s(9).solution = solution;
 
 %% Summary
 
