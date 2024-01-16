@@ -38,4 +38,8 @@ octave-workspace
 
 # Data
 datasets
+
+# R
 .Rproj.user
+.RData
+.Rhistory
