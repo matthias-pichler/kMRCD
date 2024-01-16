@@ -11,7 +11,7 @@ classdef OrderedAitchisonAitkenKernel < handle
     end
     
     properties (GetAccess = public, SetAccess = private)
-        lambda (1,:) double {mustBeInRange(lambda,0,1)}
+        lambda (1,:) double {mustBeInRange(lambda,0,0.5)}
     end
 
     methods (Access = private)
@@ -64,6 +64,38 @@ classdef OrderedAitchisonAitkenKernel < handle
 
             l = ((c-1)./c) ./ (1+(numerator./denominator));
         end
+    
+        function l = crossvalidatedbandwidth(x)
+            arguments
+                x double
+            end
+
+            n = height(x);
+
+            numValues = 100;
+            l_n = (1:numValues) / (2*numValues);
+
+            best_W = 0;
+            
+            for i=1:numValues
+                l_i = l_n(i);
+                
+                p = zeros(1, n);
+                for j=1:n
+                    D = x;
+                    D(j,:) = [];
+                    K = OrderedAitchisonAitkenKernel(D, lambda=l_i).compute(D, x(j,:));
+                    p = mean(K);
+                end
+
+                W = prod(p);
+
+                if W > best_W
+                    best_W = W;
+                    l = l_i;
+                end
+            end
+        end
     end
 
     methods (Access = public)
@@ -79,8 +111,6 @@ classdef OrderedAitchisonAitkenKernel < handle
             this.categories = cellfun(@length, g);
             
             this.lambda = NameValueArgs.lambda;
-
-            disp(['OrderedAitchisonAitkenKernel: Lambda = ' mat2str(this.lambda)]);
         end
         
         function K = compute(this, Xtrain, Xtest)

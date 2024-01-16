@@ -11,7 +11,7 @@ classdef AitchisonAitkenKernel < handle
     end
     
     properties (GetAccess = public, SetAccess = private)
-        lambda (1,:) double {mustBeInRange(lambda,0,1)}
+        lambda (1,:) double {mustBeInRange(lambda,0,0.5)}
     end
 
     methods (Access = private)
@@ -46,15 +46,68 @@ classdef AitchisonAitkenKernel < handle
             
             n = height(x);
 
-            [~, gr, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
-
-            c = cellfun(@length, gr);
-            pmf = cellfun(@(c)c/100, gp, UniformOutput=false);
+            c = AitchisonAitkenKernel.cats(x);
+            pmf = AitchisonAitkenKernel.pmf(x);
 
             numerator = n * cell2mat(cellfun(@(p){sum((1/numel(p)-p).^2)}, pmf));
             denominator = cell2mat(cellfun(@(p){sum(p.*(1-p))}, pmf));
 
             l = ((c-1)./c) ./ (1+(numerator./denominator));
+
+            disp(['AitchisonAitkenKernel: Lambda = ' mat2str(l)]);
+        end
+
+        function l = crossvalidatedbandwidth(x)
+            arguments
+                x double
+            end
+
+            [n, m] = size(x);
+
+            numValues = 100;
+            best_W = -Inf;
+
+            l = repmat(0.25, 1, m);
+            
+            for i=1:numValues
+                l_i = repmat(i / (2*numValues), 1, m);
+                
+                p = zeros(1, n);
+                for j=1:n
+                    D = x;
+                    D(j,:) = [];
+                    K = AitchisonAitkenKernel(x, lambda=l_i).compute(D, x(j,:));
+                    
+                    p(j) = mean(K);
+                end
+
+                W = prod(p);
+
+                if W > best_W
+                    best_W = W;
+                    l = l_i;
+                end
+            end
+
+            disp(['AitchisonAitkenKernel: Lambda = ' mat2str(l)]);
+        end
+
+        function c = cats(x)
+            arguments
+                x double
+            end
+
+            g = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+            c = cellfun(@length, g);
+        end
+
+        function p = pmf(x)
+            arguments
+                x double
+            end
+
+            [~, ~, gp] = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
+            p = cellfun(@(c)c/100, gp, UniformOutput=false);
         end
     end
 
@@ -64,15 +117,11 @@ classdef AitchisonAitkenKernel < handle
             arguments
                 x double
                 NameValueArgs.lambda (1,:) double = AitchisonAitkenKernel.pluginbandwidth(x);
+                NameValueArgs.categories (1,:) double = AitchisonAitkenKernel.cats(x);
             end
             
-            g = cellfun(@groupcounts, num2cell(x, 1), UniformOutput=false);
-
-            this.categories = cellfun(@length, g);
-            
+            this.categories = NameValueArgs.categories;
             this.lambda = NameValueArgs.lambda;
-
-            disp(['AitchisonAitkenKernel: Lambda = ' mat2str(this.lambda)]);
         end
         
         function K = compute(this, Xtrain, Xtest)

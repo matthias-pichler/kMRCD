@@ -12,7 +12,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         % Test methods
         
         function identity2(testCase)
-            l = 0.75;
+            l = 0.25;
             expected = [[(1-l)^2,   l^2]
                         [l^2,       (1-l)^2]];
 
@@ -25,7 +25,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
 
         function identity2lambda(testCase)
-            l1 = 0.75;
+            l1 = 0.25;
             l2 = 0.5;
             expected = [[(1-l1)*(1-l2), l1*l2]
                         [l1*l2,         (1-l1)*(1-l2)]];
@@ -39,7 +39,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
 
         function identity3(testCase)
-            l = 0.75;
+            l = 0.25;
             expected = [[(1-l)^3,   l^2*(1-l),  l^2*(1-l)]
                         [l^2*(1-l), (1-l)^3,    l^2*(1-l)]
                         [l^2*(1-l), l^2*(1-l),  (1-l)^3]];
@@ -68,9 +68,9 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
 
         function identity3lambda(testCase)
-            l1 = 0.75;
+            l1 = 0.25;
             l2 = 0.5;
-            l3 = 0.6;
+            l3 = 0.4;
             expected = [[(1-l1)*(1-l2)*(1-l3),  (1-l3)*l1*l2,           (1-l2)*l1*l3]
                         [(1-l3)*l1*l2,          (1-l1)*(1-l2)*(1-l3),   (1-l1)*l2*l3]
                         [(1-l2)*l1*l3,          (1-l1)*l2*l3,           (1-l1)*(1-l2)*(1-l3)]];
@@ -84,7 +84,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
 
         function identity4(testCase)
-            l = 0.75;
+            l = 0.25;
             expected = [[(1-l)^4,       l^2*(1-l)^2,    l^2*(1-l)^2,    l^2*(1-l)^2]
                         [l^2*(1-l)^2,   (1-l)^4,        l^2*(1-l)^2,    l^2*(1-l)^2]
                         [l^2*(1-l)^2,   l^2*(1-l)^2,    (1-l)^4,        l^2*(1-l)^2]
@@ -99,7 +99,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
     
         function tall(testCase)
-            l = 0.75;
+            l = 0.25;
             expected = [[(1-l)^2,   l/2*l,      l/2*l,      l/2*(1-l)]
                         [l/2*l,     (1-l)^2,    l/2*(1-l),  l/2*l]
                         [l/2*l,     l/2*(1-l)   (1-l)^2,    (1-l)*l]
@@ -117,7 +117,7 @@ classdef AitchisonAitkenKernelTest < matlab.unittest.TestCase
         end
 
         function fat(testCase)
-            l = 0.75;
+            l = 0.25;
             expected = [[(1-l)^3,       l^2*(1-l)]
                         [l^2*(1-l), (1-l)^3]];
 
