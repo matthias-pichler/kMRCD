@@ -35,8 +35,8 @@ clear Y;
 
 alpha = 0.7;
 
-% kModel = K1Kernel(unlabeledData);
-kModel = AutoRbfKernel(scores);
+kModel = K1Kernel(unlabeledData);
+% kModel = AutoRbfKernel(scores);
 
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);
