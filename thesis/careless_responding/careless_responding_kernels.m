@@ -33,6 +33,7 @@ labels = renamecats(data.Careless, {'regular' 'careless'}, {'inlier' 'outlier'})
 perm = randperm(height(unlabeledData));
 unlabeledData = unlabeledData(perm, :);
 labels = labels(perm, :);
+[~, scores] = pca(unlabeledData);
 encodedData = join(string(unlabeledData), "");
 
 clear opts perm;

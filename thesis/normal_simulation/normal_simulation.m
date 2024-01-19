@@ -21,6 +21,7 @@ mkdir(tableDir);
 %% Visualize
 
 [unlabeledData, labels] = loadData(directory=datasetDir, iteration=1, contamination=0.2, dimensions=30, categories=5);
+[~, scores] = pca(unlabeledData);
 
 Y = tsne(unlabeledData);
 fig = figure(1);
@@ -34,8 +35,8 @@ clear Y;
 
 alpha = 0.7;
 
-kModel = K1Kernel(unlabeledData);
-% kModel = AutoRbfKernel(unlabeledData);
+% kModel = K1Kernel(unlabeledData);
+kModel = AutoRbfKernel(scores);
 
 poc = kMRCD(kModel); 
 solution = poc.runAlgorithm(unlabeledData, alpha);

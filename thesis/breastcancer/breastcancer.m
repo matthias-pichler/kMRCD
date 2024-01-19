@@ -43,7 +43,7 @@ clear opts perm;
 
 %% Run
 
-alpha = 0.5;
+alpha = 0.7;
 
 Y = tsne(unlabeledData);
 fig = figure(1);

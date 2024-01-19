@@ -45,8 +45,10 @@ for i = start:iter
     fprintf("Iteration: %d\n", i);
 
     [data, labels] = loadData(directory=datasetDir, iteration=i, contamination=0.2, dimensions=30, categories=5);
+    [~, scores] = pca(data);
 
     s = struct();
+
     %%% Linear
     kModel = LinKernel();
     solution = kMRCD(kModel).runAlgorithm(data, alpha);
@@ -108,6 +110,18 @@ for i = start:iter
     solution = kMRCD(kModel).runAlgorithm(data, alpha);
     s(10).kernel = "Ordered Li-Racin";
     s(10).solution = solution;
+
+    %%% Linear (PCA)
+    kModel = LinKernel();
+    solution = kMRCD(kModel).runAlgorithm(scores, alpha);
+    s(11).kernel = "Linear-PCA";
+    s(11).solution = solution;
+    
+    %%% RBF (PCA)
+    kModel = AutoRbfKernel(scores);
+    solution = kMRCD(kModel).runAlgorithm(scores, alpha);
+    s(12).kernel = "RBF-PCA";
+    s(12).solution = solution;
 
     colors = jet(numel(s));
 
