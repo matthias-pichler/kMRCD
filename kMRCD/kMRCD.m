@@ -228,7 +228,7 @@ classdef kMRCD < handle
             % Outlier flagging procedure
             solution.rd = max(sqrt(solution.smd),0);
             solution.ld = log(0.1 + solution.rd);
-            [tmcd,smcd] = unimcd(solution.ld, numel(solution.hsubsetIndices));
+            [tmcd,smcd] = LIBRA.unimcd(solution.ld, numel(solution.hsubsetIndices));
             solution.cutoff = exp(tmcd + norminv(0.995) * smcd) - 0.1;
             solution.flaggedOutlierIndices = find(solution.rd > solution.cutoff);
         end
