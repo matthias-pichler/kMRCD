@@ -33,7 +33,9 @@ for eps = [0, 0.2]
         
         % Mahalanobis Distances
         fig = figure();
-        mahalchart(labels, solution.rd, solution.cutoff);
+        hSubset = categorical(repmat("not in H", [height(unlabeledData) 1]), {'in H' 'not in H'});
+        hSubset(solution.hsubsetIndices) = "in H";
+        mahalchart(hSubset, solution.rd, solution.cutoff);
         saveas(fig, fullfile(imageDir, sprintf("mahalanobis_distances_d%d_e0%.0f.png", p, eps*10)),'png');
     end
 end

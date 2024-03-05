@@ -5,19 +5,15 @@ function mahalchart(labels,distances,cutoff)
         cutoff (1,1) double
     end
 
-    assert(isequal(size(labels), size(distances)))
-
-    inlierIndices = find(labels == "inlier");
-    outlierIndices = find(labels == "outlier");
+    assert(isequal(size(labels), size(distances)));
 
     % plot mahalanobis distances
     hold on;
     title('Robust Mahalanobis Distances');
-    plot(inlierIndices, distances(inlierIndices), '.', Color='green');
-    plot(outlierIndices, distances(outlierIndices), '.', Color='red');
+    gscatter(1:length(labels), distances, labels)
     yline(cutoff);
-    yl = ylim; % Get current limits.
-    ylim([0, yl(2)]); % Replace lower limit only with a y of 0.
+    ylim([0 inf]);
+    legend([string(categories(labels)); "Cutoff"])
     hold off;
 end
 

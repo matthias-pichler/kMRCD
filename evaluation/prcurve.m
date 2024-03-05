@@ -12,5 +12,6 @@ function auc = prcurve(labels,scores, postiveClass, NameValueArgs)
 
     plot(X,Y, Color=NameValueArgs.Color, ...
             DisplayName = sprintf('%s (AUC=%0.4f)', NameValueArgs.DisplayName, auc));
+    ylim([0 1]);
 end
 
