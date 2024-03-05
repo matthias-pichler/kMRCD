@@ -160,7 +160,7 @@ classdef kMRCD < handle
                 end
             end
             
-            scfac = Utils.MCDcons(p, alpha) ;
+            scfac = Utils.MCDcons(p, alpha);
             
             %   For all initial estimators, do:
             rhoL = NaN(numel(solution),1);

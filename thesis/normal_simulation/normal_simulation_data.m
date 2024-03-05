@@ -31,11 +31,11 @@ mkdir(outDir);
 
 for i = start:iter
     fprintf("Iteration: %d\n", i);
-
+    
     [data, labels] = generateData(size=500, contamination=eps, dimensions=p, categories=c);
     
     res = horzcat(array2table(data), array2table(labels));
-
+    
     file = fullfile(outDir, sprintf("data_%d.csv", i));
     writetable(res, file);
 end
@@ -51,11 +51,11 @@ mkdir(outDir);
 
 for i = start:iter
     fprintf("Iteration: %d\n", i);
-
+    
     [data, labels] = generateData(size=500, contamination=eps, dimensions=p, categories=c);
     
     res = horzcat(array2table(data), array2table(labels));
-
+    
     file = fullfile(outDir, sprintf("data_%d.csv", i));
     writetable(res, file);
 end
@@ -69,14 +69,14 @@ function [data, labels] = generateData(NameValueArgs)
         NameValueArgs.dimensions (1,1) double {mustBeInteger, mustBePositive}
         NameValueArgs.categories (1,1) double {mustBeInteger, mustBePositive}
     end
-
+    
     contamination = NameValueArgs.contamination;
     numCategories = NameValueArgs.categories;
     dimensions = NameValueArgs.dimensions;
     N = NameValueArgs.size;
     
-    ndm = NewDataModel(ALYZCorrelationType(), ClusterContamination());
-    [x, ~, ~,idxOutliers] = ndm.generateDataset(N, dimensions, contamination, 20);        
+    ndm = ALYZ.NewDataModel(ALYZ.ALYZCorrelationType(), ALYZ.ClusterContamination());
+    [x, ~, ~,idxOutliers] = ndm.generateDataset(N, dimensions, contamination, 20);
     
     data = cell2mat(cellfun(@(X)discretize(X, numCategories), num2cell(x, 1), UniformOutput=false));
     

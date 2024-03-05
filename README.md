@@ -69,7 +69,7 @@ Both shortcomings are solved with the proposed kernel Minimum Regularized Covari
          x = rZscores(x);
          kModel = AutoRbfKernel(x); 
     else
-        ndm = NewDataModel(ALYZCorrelationType(), ClusterContamination());
+        ndm = ALYZ.NewDataModel(ALYZ.ALYZCorrelationType(), ALYZ.ClusterContamination());
         [x, ~, ~,idxOutliers] = ndm.generateDataset(1000, 2, epsilon, 20);        
         y = ones(1000,1);
         y(idxOutliers) = 0;

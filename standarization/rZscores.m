@@ -23,7 +23,7 @@ function [x,mu,sigma] = rZscores( x )
     mu = nan(1, p);
     sigma = nan(1, p);
     for featureIndex=1:p
-        [tmcd,smcd] = unimcd(x(~isnan(x(:, featureIndex)), featureIndex), ceil(n*0.5));
+        [tmcd,smcd] = LIBRA.unimcd(x(~isnan(x(:, featureIndex)), featureIndex), ceil(n*0.5));
         mu(featureIndex) = tmcd;
         sigma(featureIndex) = smcd;
         %        assert(smcd>1e-10);
