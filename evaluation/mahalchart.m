@@ -16,6 +16,8 @@ function mahalchart(labels,distances,cutoff)
     plot(inlierIndices, distances(inlierIndices), '.', Color='green');
     plot(outlierIndices, distances(outlierIndices), '.', Color='red');
     yline(cutoff);
+    yl = ylim; % Get current limits.
+    ylim([0, yl(2)]); % Replace lower limit only with a y of 0.
     hold off;
 end
 

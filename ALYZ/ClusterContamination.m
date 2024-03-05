@@ -3,14 +3,14 @@ classdef ClusterContamination < handle
     %   Detailed explanation goes here
     
     methods(Access = public)
-        function xx = generateContamination(~, m, p, r, tLoc, tCor)
+        function xx = generateContamination(~, outliers, dimension, replacement, tLoc, tCor)
             %GENERATECONTAMINATION Generate contaminated data
             %   xx = generateContamination(contaminationDegree, p, replacement, tLocation, Sigma_outlier)
             %
             %   Input
-            %   contaminationDegree (1,1) double {mustBePositive, mustBeInteger}
+            %   outliers (1,1) double {mustBePositive, mustBeInteger}
             %       Number of outliers to be generated
-            %   p (1,1) double {mustBePositive, mustBeInteger}
+            %   dimension (1,1) double {mustBePositive, mustBeInteger}
             %       Dimension of the data
             %   replacement (1,1) logical
             %       If true, the outliers are generated with replacement
@@ -25,14 +25,14 @@ classdef ClusterContamination < handle
             
             arguments
                 ~
-                m (1,1) double {mustBePositive, mustBeInteger}
-                p (1,1) double {mustBePositive, mustBeInteger}
-                r (:,1) double {mustBeSize(r, p, 1)}
-                tLoc (:,1) double {mustBeSize(tLoc, p, 1)}
-                tCor (:,:) double {mustBeSize(tCor, p, p)}
+                outliers (1,1) double {mustBeNonnegative, mustBeInteger}
+                dimension (1,1) double {mustBePositive, mustBeInteger}
+                replacement (:,1) double {mustBeSize(replacement, dimension, 1)}
+                tLoc (:,1) double {mustBeSize(tLoc, dimension, 1)}
+                tCor (:,:) double {mustBeSize(tCor, dimension, dimension)}
             end
-            
-            xx = mvnrnd((r + tLoc)', tCor, m);
+
+            xx = mvnrnd((replacement + tLoc)', tCor, outliers);
         end
     end
 end
