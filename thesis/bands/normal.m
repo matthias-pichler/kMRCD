@@ -23,7 +23,7 @@ mkdir(tableDir);
 alpha = 0.7;
 
 for eps = [0, 0.2]
-    for p = [10, 50, 100, 500, 750, 1000]
+    for p = [10, 50, 100, 250, 500, 750, 1000]
         [unlabeledData, labels] = loadData(directory=datasetDir, contamination=eps, dimensions=p);
     
         kModel = AutoRbfKernel(unlabeledData);

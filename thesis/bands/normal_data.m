@@ -17,7 +17,7 @@ mkdir(datasetDir);
 
 %% Run
 for eps = [0, 0.2]
-    for p = [10, 50, 100, 500, 750, 1000]
+    for p = [10, 50, 100, 250, 500, 750, 1000]
         [data, labels] = generateData(size=1000, contamination=eps, dimensions=p);
     
         res = horzcat(array2table(data), array2table(labels));
