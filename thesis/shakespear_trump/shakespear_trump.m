@@ -10,7 +10,9 @@ rng(1634256, "twister");
 fileDir = fileparts(which(mfilename));
 projectDir = fileparts(fileparts(fileDir));
 
-modelName = 'all-mpnet-base-v2';
+modelName = 'GIST-small-Embedding-v0';
+% modelName = 'nomic-embed-text-v1.5';
+% modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
 % modelName = 'bge-small-en-v1.5';
 % modelName = 'all-MiniLM-L6-v2';
