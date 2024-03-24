@@ -1,7 +1,7 @@
 classdef PolyKernel < handle
     
     properties (Access = private)
-        degree (1,1) double {mustBePositive, mustBeInteger};
+        degree (1,1) double {mustBePositive, mustBeInteger} = 3;
     end
     
     methods (Access = public)
