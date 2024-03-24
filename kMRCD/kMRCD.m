@@ -91,13 +91,6 @@ classdef kMRCD < handle
                 alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
             end
             
-            %%%%    TODO:   RoS-LSSVM hack; Matlab is not type safe :/
-            %%%%            Do NOT remove the following lines - Iwein.
-            if isequal(class(this.kModel),'RbfKernel')
-                disp('Warning: kMRCD switches to AutoRbfKernel in case a RbfKernel was specified!!');
-                this.kModel = AutoRbfKernel(x);
-            end
-            
             K = this.kModel.compute(x, x);
             [n, p] = size(x);
             
@@ -208,7 +201,7 @@ classdef kMRCD < handle
                         disp(['Convergence at iteration ' mat2str(iteration) ', ' solution(index).name]);
                         sigma = svd(Kc);
                         sigma = (1-rho)*scfac*sigma + numel(solution(index).hsubsetIndices)*rho;
-                        solution(index).obj =  sum(log(sigma));
+                        solution(index).obj = sum(log(sigma));
                         solution(index).smd = smd;
                         break;
                     end
