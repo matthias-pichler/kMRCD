@@ -70,7 +70,7 @@ clear
 load hospital
 namecount=size(hospital,1);
 shiftxs=hospital.Age-min(hospital.Age);
-shiftxs=shiftxs/max(shiftxs)*2-1; % set range for shifting each point to -1:1 based on age 
+shiftxs=shiftxs/max(shiftxs)*2-1; % set range for shifting each point to -1:1 based on age
 Sex=strtrim(mat2cell(char(hospital.Sex),ones(namecount,1),6));
 male=strcmpi(Sex,'male');
 
