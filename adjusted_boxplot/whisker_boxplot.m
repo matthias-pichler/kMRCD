@@ -1,5 +1,5 @@
 function h=whisker_boxplot(x,y, NameValueArgs)
-    % function h=whisker_boxplot(x,y,color,varargin)
+    % function h=whisker_boxplot(x,y,NameValueArgs)
     % x= HorzX value for plot (i.e. group #)
     % y= data (single vector or DATA x GROUP vector)
     %    data can be pre-sorted for meaning, e.g. youngest to oldest.
@@ -82,7 +82,6 @@ function h=whisker_boxplot(x,y, NameValueArgs)
     lWidth=1.25;% line width;
     
     h=zeros(g,5);
-    MC=zeros(1,g);
     for ii =1:g
         colorM=NameValueArgs.color{ii}/2;
         colorO=NameValueArgs.color{ii};
@@ -97,9 +96,9 @@ function h=whisker_boxplot(x,y, NameValueArgs)
         
         % data should be pre-sorted for meaning, e.g. youngest to oldest.
         if isempty(NameValueArgs.shiftxs)
-            NameValueArgs.shiftx=X+linspace(-widthp,widthp,length(data));
+            shiftx=X+linspace(-widthp,widthp,length(data));
         else
-            NameValueArgs.shiftx=X+NameValueArgs.shiftxs(~isnan(y(:,ii)),g);
+            shiftx=X+NameValueArgs.shiftxs(~isnan(y(:,ii)),g);
         end
         Q = double(prctile(data,[25 50 75]));
         IQR=(Q(3)-Q(1));
@@ -126,10 +125,10 @@ function h=whisker_boxplot(x,y, NameValueArgs)
             h(ii,1)=fill(yy,xx,colorO, FaceColor=colorI, EdgeColor=colorO, LineWidth=lWidth);
             h(ii,4)=plot([maxIn maxIn nan minIn minIn],[mm nan mm], color=colorO, LineWidth=lWidth);
             if any(hiOut|loOut)
-                h(ii,5)=plot(data(hiOut|loOut),NameValueArgs.shiftx(hiOut|loOut),'+', color=colorO*.9);
+                h(ii,5)=plot(data(hiOut|loOut),shiftx(hiOut|loOut),'+', color=colorO*.9);
             end% if any(hiOut|loOut)
             if NameValueArgs.bub
-                h(ii,6)=plot(data,NameValueArgs.shiftx,'o', color=colorO*.9, marker=NameValueArgs.marker);
+                h(ii,6)=plot(data,shiftx,'o', color=colorO*.9, marker=NameValueArgs.marker);
                 if any(hiOut|loOut)
                     set(h(ii,5),'marker','.');
                 end
@@ -140,10 +139,10 @@ function h=whisker_boxplot(x,y, NameValueArgs)
             h(ii,1)=fill(xx,yy,colorO, FaceColor=colorI, EdgeColor=colorO, LineWidth=lWidth);
             h(ii,4)=plot([mm nan mm],[maxIn maxIn nan minIn minIn],color=colorO,LineWidth=lWidth);
             if any(hiOut|loOut)
-                h(ii,5)=plot(NameValueArgs.shiftx(hiOut|loOut),data(hiOut|loOut),'+', color=colorO*.9);
+                h(ii,5)=plot(shiftx(hiOut|loOut),data(hiOut|loOut),'+', color=colorO*.9);
             end% if any(hiOut|loOut)
             if NameValueArgs.bub
-                h(ii,6)=plot(NameValueArgs.shiftx,data,'o', color=colorO*.9, marker=NameValueArgs.marker);
+                h(ii,6)=plot(shiftx,data,'o', color=colorO*.9, marker=NameValueArgs.marker);
                 if any(hiOut|loOut)
                     set(h(ii,5),'marker','.');
                 end

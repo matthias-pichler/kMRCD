@@ -16,7 +16,7 @@ whisker_boxplot(1:groupcount,grades, color=cc);
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 
 subplot(2,2,2);hold on;title('adjusted_boxplot')
-adjusted_boxplot(1:groupcount,grades,cc);
+adjusted_boxplot(1:groupcount,grades, color=cc);
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 
 subplot(2,2,3);hold on;title(sprintf('whisker_boxplot \nwith bubbles & saturation set to white'))
@@ -24,7 +24,7 @@ whisker_boxplot(1:groupcount,grades, color=cc, bub=true, sat=0);
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 
 subplot(2,2,4);hold on;title(sprintf('adjusted_boxplot \nwith bubbles & saturation set to white'))
-adjusted_boxplot(1:groupcount,grades,cc,'bub',1,'sat',0);
+adjusted_boxplot(1:groupcount,grades, color=cc, bub=true, sat=0);
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 
 %%
@@ -58,7 +58,7 @@ subplot(2,1,2);hold on;title('adjusted_boxplot')
 for ii=1:length(bigstates)
     for jj=1:length(XTickLabels)
         ratings(ismember(simplestate,bigstates(ii)),jj);
-        h1{ii}=adjusted_boxplot(jj+sgxs(ii),ratings(ismember(simplestate,bigstates(ii)),jj), cc{ii},'width',width);
+        h1{ii}=adjusted_boxplot(jj+sgxs(ii),ratings(ismember(simplestate,bigstates(ii)),jj), color={cc{ii}}, width=width);
     end
 end
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
@@ -94,14 +94,14 @@ set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 legend([l1(1) l2(1)],{'male','female'});
 
 subplot(2,2,2);hold on;title('adjusted_boxplot')
-adjusted_boxplot(1-xs,hospital.Weight( male),[0 0 1],'shiftxs',shiftxs*width,'width',width);
-adjusted_boxplot(1+xs,hospital.Weight(~male),[1 0 0],'shiftxs',shiftxs*width,'width',width);
+adjusted_boxplot(1-xs,hospital.Weight( male), color={[0 0 1]}, shiftxs=shiftxs*width, width=width);
+adjusted_boxplot(1+xs,hospital.Weight(~male), color={[1 0 0]}, shiftxs=shiftxs*width, width=width);
 
-adjusted_boxplot(2-xs,hospital.BloodPressure( male,1),[0 0 1],'shiftxs',shiftxs*width,'width',width);
-adjusted_boxplot(2+xs,hospital.BloodPressure(~male,1),[1 0 0],'shiftxs',shiftxs*width,'width',width);
+adjusted_boxplot(2-xs,hospital.BloodPressure( male,1), color={[0 0 1]}, shiftxs=shiftxs*width, width=width);
+adjusted_boxplot(2+xs,hospital.BloodPressure(~male,1), color={[1 0 0]}, shiftxs=shiftxs*width, width=width);
 
-adjusted_boxplot(3-xs,hospital.BloodPressure( male,2),[0 0 1],'shiftxs',shiftxs*width,'width',width);
-adjusted_boxplot(3+xs,hospital.BloodPressure(~male,2),[1 0 0],'shiftxs',shiftxs*width,'width',width);
+adjusted_boxplot(3-xs,hospital.BloodPressure( male,2), color={[0 0 1]}, shiftxs=shiftxs*width, width=width);
+adjusted_boxplot(3+xs,hospital.BloodPressure(~male,2), color={[1 0 0]}, shiftxs=shiftxs*width, width=width);
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 
 subplot(2,2,3);hold on;title('whisker_boxplot, with bubbles & saturation set to white')
@@ -116,12 +116,12 @@ whisker_boxplot(3+xs,hospital.BloodPressure(~male,2), color={[1 0 0]}, shiftxs=s
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
 
 subplot(2,2,4);hold on;title('adjusted_boxplot, with bubbles & saturation set to white')
-adjusted_boxplot(1-xs,hospital.Weight( male),[0 0 1],'shiftxs',shiftxs*width,'width',width,'bub',1,'sat',0);
-adjusted_boxplot(1+xs,hospital.Weight(~male),[1 0 0],'shiftxs',shiftxs*width,'width',width,'bub',1,'sat',0);
+adjusted_boxplot(1-xs,hospital.Weight( male), color={[0 0 1]}, shiftxs=shiftxs*width, width=width, bub=true, sat=0);
+adjusted_boxplot(1+xs,hospital.Weight(~male), color={[1 0 0]}, shiftxs=shiftxs*width, width=width, bub=true, sat=0);
 
-adjusted_boxplot(2-xs,hospital.BloodPressure( male,1),[0 0 1],'shiftxs',shiftxs*width,'width',width,'bub',1,'sat',0);
-adjusted_boxplot(2+xs,hospital.BloodPressure(~male,1),[1 0 0],'shiftxs',shiftxs*width,'width',width,'bub',1,'sat',0);
+adjusted_boxplot(2-xs,hospital.BloodPressure( male,1), color={[0 0 1]}, shiftxs=shiftxs*width, width=width, bub=true, sat=0);
+adjusted_boxplot(2+xs,hospital.BloodPressure(~male,1), color={[1 0 0]}, shiftxs=shiftxs*width, width=width, bub=true, sat=0);
 
-adjusted_boxplot(3-xs,hospital.BloodPressure( male,2),[0 0 1],'shiftxs',shiftxs*width,'width',width,'bub',1,'sat',0);
-adjusted_boxplot(3+xs,hospital.BloodPressure(~male,2),[1 0 0],'shiftxs',shiftxs*width,'width',width,'bub',1,'sat',0);
+adjusted_boxplot(3-xs,hospital.BloodPressure( male,2), color={[0 0 1]}, shiftxs=shiftxs*width, width=width, bub=true, sat=0);
+adjusted_boxplot(3+xs,hospital.BloodPressure(~male,2), color={[1 0 0]}, shiftxs=shiftxs*width, width=width, bub=true, sat=0);
 set(gca,'XTick',1:length(XTickLabels),'XTickLabels',XTickLabels)
