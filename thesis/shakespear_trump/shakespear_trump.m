@@ -10,8 +10,8 @@ rng(1634256, "twister");
 fileDir = fileparts(which(mfilename));
 projectDir = fileparts(fileparts(fileDir));
 
-modelName = 'GIST-small-Embedding-v0';
-% modelName = 'nomic-embed-text-v1.5';
+% modelName = 'GIST-small-Embedding-v0';
+modelName = 'nomic-embed-text-v1.5';
 % modelName = 'all-mpnet-base-v2';
 % modelName = 'bge-large-en-v1.5';
 % modelName = 'bge-small-en-v1.5';
@@ -20,21 +20,29 @@ modelName = 'GIST-small-Embedding-v0';
 datasetName = 'shakespear_trump';
 % datasetName = 'shakespear_trump_cleaned';
 
+matryoshkaDim = 64;
+
 imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);
 datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
 datasetFile = fullfile(datasetDir, [datasetName '_' modelName '.parquet']);
 
-mkdir(imageDir, modelName);
-mkdir(tableDir, modelName);
+folderName = modelName;
 
-imageDir = fullfile(imageDir, modelName);
-tableDir = fullfile(tableDir, modelName);
+if ~isnan(matryoshkaDim)
+    folderName = [modelName '-' int2str(matryoshkaDim)];
+end
+
+mkdir(imageDir, folderName);
+mkdir(tableDir, folderName);
+
+imageDir = fullfile(imageDir, folderName);
+tableDir = fullfile(tableDir, folderName);
 
 %% Visualize
 
-[embeddings, labels] = generateSample(datasetFile, 1000, 0.2);
+[embeddings, labels] = generateSample(datasetFile, 1000, 0.2, matryoshkaDim=matryoshkaDim);
 
 Y = tsne(embeddings, Distance="cosine");
 fig = figure(1);
@@ -93,7 +101,7 @@ set(0,'DefaultFigureVisible','off');
 %% Run a = 0.5, e = 0.1
 
 filepath = fullfile(tableDir, "simulation_a05_e01.csv");
-stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.1, dataset=datasetFile, file=filepath);
+stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.1, dataset=datasetFile, file=filepath, matryoshkaDim=matryoshkaDim);
 
 fig = figure(5);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -102,7 +110,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a05_e01.png'),'png');
 %% Run a = 0.75, e = 0.1
 
 filepath = fullfile(tableDir, "simulation_a075_e01.csv");
-stats = runComparison(maxIterations=100, alpha=0.75, contamination=0.1, dataset=datasetFile, file=filepath);
+stats = runComparison(maxIterations=100, alpha=0.75, contamination=0.1, dataset=datasetFile, file=filepath, matryoshkaDim=matryoshkaDim);
 
 fig = figure(6);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -111,7 +119,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a075_e01.png'),'png');
 %% Run a = 0.9, e = 0.1
 
 filepath = fullfile(tableDir, "simulation_a09_e01.csv");
-stats = runComparison(maxIterations=100, alpha=0.9, contamination=0.1, dataset=datasetFile, file=filepath);
+stats = runComparison(maxIterations=100, alpha=0.9, contamination=0.1, dataset=datasetFile, file=filepath, matryoshkaDim=matryoshkaDim);
 
 fig = figure(7);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -120,7 +128,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a09_e01.png'),'png');
 %% Run a = 0.5, e = 0.2
 
 filepath = fullfile(tableDir, "simulation_a05_e02.csv");
-stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.2, dataset=datasetFile, file=filepath);
+stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.2, dataset=datasetFile, file=filepath, matryoshkaDim=matryoshkaDim);
 
 fig = figure(8);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -129,7 +137,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a05_e02.png'),'png');
 %% Run a = 0.75, e = 0.2
 
 filepath = fullfile(tableDir, "simulation_a075_e02.csv");
-stats = runComparison(maxIterations=100, alpha=0.75, contamination=0.2, dataset=datasetFile, file=filepath);
+stats = runComparison(maxIterations=100, alpha=0.75, contamination=0.2, dataset=datasetFile, file=filepath, matryoshkaDim=matryoshkaDim);
 
 fig = figure(9);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -138,7 +146,7 @@ saveas(fig, fullfile(imageDir, 'boxplot_a075_e02.png'),'png');
 %% Run a = 0.5, e = 0.3
 
 filepath = fullfile(tableDir, "simulation_a05_e03.csv");
-stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.3, dataset=datasetFile, file=filepath);
+stats = runComparison(maxIterations=100, alpha=0.5, contamination=0.3, dataset=datasetFile, file=filepath, matryoshkaDim=matryoshkaDim);
 
 fig = figure(10);
 boxchart(stats.name, stats.aucpr, MarkerStyle="none");
@@ -146,14 +154,20 @@ saveas(fig, fullfile(imageDir, 'boxplot_a05_e03.png'),'png');
 
 %% Functions
 
-function [embeddings,labels] = generateSample(filepath, sampleSize, outlierContamination)
+function [embeddings,labels] = generateSample(filepath, sampleSize, outlierContamination, NameValueArgs)
     arguments
         filepath (1,1) string {mustBeFile}
         sampleSize (1,1) double {mustBeInteger, mustBePositive}
         outlierContamination (1,1) double {mustBeInRange(outlierContamination,0,1)}
+        NameValueArgs.matryoshkaDim (1,1) double {mustBePositive, mustBeInteger} = Inf
     end
 
-    rawData = parquetread(filepath, SelectedVariableNames=["text", "author", "embedding"]);
+    embeddingVar = "embedding";
+    if ~isnan(NameValueArgs.matryoshkaDim) && isfinite(NameValueArgs.matryoshkaDim)
+        embeddingVar = ['embedding_' int2str(NameValueArgs.matryoshkaDim)];
+    end
+
+    rawData = parquetread(filepath, SelectedVariableNames=["text", "author", embeddingVar]);
     rawData.author = categorical(rawData.author);
 
     shakespearIndices = find(rawData.author == "shakespear");
@@ -166,7 +180,7 @@ function [embeddings,labels] = generateSample(filepath, sampleSize, outlierConta
     trumpSampleIndices = datasample(trumpIndices, numTrumpSamples, Replace=false);
     data = rawData(sort(cat(1, shakespearSampleIndices, trumpSampleIndices)),:);
 
-    embeddings = cell2mat(cellfun(@transpose,data.embedding, UniformOutput=false));
+    embeddings = cell2mat(cellfun(@transpose,data{:, embeddingVar}, UniformOutput=false));
     labels = renamecats(data.author, {'trump' 'shakespear'}, {'inlier' 'outlier'});
 
     perm = randperm(height(embeddings));
@@ -181,6 +195,7 @@ function stats = runComparison(NameValueArgs)
         NameValueArgs.alpha (1,1) double {mustBeInRange(NameValueArgs.alpha, 0.5, 1)}
         NameValueArgs.contamination (1,1) double {mustBeInRange(NameValueArgs.contamination, 0, 0.5)}
         NameValueArgs.file (1,1) string
+        NameValueArgs.matryoshkaDim (1,1) double {mustBePositive, mustBeInteger} = Inf
     end
 
     alpha = NameValueArgs.alpha;
@@ -200,7 +215,7 @@ function stats = runComparison(NameValueArgs)
     for i = start:iter
         fprintf("Iteration: %d\n", i);
 
-        [data, labels] = generateSample(NameValueArgs.dataset, 1000, NameValueArgs.contamination);
+        [data, labels] = generateSample(NameValueArgs.dataset, 1000, NameValueArgs.contamination, matryoshkaDim=NameValueArgs.matryoshkaDim);
         
         kModel = AutoSphereRbfKernel(data);
         
