@@ -22,14 +22,12 @@ function MC=medcouple(datain)
     %       Asymmetry". exploringdata.blogspot.ca. Retrieved April 6, 2015.
     %
     
+    arguments
+        datain double {mustBeNonempty}
+    end
+    
     plotit=false;
     %plotit=true; % TRUE for plots (best with breakpoints at each 'drawnow')
-    
-    
-    if nargin==0
-        help(mfilename);% standard bcoe format
-        return
-    end
     
     [o,g] = size(datain);% observations (row) x groups (col)
     if g>o % can't recommend a case where one has more groups than observations.
