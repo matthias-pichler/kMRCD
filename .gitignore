@@ -6,6 +6,7 @@
 
 # Compiled MEX binaries (all platforms)
 *.mex*
+!+LIBRA/*.mex*
 
 # Packaged app and toolbox files
 *.mlappinstall
