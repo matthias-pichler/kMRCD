@@ -63,6 +63,51 @@ classdef kMRCD < handle
         cStepIterationsAllowed (1,1) double {mustBePositive, mustBeInteger} = 100;   %   Maximum number of CStep iterations allowed
         maxcond (1,1) double = 50;                   %   Condition number one wants to achieve
         estimators {mustBeMember(estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialMedian' 'SSCM'};
+        cutoffEstimator (1,1) string {mustBeMember(cutoffEstimator, {'logNormal' 'skewnessAdjusted'})} = 'logNormal';
+    end
+    
+    methods (Access = private)
+        
+        function cutoff = logNormalCutoff(this, robustDistances, h)
+            arguments
+                this kMRCD
+                robustDistances (:,1) double
+                h (1,1) double {mustBePositive, mustBeInteger}
+            end
+            
+            logDistances = log(0.1 + robustDistances);
+            
+            [tmcd,smcd] = LIBRA.unimcd(logDistances, h);
+            
+            cutoff = exp(tmcd + norminv(0.995) * smcd) - 0.1;
+        end
+        
+        function cutoff = skewnessAdjustedCutoff(this, robustDistances, NameValueArgs)
+            arguments
+                this kMRCD
+                robustDistances (:,1) double
+                NameValueArgs.a (1,1) double {mustBeNegative} = -4
+                NameValueArgs.b (1,1) double {mustBePositive} = 3
+                NameValueArgs.whisker (1,1) double {mustBePositive} = 1.5
+            end
+            
+            logDistances = log(0.1 + robustDistances);
+            
+            % define the median and the quantiles
+            pctiles = prctile(logDistances,[25;75]);
+            q1 = pctiles(1,:);
+            q3 = pctiles(2,:);
+            
+            % find the extreme values (to determine where whiskers appear)
+            medc = LIBRA.mc(logDistances);
+            vhiadj = q3+NameValueArgs.whisker*exp(NameValueArgs.b*medc)*(q3-q1);  %Upper cutoff value for the adjusted boxplot.
+            cutoff = max(logDistances(logDistances<=vhiadj));
+            
+            if (isempty(cutoff)), cutoff = q3; end
+            
+            cutoff = exp(cutoff) - 0.1;
+        end
+        
     end
     
     methods (Access = public)
@@ -71,14 +116,17 @@ classdef kMRCD < handle
             arguments
                 kModel
                 NameValueArgs.Estimators
+                NameValueArgs.cutoffEstimator (1,1) string {mustBeMember(NameValueArgs.cutoffEstimator, {'logNormal' 'skewnessAdjusted'})} = 'logNormal';
             end
-
+            
             if ~isempty(kModel)
                 this.kModel = kModel;
             else
                 this.kModel = LinKernel();
             end
-
+            
+            this.cutoffEstimator = NameValueArgs.cutoffEstimator;
+            
             if isfield(NameValueArgs,"Estimators")
                 this.estimators = NameValueArgs.Estimators;
             end
@@ -86,7 +134,7 @@ classdef kMRCD < handle
         
         function solution = runAlgorithm(this, x, alpha)
             arguments
-                this
+                this kMRCD
                 x
                 alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
             end
@@ -96,13 +144,13 @@ classdef kMRCD < handle
             
             %   Grab observation ranking from initial estimators
             solution = struct();
-
+            
             if ismember('SDO', this.estimators)
                 tic;
                 outlyingnessIndices = Utils.SDO(K,alpha);
                 t = toc;
                 fprintf("SDO: %0.4f sec\n", t);
-
+                
                 res = struct("name", 'SDO', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
                     solution = res;
@@ -110,13 +158,13 @@ classdef kMRCD < handle
                     solution = [solution, res];
                 end
             end
-
+            
             if ismember('SpatialRank', this.estimators)
                 tic;
                 outlyingnessIndices = Utils.SpatialRank(K,alpha);
                 t = toc;
                 fprintf("SpatialRank: %0.4f sec\n", t);
-
+                
                 res = struct("name", 'SpatialRank', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
                     solution = res;
@@ -124,13 +172,13 @@ classdef kMRCD < handle
                     solution = [solution, res];
                 end
             end
-
+            
             if ismember('SpatialMedian', this.estimators)
                 tic;
                 outlyingnessIndices = Utils.SpatialMedianEstimator(K,alpha);
                 t = toc;
                 fprintf("SpatialMedian: %0.4f sec\n", t);
-
+                
                 res = struct("name", 'SpatialMedian', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
                     solution = res;
@@ -138,13 +186,13 @@ classdef kMRCD < handle
                     solution = [solution, res];
                 end
             end
-
+            
             if ismember('SSCM', this.estimators)
                 tic;
                 outlyingnessIndices = Utils.SSCM(K);
                 t = toc;
                 fprintf("SSCM: %0.4f sec\n", t);
-
+                
                 res = struct("name", 'SSCM', "outlyingnessIndices", outlyingnessIndices);
                 if isempty(fieldnames(solution))
                     solution = res;
@@ -221,8 +269,13 @@ classdef kMRCD < handle
             % Outlier flagging procedure
             solution.rd = max(sqrt(solution.smd),0);
             solution.ld = log(0.1 + solution.rd);
-            [tmcd,smcd] = LIBRA.unimcd(solution.ld, numel(solution.hsubsetIndices));
-            solution.cutoff = exp(tmcd + norminv(0.995) * smcd) - 0.1;
+            
+            if strcmp(this.cutoffEstimator, 'logNormal')
+                solution.cutoff = this.logNormalCutoff(solution.rd, numel(solution.hsubsetIndices));
+            else
+                solution.cutoff = this.skewnessAdjustedCutoff(solution.rd);
+            end
+            
             solution.flaggedOutlierIndices = find(solution.rd > solution.cutoff);
         end
         
