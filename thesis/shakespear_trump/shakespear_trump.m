@@ -20,7 +20,7 @@ modelName = 'nomic-embed-text-v1.5';
 datasetName = 'shakespear_trump';
 % datasetName = 'shakespear_trump_cleaned';
 
-matryoshkaDim = 64;
+matryoshkaDim = 512;
 
 imageDir = fullfile(projectDir, 'images', datasetName);
 tableDir = fullfile(projectDir, 'tables', datasetName);

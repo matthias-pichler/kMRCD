@@ -58,7 +58,7 @@ clear Y;
 % kModel = M3Kernel(unlabeledData);
 kModel = K1Kernel(unlabeledData);
 
-poc = kMRCD(kModel);
+poc = kMRCD(kModel, cutoffEstimator='skewnessAdjusted');
 solution = poc.runAlgorithm(unlabeledData, alpha);
 
 % h Subset
@@ -90,7 +90,3 @@ fig = figure(4);
 stats = evaluation(unlabeledData, labels, alpha, solution, CategoricalPredictors="all");
 saveas(fig, fullfile(imageDir, 'pr_curve.png'),'png');
 writetable(stats, fullfile(tableDir, "comparison.csv"));
-
-clear stats;
-
-clear solution kModel alpha poc;

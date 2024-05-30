@@ -70,10 +70,6 @@ fig = figure(4);
 stats = evaluation(unlabeledData, labels, alpha, solution, CategoricalPredictors="all");
 saveas(fig, fullfile(imageDir, 'pr_curve.png'),'png');
 
-clear stats cm grouphat;
-clear solution kModel alpha poc;
-clear data labels;
-
 %% Run a = 0.7, e = 0.2
 
 set(0,'DefaultFigureVisible','off');
