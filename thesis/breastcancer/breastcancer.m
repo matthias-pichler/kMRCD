@@ -58,7 +58,7 @@ clear Y;
 % kModel = M3Kernel(unlabeledData);
 kModel = K1Kernel(unlabeledData);
 
-poc = kMRCD(kModel, cutoffEstimator='skewnessAdjusted');
+poc = kMRCD(kModel, cutoffEstimator='skewedbox');
 solution = poc.runAlgorithm(unlabeledData, alpha);
 
 % h Subset

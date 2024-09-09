@@ -63,12 +63,26 @@ classdef kMRCD < handle
         cStepIterationsAllowed (1,1) double {mustBePositive, mustBeInteger} = 100;   %   Maximum number of CStep iterations allowed
         maxcond (1,1) double = 50;                   %   Condition number one wants to achieve
         estimators {mustBeMember(estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialMedian' 'SSCM'};
-        cutoffEstimator (1,1) string {mustBeMember(cutoffEstimator, {'logNormal' 'skewnessAdjusted'})} = 'logNormal';
+        cutoffEstimator (1,1) string {mustBeMember(cutoffEstimator, {'lognormal' 'chisquare' 'skewedbox'})} = 'lognormal';
     end
     
     methods (Access = private)
         
-        function cutoff = logNormalCutoff(this, robustDistances, h)
+        function cutoff = lognormalCutoff(this, robustDistances, h)
+            arguments
+                this kMRCD
+                robustDistances (:,1) double
+                h (1,1) double {mustBePositive, mustBeInteger}
+            end
+            
+            logDistances = log(0.1 + robustDistances);
+            
+            [tmcd,smcd] = LIBRA.unimcd(logDistances, h);
+            
+            cutoff = exp(tmcd + norminv(0.995) * smcd) - 0.1;
+        end
+
+        function cutoff = chisquareCutoff(this, robustDistances, h)
             arguments
                 this kMRCD
                 robustDistances (:,1) double
@@ -82,7 +96,7 @@ classdef kMRCD < handle
             cutoff = exp(tmcd + norminv(0.995) * smcd) - 0.1;
         end
         
-        function cutoff = skewnessAdjustedCutoff(this, robustDistances, NameValueArgs)
+        function cutoff = skewedboxCutoff(this, robustDistances, NameValueArgs)
             arguments
                 this kMRCD
                 robustDistances (:,1) double
@@ -116,7 +130,7 @@ classdef kMRCD < handle
             arguments
                 kModel
                 NameValueArgs.Estimators
-                NameValueArgs.cutoffEstimator (1,1) string {mustBeMember(NameValueArgs.cutoffEstimator, {'logNormal' 'skewnessAdjusted'})} = 'logNormal';
+                NameValueArgs.cutoffEstimator (1,1) string {mustBeMember(NameValueArgs.cutoffEstimator, {'lognormal' 'chisquare' 'skewedbox'})} = 'lognormal';
             end
             
             if ~isempty(kModel)
@@ -270,10 +284,12 @@ classdef kMRCD < handle
             solution.rd = max(sqrt(solution.smd),0);
             solution.ld = log(0.1 + solution.rd);
             
-            if strcmp(this.cutoffEstimator, 'logNormal')
-                solution.cutoff = this.logNormalCutoff(solution.rd, numel(solution.hsubsetIndices));
-            else
-                solution.cutoff = this.skewnessAdjustedCutoff(solution.rd);
+            if strcmp(this.cutoffEstimator, 'lognormal')
+                solution.cutoff = this.lognormalCutoff(solution.rd, numel(solution.hsubsetIndices));
+            elseif strcmp(this.cutoffEstimator, 'skewedbox')
+                solution.cutoff = this.skewedboxCutoff(solution.rd);
+            elseif strcmp(this.cutoffEstimator, 'chisquare')
+                solution.cutoff = this.chisquareCutoff(solution.rd);
             end
             
             solution.flaggedOutlierIndices = find(solution.rd > solution.cutoff);
