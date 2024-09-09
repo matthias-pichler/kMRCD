@@ -1,0 +1,4 @@
+kernel,solution,accuracy,precision,sensitivity,specificity,f1Score,aucpr
+RBF,,0.8,NaN,0,1,0,0.108941190558863
+Sphere-RBF,,0.849,0.64327485380117,0.55,0.92375,0.592991913746631,0.518031412924736
+Scaled-RBF,,0.8,NaN,0,1,0,0.108496549606543
