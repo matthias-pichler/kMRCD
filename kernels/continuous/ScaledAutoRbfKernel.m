@@ -16,8 +16,6 @@ classdef ScaledAutoRbfKernel < handle
             scale = sqrt(width(x));
 
             this.sigma = scale * sqrt(median(distances));
-
-            disp(['ScaledAutoRbfKernel: Sigma = ' mat2str(this.sigma)]);
         end
         
         function K = compute(this, Xtrain, Xtest)
