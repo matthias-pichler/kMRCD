@@ -19,7 +19,6 @@ classdef AutoSphereRbfKernel < handle
             % 2(1- <x,y>) = ||x-y||^2 on the unit sphere
             distances = 2 * pdist(x, "cosine");
             this.sigma = sqrt(median(distances));
-            disp(['AutoSphereRbfKernel: Sigma = ' mat2str(this.sigma)]);
         end
         
         function K = compute(this, Xtrain, Xtest)

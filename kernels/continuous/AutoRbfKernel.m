@@ -1,19 +1,69 @@
 classdef AutoRbfKernel < handle
     
     properties (GetAccess = public, SetAccess = private)
-        sigma (1,1) double
+        sigma (1,1) double {mustBePositive} = 1
+    end
+
+    methods (Access = private)
+
+        function sigma = medianBandwidth(this, x)
+            arguments
+                this AutoRbfKernel
+                x double
+            end
+
+            distances = pdist(x, "squaredeuclidean");
+            sigma = sqrt(median(distances));
+        end
+
+        function sigma = meanBandwidth(this, x)
+            arguments
+                this AutoRbfKernel
+                x double
+            end
+
+            % see Chaudhuri et al. 2017
+            N = height(x);
+            delta = sqrt(2) * 10^-6;
+
+            s2 = var(x);
+
+            sigma = sqrt( 2 * N * sum(s2)/((N-1) * log((N-1)/delta^2)) );
+        end
+
+        function sigma = modifiedmeanBandwidth(this, x)
+            arguments
+                this AutoRbfKernel
+                x double
+            end
+
+            % see Liao et al. 2018
+            N = height(x);
+            phi = 1 / log(N - 1);
+            delta = -0.14818008* phi^4 + 0.284623624 * phi^3 - 0.252853808 * phi^2 + 0.159059498 * phi - 0.001381145;
+
+            s2 = var(x);
+
+            sigma = sqrt( 2 * N * sum(s2)/((N-1) * log((N-1)/delta^2)) );
+        end
+
     end
     
     methods (Access = public)
         
-        function this = AutoRbfKernel(x)
+        function this = AutoRbfKernel(x, NameValueArgs)
             arguments
                 x double
+                NameValueArgs.bandwidth (1,1) string {mustBeMember(NameValueArgs.bandwidth, {'median' 'mean' 'modifiedmean'})} = 'median';
             end
-            
-            distances = pdist(x, "squaredeuclidean");
-            this.sigma = sqrt(median(distances));
-            disp(['AutoRbfKernel: Sigma = ' mat2str(this.sigma)]);
+
+            if strcmp(NameValueArgs.bandwidth, 'median')
+                this.sigma = this.medianBandwidth(x);
+            elseif strcmp(NameValueArgs.bandwidth, 'mean')
+                this.sigma = this.meanBandwidth(x);
+            elseif strcmp(NameValueArgs.bandwidth, 'modifiedmean')
+                this.sigma = this.modifiedmeanBandwidth(x);
+            end
         end
         
         function K = compute(this, Xtrain, Xtest)

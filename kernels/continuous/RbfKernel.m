@@ -1,7 +1,7 @@
 classdef RbfKernel < handle
     
     properties (Access = public)
-        sigma (1,1) double {mustBePositive};
+        sigma (1,1) double {mustBePositive} = 1;
     end
     
     methods (Access = public)
