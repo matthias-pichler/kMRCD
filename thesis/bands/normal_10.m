@@ -28,7 +28,7 @@ eps = 0;
 ndm = ALYZ.NewDataModel(ALYZ.ALYZCorrelationType(), ALYZ.ClusterContamination());
 [unlabeledData, ~, ~,idxOutliers] = ndm.generateDataset(N, p, eps, 20);
 
-% unlabeledData = rZscores(unlabeledData); Not solved by centering
+unlabeledData = rZscores(unlabeledData);
 
 labels = categorical(repmat("inlier", [N 1]), {'inlier' 'outlier'});
 labels(idxOutliers) = "outlier";
