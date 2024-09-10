@@ -1,14 +1,8 @@
-classdef AutoRbfKernel < handle
-    
-    properties (GetAccess = public, SetAccess = private)
-        sigma (1,1) double {mustBePositive} = 1
-    end
+classdef AutoRbfKernel < RbfKernel
+    methods (Static, Access = public)
 
-    methods (Access = private)
-
-        function sigma = medianBandwidth(this, x)
+        function sigma = medianBandwidth(x)
             arguments
-                this AutoRbfKernel
                 x double
             end
 
@@ -16,9 +10,8 @@ classdef AutoRbfKernel < handle
             sigma = sqrt(median(distances));
         end
 
-        function sigma = meanBandwidth(this, x)
+        function sigma = meanBandwidth(x)
             arguments
-                this AutoRbfKernel
                 x double
             end
 
@@ -31,9 +24,8 @@ classdef AutoRbfKernel < handle
             sigma = sqrt( 2 * N * sum(s2)/((N-1) * log((N-1)/delta^2)) );
         end
 
-        function sigma = modifiedmeanBandwidth(this, x)
+        function sigma = modifiedmeanBandwidth(x)
             arguments
-                this AutoRbfKernel
                 x double
             end
 
@@ -57,32 +49,16 @@ classdef AutoRbfKernel < handle
                 NameValueArgs.bandwidth (1,1) string {mustBeMember(NameValueArgs.bandwidth, {'median' 'mean' 'modifiedmean'})} = 'median';
             end
 
+            bandwidth = 1;
             if strcmp(NameValueArgs.bandwidth, 'median')
-                this.sigma = this.medianBandwidth(x);
+                bandwidth = AutoRbfKernel.medianBandwidth(x);
             elseif strcmp(NameValueArgs.bandwidth, 'mean')
-                this.sigma = this.meanBandwidth(x);
+                bandwidth = AutoRbfKernel.meanBandwidth(x);
             elseif strcmp(NameValueArgs.bandwidth, 'modifiedmean')
-                this.sigma = this.modifiedmeanBandwidth(x);
+                bandwidth = AutoRbfKernel.modifiedmeanBandwidth(x);
             end
-        end
-        
-        function K = compute(this, Xtrain, Xtest)
-            arguments
-                this AutoRbfKernel
-                Xtrain double
-                Xtest double = Xtrain
-            end
-            
-            % K(x,y) = k(||x-y||) = exp(-1/2s^2 * ||x-y||^2)
-            % ||x-y||^2 = sum((x_i - y_i)^2) = sum(x_i^2-2*x_i*y_i+y_i)
-            %           = sum(x_i^2) + sum(y_i^2) - 2*sum(x_i*y_i)
 
-            n=size(Xtrain, 1);
-            m=size(Xtest, 1);
-            Ka = repmat(sum(Xtrain.^2,2), 1, m); % sum(x_i^2)
-            Kb = repmat(sum(Xtest.^2,2), 1, n); % sum(y_i^2)
-            K = (Ka + Kb' - 2 .* (Xtrain * Xtest')); % x_i^2+y_i-2*x_i*y_i = x_i^2-2*x_i*y_i+y_i
-            K = exp(-K ./ (2* this.sigma^2));
+            this@RbfKernel(bandwidth);
         end
     end
     

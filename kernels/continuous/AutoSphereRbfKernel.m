@@ -1,36 +1,35 @@
-classdef AutoSphereRbfKernel < handle
-    % K(x,y) = k(x*y) = exp(-1/s*2(1-x*y))
-    % if ||x|| = ||y|| = 1 then
-    % ||x -y||^2 = ||x||^2 - 2<x,y> + ||y||^2
-    %            = 1 - 2<x,y> +1 = 2 - 2<x,y> = 2(1 - <x-y>)
+classdef AutoSphereRbfKernel < SphereRbfKernel
 
-    properties (Access = public)
-        sigma;
-    end
-    
-    methods (Access = public)
-        
-        function this = AutoSphereRbfKernel(x)
+    methods (Static, Access = protected)
+        function sigma = medianBandwidth(x)
             arguments
                 x double
             end
-            
-            % TODO: is this still the best way to estimate sigma?
+
             % 2(1- <x,y>) = ||x-y||^2 on the unit sphere
             distances = 2 * pdist(x, "cosine");
-            this.sigma = sqrt(median(distances));
+            sigma = sqrt(median(distances));
         end
+    end
+
+    methods (Access = public)
         
-        function K = compute(this, Xtrain, Xtest)
+        function this = AutoSphereRbfKernel(x, NameValueArgs)
             arguments
-                this AutoSphereRbfKernel
-                Xtrain double
-                Xtest double = Xtrain
+                x double
+                NameValueArgs.bandwidth (1,1) string {mustBeMember(NameValueArgs.bandwidth, {'median' 'mean' 'modifiedmean'})} = 'median';
             end
-            
-            
-            K = 1 - (Xtrain * Xtest');
-            K = exp(-(2/this.sigma^2) * K);
+
+            bandwidth = 1;
+            if strcmp(NameValueArgs.bandwidth, 'median')
+                bandwidth = AutoSphereRbfKernel.medianBandwidth(x);
+            elseif strcmp(NameValueArgs.bandwidth, 'mean')
+                bandwidth = AutoRbfKernel.meanBandwidth(x);
+            elseif strcmp(NameValueArgs.bandwidth, 'modifiedmean')
+                bandwidth = AutoRbfKernel.modifiedmeanBandwidth(x);
+            end
+
+            this@SphereRbfKernel(bandwidth);
         end
     end
     
