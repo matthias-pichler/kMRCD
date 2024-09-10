@@ -1,7 +1,4 @@
 function result=twopoints(data,ndirect,seed,centered)
-    
-    import LIBRA.*;
-    
     %TWOPOINTS calculates ndirect directions through two randomly chosen data points from data.
     % If ndirect is larger than the number of all possible directions, then all
     % these combinations are considered.
@@ -30,6 +27,8 @@ function result=twopoints(data,ndirect,seed,centered)
     %              http://wis.kuleuven.be/stat/robust
     %
     % Last modified: 25/04/2016
+    
+    import LIBRA.*;
     
     if nargin==2
         seed=0;

@@ -423,6 +423,8 @@ end
 function [outlier,hout] = adjustedboxutil(x,a,b,classic,notch,lb,lf,clr,symbol,orientation,whis,whissw)
    %ADJUSTEDBOXUTIL Produces a single adjusted boxplot.
    
+   import LIBRA.*;
+   
    % define the median and the quantiles
    pctiles = prctile(x,[25;50;75]);
    q1 = pctiles(1,:);
@@ -430,7 +432,7 @@ function [outlier,hout] = adjustedboxutil(x,a,b,classic,notch,lb,lf,clr,symbol,o
    q3 = pctiles(3,:);
    
    % find the extreme values (to determine where whiskers appear)
-   medc = LIBRA.mc(x);
+   medc = mc(x);
    if medc>=0
       vloadj = q1-whis*exp(a*medc)*(q3-q1);  %Lower cutoff value for the adjusted boxplot.
       loadj = min(x(x>=vloadj));

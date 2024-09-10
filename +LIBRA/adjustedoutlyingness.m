@@ -74,6 +74,8 @@ function result = adjustedoutlyingness(x,varargin)
     %
     % Written by Guy Brys, Mia Hubert, Stephan Van der Veeken, Tim Verdonck
     % Last Update: 22/03/2010
+
+    import LIBRA.*;
     
     if (nargin<1)
         error('Input matrix x is required');
@@ -179,7 +181,7 @@ function result = adjustedoutlyingness(x,varargin)
     %Looking in ndir directions for skewness-adjusted outlyingness
     Y=x*A';
     [n,p]=size(Y);
-    tmc = LIBRA.mc(Y);
+    tmc = mc(Y);
     h=find(abs(tmc)==1);
     if(sum(h)>1)
         error('There are too many ties in the data. The adjusted outlyingness can not be computed.')
@@ -225,7 +227,7 @@ function result = adjustedoutlyingness(x,varargin)
     adjout=adjoutall(1:n);
     adjoutpredict=adjoutall(n+1:n+n1);
     
-    mcadjout=LIBRA.mc(adjout);
+    mcadjout=mc(adjout);
     if mcadjout>0
         cutoff = prctile(adjout,75)+1.5*exp(b*mcadjout)*iqr(adjout);
     else

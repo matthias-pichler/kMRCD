@@ -25,6 +25,8 @@ function [result] = mc(x)
     %
     % Written by Guy Brys
     % Last Update: 31/07/2007
+
+    import LIBRA.*;
     
     if (nargin<1)
         error('No input arguments')
@@ -39,10 +41,10 @@ function [result] = mc(x)
     if (n>50000)
         error('When there are more than 50000 observations, the MC may be uncomputable due to memory limitations.')
     elseif (n>100)
-        result = LIBRA.medc(x);
+        result = medc(x);
     elseif n==0
         error('Due to missing values, the data matrix is empty and the MC can not be computed.')
     else
-        result = 0.5*(-LIBRA.medc(repmat(max(x),size(x,1),1)-x)+LIBRA.medc(x));
+        result = 0.5*(-medc(repmat(max(x),size(x,1),1)-x)+medc(x));
     end
 end

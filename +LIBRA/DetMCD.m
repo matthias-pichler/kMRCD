@@ -142,7 +142,8 @@ function [rew,raw,hsetsfull] = DetMCD(x,varargin)
     %
     % Written by Tim Verdonck and Mia Hubert.
     % Last update: 11/10/2011
-    
+
+    import LIBRA.*;
     
     %--------------------------------------------------------------------------
     %Setting input parameters
@@ -291,7 +292,7 @@ function [rew,raw,hsetsfull] = DetMCD(x,varargin)
     clcov=cov(data);
     
     if p==1
-        [rew.center,rewsca,weights,raw.center,raw.cov,raw.rd,Hopt]=LIBRA.unimcd(data,h);
+        [rew.center,rewsca,weights,raw.center,raw.cov,raw.rd,Hopt]=unimcd(data,h);
         rew.Hsubsets.Hopt = Hopt';
         raw.cov=raw.cov*sca^2;
         raw.objective=raw.cov;
@@ -387,12 +388,12 @@ function [rew,raw,hsetsfull] = DetMCD(x,varargin)
         
         for k=1:nIsets
             xk=data(Isets(k,:),:);
-            [P,T,L,r,centerX,meanvct] = LIBRA.classSVD(xk);
+            [P,T,L,r,centerX,meanvct] = classSVD(xk);
             if r < p
                 error('DetMCD.m: More than half of the observations lie on a hyperplane.')
             end
             score=(data - repmat(meanvct,n,1))*P;
-            [dis,sortdist]=sort(LIBRA.mahalanobis(score,zeros(size(score,2),1),'cov',L));
+            [dis,sortdist]=sort(mahalanobis(score,zeros(size(score,2),1),'cov',L));
             hsetsfull(k,:)=sortdist;
         end
         
@@ -424,11 +425,11 @@ function [rew,raw,hsetsfull] = DetMCD(x,varargin)
                 obs_in_set=Hsets(i,:);
             else
                 score=(data - repmat(meanvct,n,1))*P;
-                mah=LIBRA.mahalanobis(score,zeros(size(score,2),1),'cov',L);
+                mah=mahalanobis(score,zeros(size(score,2),1),'cov',L);
                 [dis2,sortdist]=sort(mah);
                 obs_in_set=sortdist(1:h);
             end
-            [P,T,L,r,centerX,meanvct] = LIBRA.classSVD(data(obs_in_set,:));
+            [P,T,L,r,centerX,meanvct] = classSVD(data(obs_in_set,:));
             obj=prod(L);
             
             if r < p
@@ -456,8 +457,8 @@ function [rew,raw,hsetsfull] = DetMCD(x,varargin)
         rew.Hsubsets.csteps(i)=j; %how many csteps necessary to converge.
     end
     
-    [P,T,L,r,centerX,meanvct] = LIBRA.classSVD(data(bestset,:));
-    mah=LIBRA.mahalanobis((data - repmat(meanvct,n,1))*P,zeros(size(P,2),1),'cov',L);
+    [P,T,L,r,centerX,meanvct] = classSVD(data(bestset,:));
+    mah=mahalanobis((data - repmat(meanvct,n,1))*P,zeros(size(P,2),1),'cov',L);
     sortmah=sort(mah);
     
     factor = sortmah(h)/chi2inv(h/n,p);
@@ -470,15 +471,15 @@ function [rew,raw,hsetsfull] = DetMCD(x,varargin)
     raw.rd=sqrt(mah);
     weights=raw.rd<=cutoff.rd;
     raw.wt=weights;
-    [rew.center,rew.cov]=LIBRA.weightmecov(data,weights);
+    [rew.center,rew.cov]=weightmecov(data,weights);
     trcov=rew.cov.*repmat(sca,p,1).*repmat(sca',1,p);
     trcenter=rew.center.*sca+med;
     
-    mah=LIBRA.mahalanobis(data,rew.center,'cov',rew.cov);
+    mah=mahalanobis(data,rew.center,'cov',rew.cov);
     rew.rd=sqrt(mah);
     rew.flag=(rew.rd <= cutoff.rd);
     
-    rew.mahalanobis=sqrt(LIBRA.mahalanobis(data,clmean,'cov',clcov));
+    rew.mahalanobis=sqrt(mahalanobis(data,clmean,'cov',clcov));
     rawo=raw;
     reso=rew;
     
@@ -569,5 +570,5 @@ function [ind]=initset(data,scales,P,n,p)
     sqrtinvcov=P*diag(1./lambda)*P';
     estloc=median(data*sqrtinvcov)*sqrtcov;
     centeredx=(data-repmat(estloc,n,1))*P;
-    [~,ind]=sort(LIBRA.mahalanobis(centeredx,zeros(p,1),'cov',diag(lambda).^2));
+    [~,ind]=sort(mahalanobis(centeredx,zeros(p,1),'cov',diag(lambda).^2));
 end
