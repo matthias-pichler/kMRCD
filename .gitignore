@@ -22,6 +22,9 @@ sccprj/
 # Matlab code generation folders
 codegen/
 
+# Matlab Drive
+.MATLABDriveTag
+
 # Simulink autosave extension
 *.autosave
 
