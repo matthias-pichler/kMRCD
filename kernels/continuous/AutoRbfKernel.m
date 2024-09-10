@@ -64,9 +64,6 @@ classdef AutoRbfKernel < handle
             elseif strcmp(NameValueArgs.bandwidth, 'modifiedmean')
                 this.sigma = this.modifiedmeanBandwidth(x);
             end
-            
-            distances = pdist(x, "squaredeuclidean");
-            this.sigma = sqrt(median(distances));
         end
         
         function K = compute(this, Xtrain, Xtest)
