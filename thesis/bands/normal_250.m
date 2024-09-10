@@ -22,23 +22,22 @@ mkdir(tableDir);
 
 N = 1000;
 alpha = 0.7;
-p = 200;
+p = 250;
 eps = 0;
 
 ndm = ALYZ.NewDataModel(ALYZ.ALYZCorrelationType(), ALYZ.ClusterContamination());
 [unlabeledData, ~, ~,idxOutliers] = ndm.generateDataset(N, p, eps, 20);
-
-% unlabeledData = rZscores(unlabeledData); Not solved by centering
+unlabeledData = rZscores(unlabeledData);
 
 labels = categorical(repmat("inlier", [N 1]), {'inlier' 'outlier'});
 labels(idxOutliers) = "outlier";
 
 x = unlabeledData;
-% x = rZscores(unlabeledData);
+x = rZscores(unlabeledData);
 
-% kModel = AutoRbfKernel(x);
+kModel = AutoRbfKernel(x);
 % kModel = PolyKernel(3);
-kModel = LinKernel();
+% kModel = LinKernel();
 
 poc = kMRCD(kModel, cutoffEstimator="lognormal");
 solution = poc.runAlgorithm(x, alpha);
