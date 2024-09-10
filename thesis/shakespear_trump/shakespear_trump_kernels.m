@@ -63,14 +63,14 @@ s = struct();
 kModel = AutoRbfKernel(embeddings);
 solution = kMRCD(kModel).runAlgorithm(embeddings, alpha);
 
-s(1).kernel = "AutoRbfKernel";
+s(1).kernel = "AutoRbfKernel Median";
 s(1).solution = solution;
 
-%% Scaled RBF
-kModel = ScaledAutoRbfKernel(embeddings);
+%% RBF (Modified mean)
+kModel = AutoRbfKernel(embeddings, bandwidth="modifiedmean");
 solution = kMRCD(kModel).runAlgorithm(embeddings, alpha);
 
-s(2).kernel = "ScaledAutoRbfKernel";
+s(2).kernel = "AutoRbfKernel (Modified Mean)";
 s(2).solution = solution;
 
 %% Sphere-RBF
@@ -80,11 +80,11 @@ solution = kMRCD(kModel).runAlgorithm(embeddings, alpha);
 s(3).kernel = "AutoSphereRbfKernel";
 s(3).solution = solution;
 
-%% Scale-Sphere-RBF
-kModel = ScaledAutoSphereRbfKernel(embeddings);
+%% Sphere-RBF
+kModel = AutoSphereRbfKernel(embeddingsm, bandwidth="modifiedmean");
 solution = kMRCD(kModel).runAlgorithm(embeddings, alpha);
 
-s(4).kernel = "ScaledAutoSphereRbfKernel";
+s(4).kernel = "AutoSphereRbfKernel (Modified Mean)";
 s(4).solution = solution;
 
 %% String-Subsequence
