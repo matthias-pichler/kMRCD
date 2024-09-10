@@ -40,7 +40,7 @@ x = unlabeledData;
 % kModel = PolyKernel(3);
 kModel = LinKernel();
 
-poc = kMRCD(kModel, cutoffEstimator="logNormal");
+poc = kMRCD(kModel, cutoffEstimator="lognormal");
 solution = poc.runAlgorithm(x, alpha);
 
 % Mahalanobis Distances
