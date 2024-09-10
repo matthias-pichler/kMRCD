@@ -10,6 +10,17 @@ classdef AutoRbfKernel < RbfKernel
             sigma = sqrt(median(distances));
         end
 
+        function sigma = scaledmedianBandwidth(x)
+            arguments
+                x double
+            end
+
+            p = width(x);
+            scale = sqrt(p);
+
+            sigma = scale * AutoRbfKernel.medianBandwidth(x);
+        end
+
         function sigma = meanBandwidth(x)
             arguments
                 x double
@@ -21,7 +32,10 @@ classdef AutoRbfKernel < RbfKernel
 
             s2 = var(x);
 
-            sigma = sqrt( 2 * N * sum(s2)/((N-1) * log((N-1)/delta^2)) );
+            numerator = 2 * N * sum(s2);
+            denominator = (N-1) * log((N-1)/delta^2);
+
+            sigma = sqrt( numerator / denominator );
         end
 
         function sigma = modifiedmeanBandwidth(x)
@@ -36,7 +50,10 @@ classdef AutoRbfKernel < RbfKernel
 
             s2 = var(x);
 
-            sigma = sqrt( 2 * N * sum(s2)/((N-1) * log((N-1)/delta^2)) );
+            numerator = 2 * N * sum(s2);
+            denominator = (N-1) * log((N-1)/delta^2);
+
+            sigma = sqrt( numerator / denominator );
         end
 
     end
@@ -46,12 +63,14 @@ classdef AutoRbfKernel < RbfKernel
         function this = AutoRbfKernel(x, NameValueArgs)
             arguments
                 x double
-                NameValueArgs.bandwidth (1,1) string {mustBeMember(NameValueArgs.bandwidth, {'median' 'mean' 'modifiedmean'})} = 'median';
+                NameValueArgs.bandwidth (1,1) string {mustBeMember(NameValueArgs.bandwidth, {'median' 'scaledmedian' 'mean' 'modifiedmean'})} = 'median';
             end
 
             bandwidth = 1;
             if strcmp(NameValueArgs.bandwidth, 'median')
                 bandwidth = AutoRbfKernel.medianBandwidth(x);
+            elseif strcmp(NameValueArgs.bandwidth, 'scaledmedian')
+                bandwidth = AutoRbfKernel.scaledmedianBandwidth(x);
             elseif strcmp(NameValueArgs.bandwidth, 'mean')
                 bandwidth = AutoRbfKernel.meanBandwidth(x);
             elseif strcmp(NameValueArgs.bandwidth, 'modifiedmean')
