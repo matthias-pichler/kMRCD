@@ -1,4 +1,4 @@
-%% Careless Responding Simulation
+%% Careless Responding Simulation (Kernel comparison)
 
 % Setup
 clc;
@@ -11,8 +11,8 @@ projectDir = fileparts(fileparts(fileDir));
 
 datasetName = 'careless_responding_simulation';
 
-imageDir = fullfile(projectDir, 'images', datasetName);
-tableDir = fullfile(projectDir, 'tables', datasetName);
+imageDir = fullfile(projectDir, 'images', [datasetName '_kernels']);
+tableDir = fullfile(projectDir, 'tables', [datasetName '_kernels']);
 datasetDir = fullfile(projectDir, 'datasets', datasetName);
 
 mkdir(imageDir);
@@ -117,28 +117,74 @@ function stats = runSimulation(NameValueArgs)
         start = max(results.iteration) + 1;
     end
     
+    function res = run(kModel, unlabeledData, name)
+        poc = kMRCD(kModel);
+
+        if isequal(class(kModel), 'StringSubsequenceKernel')
+            stringEncodedData = join(string(unlabeledData), "");
+            solution = poc.runAlgorithm(stringEncodedData, alpha);
+        else
+            solution = poc.runAlgorithm(unlabeledData, alpha);
+        end
+
+        grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
+        grouphat(solution.flaggedOutlierIndices) = "outlier";
+        stats = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
+        
+        res = struct2table(stats);
+        res.name = name;
+    end
+
     for i = start:iter
         fprintf("Iteration: %d\n", i);
         
-        [data, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
-        
-        % kModel = K1Kernel(data);
-        kModel = StringSubsequenceKernel(lambda=0.05,maxSubsequence=5);
-        poc = kMRCD(kModel);
-        
-        if isequal(class(kModel), 'StringSubsequenceKernel')
-            encodedData = join(string(data), "");
-            solution = poc.runAlgorithm(encodedData, alpha);
-        else
-            solution = poc.runAlgorithm(data, alpha);
-        end
-        
-        e = evaluation(data, labels, alpha, solution, CategoricalPredictors="all");
-        
-        results = vertcat(e('kMRCD',:), e('lof',:), e('iforest', :), e('robustcov',:));
-        results.name = ["kMRCD";"lof";"iforest";"robustcov"];
-        results.iteration = repmat(i, 4, 1);
-        
+        [unlabeledData, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
+
+        %% Linear
+        kModel = LinKernel();
+        results = run(kModel, unlabeledData, "Linear");
+
+        %% RBF
+        kModel = AutoRbfKernel(unlabeledData);
+        results = vertcat(results, run(kModel, unlabeledData, "RBF"));
+
+        %% Dirac
+        kModel = DiracKernel();
+        results = vertcat(results, run(kModel, unlabeledData, "Dirac"));
+
+        %% k1
+        kModel = K1Kernel(unlabeledData);
+        results = vertcat(results, run(kModel, unlabeledData, "k1"));
+
+        %% m3
+        kModel = M3Kernel(unlabeledData);
+        results = vertcat(results, run(kModel, unlabeledData, "m3"));
+
+        %% Aitchison-Aitken
+        kModel = AitchisonAitkenKernel(unlabeledData);
+        results = vertcat(results, run(kModel, unlabeledData, "Aitchison-Aitken"));
+
+        %% Li-Racin
+        kModel = LiRacinKernel(unlabeledData);
+        results = vertcat(results, run(kModel, unlabeledData, "Li-Racin"));
+
+        %% String-Subsequence
+        kModel = StringSubsequenceKernel(maxSubsequence=15, lambda=0.6);
+        results = vertcat(results, run(kModel, unlabeledData, "SSK"));
+
+        %% Ordered Aitchison-Aitken
+        kModel = OrderedAitchisonAitkenKernel(unlabeledData);
+        results = vertcat(results, run(kModel, unlabeledData, "Ordered Aitchison-Aitken"));
+
+        %% Ordered Li-Racin
+        kModel = OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));
+        results = vertcat(results, run(kModel, unlabeledData, "Ordered Li-Racin"));
+
+        %% Wang-Ryzin
+        kModel = WangRyzinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));
+        results = vertcat(results, run(kModel, unlabeledData, "Wang-Ryzin"));
+
+        results.iteration = repmat(i, height(results), 1);
         writetable(results, file, WriteMode="append");
     end
     
@@ -146,13 +192,4 @@ function stats = runSimulation(NameValueArgs)
     opts = setvartype(opts, 'double');
     opts = setvartype(opts,'name', 'categorical');
     stats = readtable(file, opts);
-
-    [path, filename, ext] = fileparts(file);
-    mrcdFile = fullfile(path, sprintf("%s_mrcd%s", filename, ext));
-    opts = detectImportOptions(mrcdFile);
-    opts = setvartype(opts, 'double');
-    opts = setvartype(opts,'name', 'categorical');
-    mrcdStats = readtable(mrcdFile, opts);
-
-    stats = vertcat(stats, mrcdStats);
 end

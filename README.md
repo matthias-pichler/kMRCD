@@ -7,29 +7,24 @@ Iwein Vranckx and Joachim Schreurs.
 
 ## Abstract
 
-The minimum regularized covariance determinant (MRCD) is a robust estimator for multivariate location and scatter, which detects outliers by fitting a robust covariance matrix to the data. The MRCD assumes that the observations are elliptically distributed. However, this property does not always apply to modern datasets. Together with the time criticality of industrial processing, small $n$, large $p$ problems pose a challenging problem for any data analytics procedure. 
-Both shortcomings are solved with the proposed kernel Minimum Regularized Covariance Determinant estimator, where we exploit the kernel trick to speed-up computations. More specifically, the MRCD location and scatter matrix estimate are computed in a kernel induced feature space, where regularization ensures that the covariance matrix is well-conditioned, invertible and defined for any dataset dimension. Simulations show the computational reduction and correct outlier detection capability of the proposed method, whereas  experiments on real-life data illustrate its applicability on industrial applications. 
-
+The minimum regularized covariance determinant (MRCD) is a robust estimator for multivariate location and scatter, which detects outliers by fitting a robust covariance matrix to the data. The MRCD assumes that the observations are elliptically distributed. However, this property does not always apply to modern datasets. Together with the time criticality of industrial processing, small $n$, large $p$ problems pose a challenging problem for any data analytics procedure.
+Both shortcomings are solved with the proposed kernel Minimum Regularized Covariance Determinant estimator, where we exploit the kernel trick to speed-up computations. More specifically, the MRCD location and scatter matrix estimate are computed in a kernel induced feature space, where regularization ensures that the covariance matrix is well-conditioned, invertible and defined for any dataset dimension. Simulations show the computational reduction and correct outlier detection capability of the proposed method, whereas  experiments on real-life data illustrate its applicability on industrial applications.
 
 ## Minimal Working example
-
-
 
       -   Creates an estimator instance for a linear (runExample = 1) or non-linear (runExample = 2) kernel.
       -   Run the kMRCD algorithm with alpha = 0.75, and visualise the solution.
 
-	Last modified by Iwein Vranckx, 29/07/2020, 
-	Git repository: https://github.com/ivranckx/kMRCD.git
-   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0) 
+ Last modified by Iwein Vranckx, 29/07/2020, 
+ Git repository: https://github.com/ivranckx/kMRCD.git
+   Licenced under the Non-Profit Open Software License version 3.0 (NPOSL-3.0)
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
    THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
 
     clc;
     clear all;
@@ -92,22 +87,22 @@ Both shortcomings are solved with the proposed kernel Minimum Regularized Covari
     
     disp('We have the following solution:');
     disp(solution);
-    
+
 kMRCD solution is:
--	outlyingnessIndices: [600x1 double]
--	name: 'SDO'
-- 	hsubsetIndices: [420x1 double]
--	obj: 1.3736e+03
--	smd: [600x1 double]
--	rho: 0.0619
--	scfac: 2.0661
--	rd: [600x1 double]
--	ld: [600x1 double]
--	cutoff: 3.9909
-- 	flaggedOutlierIndices: [100x1 double]
+
+- outlyingnessIndices: [600x1 double]
+- name: 'SDO'
+-  hsubsetIndices: [420x1 double]
+- obj: 1.3736e+03
+- smd: [600x1 double]
+- rho: 0.0619
+- scfac: 2.0661
+- rd: [600x1 double]
+- ld: [600x1 double]
+- cutoff: 3.9909
+-  flaggedOutlierIndices: [100x1 double]
 
 See 'kMRCD/kMRCD.m' for information regarding the output structure.
-
 
     rho = solution.rho;
     scfac = solution.scfac;
@@ -143,7 +138,6 @@ See 'kMRCD/kMRCD.m' for information regarding the output structure.
 
 ![image info](./images/inputdataset.png)
 
-
     fig = figure(2);         
     contour(rr, cc, reshape(log(smdMesh), size(rr)), 20); hold on;        
     plot(x(:, 1), x(:, 2), '.', 'color', color_GREY, 'MarkerSize', mSize);
@@ -168,13 +162,4 @@ See 'kMRCD/kMRCD.m' for information regarding the output structure.
     set(gca,'FontSize',fontSize);
     title('Flagged outliers');
 
-
 ![image info](./images/result.png)
-
-    
-    
-    
-    
-    
-    
-    
