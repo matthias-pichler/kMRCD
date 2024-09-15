@@ -1,5 +1,4 @@
 function auc = prcurve(labels,scores, postiveClass, NameValueArgs)
-
     arguments
         labels (:,1) {mustBeNonempty}
         scores (:,:) double {mustBeNonempty}

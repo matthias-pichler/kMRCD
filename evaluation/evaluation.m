@@ -6,6 +6,7 @@ function result = evaluation(data, labels, alpha, solution, NameValueArgs)
         solution struct
         NameValueArgs.CategoricalPredictors = []
         NameValueArgs.Estimators {mustBeMember(NameValueArgs.Estimators, {'lof' 'iforest' 'rrcforest' 'ocsvm' 'robustcov'})} = {'lof' 'iforest' 'robustcov'}
+        NameValueArgs.plot (1,1) logical = false
     end
 
     assert(isequal(size(labels), [height(data), 1]))
@@ -94,24 +95,31 @@ function result = evaluation(data, labels, alpha, solution, NameValueArgs)
     % only print prcurves for contaminated datasets
     if numel(unique(labels)) == 2
         outlierRatio = sum(labels == "outlier")/numel(labels);
-    
-        hold on;
-    
-        xlabel("Recall");
-        ylabel("Precision");
-        title("Precision-Recall Curve");
-    
         fn = fieldnames(scores);
-        colors = jet(numel(fn));
-        for k=1:numel(fn)
-            s = scores.(fn{k});
-            auc = prcurve(labels,s,'outlier',DisplayName=fn{k}, Color=colors(k,:));
-            stats.(fn{k}).aucpr = auc;
+    
+        if  NameValueArgs.plot
+            hold on;
+            xlabel("Recall");
+            ylabel("Precision");
+            title("Precision-Recall Curve");
+        
+            colors = jet(numel(fn));
+            for k=1:numel(fn)
+                s = scores.(fn{k});
+                auc = prcurve(labels,s,'outlier',DisplayName=fn{k}, Color=colors(k,:));
+                stats.(fn{k}).aucpr = auc;
+            end
+            yline(outlierRatio, LineStyle="--", ...
+                DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
+            legend;
+            hold off;
+        else
+            for k=1:numel(fn)
+                s = scores.(fn{k});
+                [~,~,~,auc] = perfcurve(labels,s,'outlier', xCrit='reca', yCrit='prec');
+                stats.(fn{k}).aucpr = auc;
+            end
         end
-        yline(outlierRatio, LineStyle="--", ...
-            DisplayName=sprintf("No Skill Classifier (AUC=%0.4f)", outlierRatio));
-        legend;
-        hold off;
     else
         fn = fieldnames(scores);
         for k=1:numel(fn)
