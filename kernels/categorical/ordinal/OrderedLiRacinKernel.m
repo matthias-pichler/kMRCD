@@ -1,4 +1,4 @@
-classdef OrderedLiRacinKernel < handle
+classdef OrderedLiRacinKernel < KernelModel
     %
     %            n
     % k(x,y) = PROD l_i^|x_i-y_i|

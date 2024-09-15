@@ -1,4 +1,4 @@
-classdef DiracKernel < handle
+classdef DiracKernel < KernelModel
     %
     %               n
     % k(x,y) = 1/n Sum x_i == y_i

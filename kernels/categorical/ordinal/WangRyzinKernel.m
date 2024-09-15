@@ -1,4 +1,4 @@
-classdef WangRyzinKernel < handle
+classdef WangRyzinKernel < KernelModel
     
     % https://www.jstor.org/stable/2335831
     %

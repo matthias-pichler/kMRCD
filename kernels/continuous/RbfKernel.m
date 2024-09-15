@@ -1,4 +1,4 @@
-classdef RbfKernel < handle
+classdef RbfKernel < KernelModel
     
     properties (GetAccess = public, SetAccess = protected)
         sigma (1,1) double {mustBePositive} = 1;

@@ -1,4 +1,4 @@
-classdef LinKernel < handle
+classdef LinKernel < KernelModel
     
     methods (Access = public)
         function K = compute(~, Xtrain, Xtest)

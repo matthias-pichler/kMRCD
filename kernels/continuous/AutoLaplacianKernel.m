@@ -1,4 +1,4 @@
-classdef AutoLaplacianKernel < handle
+classdef AutoLaplacianKernel < KernelModel
     
     properties (Access = public)
         sigma;

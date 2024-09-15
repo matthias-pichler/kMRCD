@@ -1,4 +1,4 @@
-classdef StringSubsequenceKernel < handle
+classdef StringSubsequenceKernel < KernelModel
 
     properties (GetAccess = public, SetAccess = private)
         lambda (1,1) double {mustBeInRange(lambda, 0, 1)} = 0.5

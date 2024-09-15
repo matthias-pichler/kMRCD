@@ -1,4 +1,4 @@
-classdef PolyKernel < handle
+classdef PolyKernel < KernelModel
     
     properties (Access = private)
         degree (1,1) double {mustBePositive, mustBeInteger} = 3;

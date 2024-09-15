@@ -59,7 +59,7 @@ classdef kMRCD < handle
     
     
     properties (Access = private)
-        kModel;                         %   Used kernel model
+        kModel (1,1) KernelModel = LinKernel();                         %   Used kernel model
         cStepIterationsAllowed (1,1) double {mustBePositive, mustBeInteger} = 100;   %   Maximum number of CStep iterations allowed
         maxcond (1,1) double = 50;                   %   Condition number one wants to achieve
         estimators {mustBeMember(estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialMedian' 'SSCM'};
@@ -128,17 +128,12 @@ classdef kMRCD < handle
         
         function this = kMRCD(kModel, NameValueArgs)
             arguments
-                kModel
-                NameValueArgs.Estimators
+                kModel (1,1) KernelModel = LinKernel();
+                NameValueArgs.Estimators {mustBeMember(NameValueArgs.Estimators, {'SDO' 'SpatialRank' 'SpatialMedian' 'SSCM'})} = {'SDO' 'SpatialMedian' 'SSCM'};
                 NameValueArgs.cutoffEstimator (1,1) string {mustBeMember(NameValueArgs.cutoffEstimator, {'lognormal' 'chisquare' 'skewedbox'})} = 'lognormal';
             end
             
-            if ~isempty(kModel)
-                this.kModel = kModel;
-            else
-                this.kModel = LinKernel();
-            end
-            
+            this.kModel = kModel;
             this.cutoffEstimator = NameValueArgs.cutoffEstimator;
             
             if isfield(NameValueArgs,"Estimators")

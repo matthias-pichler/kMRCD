@@ -1,4 +1,4 @@
-classdef K1Kernel < handle
+classdef K1Kernel < KernelModel
     
     % https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
     % 

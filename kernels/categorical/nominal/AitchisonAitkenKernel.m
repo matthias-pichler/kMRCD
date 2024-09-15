@@ -1,4 +1,4 @@
-classdef AitchisonAitkenKernel < handle
+classdef AitchisonAitkenKernel < KernelModel
     %
     %
     % k(x,y) =   PROD (1-l_i)  * PROD l_i/(c_i-1)

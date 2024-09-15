@@ -1,4 +1,4 @@
-classdef MismatchKernel < handle
+classdef MismatchKernel < KernelModel
     % see: https://string-kernel.readthedocs.io/en/latest/mismatch.html
 
     properties (Constant, Access = private)

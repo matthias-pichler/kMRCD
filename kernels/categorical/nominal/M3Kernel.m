@@ -1,4 +1,4 @@
-classdef M3Kernel < handle
+classdef M3Kernel < KernelModel
     
     % https://upcommons.upc.edu/bitstream/handle/2099.1/24508/99930.pdf
     % 

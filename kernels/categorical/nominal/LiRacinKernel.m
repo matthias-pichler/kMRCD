@@ -1,4 +1,4 @@
-classdef LiRacinKernel < handle
+classdef LiRacinKernel < KernelModel
     %
     %
     % k(x,y) =   PROD l_i

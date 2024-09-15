@@ -1,4 +1,4 @@
-classdef OrderedAitchisonAitkenKernel < handle
+classdef OrderedAitchisonAitkenKernel < KernelModel
     %
     %            n
     % k(x,y) = PROD binom(c_i,|x_i-y_i|)*l_i^|x_i-y_i|*(1-l_i)^(c_i - |x_i-y_i|)

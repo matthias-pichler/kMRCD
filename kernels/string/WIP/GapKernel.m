@@ -1,4 +1,4 @@
-classdef GapKernel < handle
+classdef GapKernel < KernelModel
     properties (SetAccess = private, GetAccess = public)
         lambda (1,1) double
         subsequenceLength (1,1) double
