@@ -6,6 +6,9 @@ clear all;
 close all;
 rng(1634256, "twister");
 
+delete(gcp("nocreate"));
+parpool("Threads", 8);
+
 fileDir = fileparts(which(mfilename));
 projectDir = fileparts(fileparts(fileDir));
 
@@ -94,6 +97,31 @@ function encodings = diffEncode(data)
     encodings = array2table(encodings, VariableNames=data.Properties.VariableNames);
 end
 
+function res = runSingle(kModel, data, labels, alpha, name)
+    arguments
+        kModel (1,1) KernelModel
+        data (:,:) double
+        labels (:,1) categorical
+        alpha (1,1) double {mustBeInRange(alpha,0.5,1)}
+        name string
+    end
+
+    poc = kMRCD(kModel);
+
+    if isequal(class(kModel), 'StringSubsequenceKernel')
+        stringEncodedData = join(string(data), "");
+        solution = poc.runAlgorithm(stringEncodedData, alpha);
+    else
+        solution = poc.runAlgorithm(data, alpha);
+    end
+
+    stats = evaluation(data, labels, alpha, solution, Estimators={});
+    
+    res = stats('kMRCD',:);
+    res.name = name;
+    res.Properties.RowNames = {};
+end
+
 function stats = runSimulation(NameValueArgs)
     arguments
         NameValueArgs.directory (1,1) string
@@ -116,73 +144,22 @@ function stats = runSimulation(NameValueArgs)
         results = readtable(file, opts);
         start = max(results.iteration) + 1;
     end
-    
-    function res = run(kModel, unlabeledData, name)
-        poc = kMRCD(kModel);
-
-        if isequal(class(kModel), 'StringSubsequenceKernel')
-            stringEncodedData = join(string(unlabeledData), "");
-            solution = poc.runAlgorithm(stringEncodedData, alpha);
-        else
-            solution = poc.runAlgorithm(unlabeledData, alpha);
-        end
-
-        grouphat = categorical(repmat("inlier", size(labels)), categories(labels));
-        grouphat(solution.flaggedOutlierIndices) = "outlier";
-        stats = confusionstats(confusionmat(labels,grouphat, Order={'outlier' 'inlier'}));
-        
-        res = struct2table(stats);
-        res.name = name;
-    end
 
     for i = start:iter
         fprintf("Iteration: %d\n", i);
         
         [unlabeledData, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
+        
+        kNames = {"Linear"; "RBF"; "Dirac"; "k1"; "m3"; "Aitchison-Aitken"; "Li-Racin"; "SSK"; "Ordered Aitchison-Aitken"; "Ordered Li-Racin"; "Wang-Ryzin"};
+        kModels = {LinKernel(); AutoRbfKernel(unlabeledData); DiracKernel(); K1Kernel(unlabeledData); M3Kernel(unlabeledData); AitchisonAitkenKernel(unlabeledData); LiRacinKernel(unlabeledData); StringSubsequenceKernel(maxSubsequence=15, lambda=0.6); OrderedAitchisonAitkenKernel(unlabeledData); OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData))); WangRyzinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)))};
+        kernels = struct('name', kNames, 'model', kModels);
+        
+        results = table(Size=[length(kernels), 7], VariableTypes={'double', 'double', 'double', 'double', 'double', 'double', 'string'}, VariableNames={'accuracy','precision','sensitivity','specificity','f1Score','aucpr','name'});
 
-        %% Linear
-        kModel = LinKernel();
-        results = run(kModel, unlabeledData, "Linear");
-
-        %% RBF
-        kModel = AutoRbfKernel(unlabeledData);
-        results = vertcat(results, run(kModel, unlabeledData, "RBF"));
-
-        %% Dirac
-        kModel = DiracKernel();
-        results = vertcat(results, run(kModel, unlabeledData, "Dirac"));
-
-        %% k1
-        kModel = K1Kernel(unlabeledData);
-        results = vertcat(results, run(kModel, unlabeledData, "k1"));
-
-        %% m3
-        kModel = M3Kernel(unlabeledData);
-        results = vertcat(results, run(kModel, unlabeledData, "m3"));
-
-        %% Aitchison-Aitken
-        kModel = AitchisonAitkenKernel(unlabeledData);
-        results = vertcat(results, run(kModel, unlabeledData, "Aitchison-Aitken"));
-
-        %% Li-Racin
-        kModel = LiRacinKernel(unlabeledData);
-        results = vertcat(results, run(kModel, unlabeledData, "Li-Racin"));
-
-        %% String-Subsequence
-        kModel = StringSubsequenceKernel(maxSubsequence=15, lambda=0.6);
-        results = vertcat(results, run(kModel, unlabeledData, "SSK"));
-
-        %% Ordered Aitchison-Aitken
-        kModel = OrderedAitchisonAitkenKernel(unlabeledData);
-        results = vertcat(results, run(kModel, unlabeledData, "Ordered Aitchison-Aitken"));
-
-        %% Ordered Li-Racin
-        kModel = OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));
-        results = vertcat(results, run(kModel, unlabeledData, "Ordered Li-Racin"));
-
-        %% Wang-Ryzin
-        kModel = WangRyzinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));
-        results = vertcat(results, run(kModel, unlabeledData, "Wang-Ryzin"));
+        parfor j = 1:length(kernels)
+            kModel = kernels(j).model;
+            results(j,:) = runSingle(kModel, unlabeledData, labels, alpha, kernels(j).name);
+        end
 
         results.iteration = repmat(i, height(results), 1);
         writetable(results, file, WriteMode="append");
