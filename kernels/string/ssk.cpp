@@ -125,7 +125,10 @@ private:
 
     double ssk(const matlab::data::MATLABString &s_, const matlab::data::MATLABString &t_, size_t n, double lbda)
     {
-        size_t lens = (*s_).length(), lent = (*t_).length();
+        std::u16string s = *s_;
+        std::u16string t = *t_;
+
+        size_t lens = s.length(), lent = t.length();
         std::vector<std::vector<std::vector<double>>> k_prim(n, std::vector<std::vector<double>>(lens, std::vector<double>(lent, 0)));
 
         for (size_t i = 0; i < lens; ++i)
@@ -143,7 +146,7 @@ private:
                 double toret = 0.0;
                 for (size_t tk = i; tk < lent; ++tk)
                 {
-                    if ((*s_).at(sj - 1) == (*t_).at(tk - 1))
+                    if (s[sj - 1] == t[tk - 1])
                     {
                         toret = lbda * (toret + lbda * k_prim[i - 1][sj - 1][tk - 1]);
                     }
@@ -163,7 +166,7 @@ private:
             {
                 for (size_t tk = i; tk < lent; ++tk)
                 {
-                    if ((*s_).at(sj) == (*t_).at(tk))
+                    if (s[sj] == t[tk])
                     {
                         k += lbda * lbda * k_prim[i][sj][tk];
                     }
