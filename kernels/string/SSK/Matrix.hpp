@@ -4,46 +4,50 @@
 #include <vector>
 #include <stdexcept>
 #include <initializer_list>
+#include <string>
+#include <sstream>
+#include <iomanip> // For formatting output
 
-template <typename T>
+template <typename T, size_t N>
 class Matrix
 {
 public:
-    Matrix(const std::vector<size_t> &dimensions) : dims(dimensions)
+    Matrix(const std::vector<size_t> &dimensions)
+    {
+        std::copy(dimensions.begin(), dimensions.end(), dims.begin());
+        initialize();
+    }
+
+    Matrix(size_t&&dimensions_list) : dims{{std::forward<size_t>(dimensions_list)}}
     {
         initialize();
     }
 
-    Matrix(std::initializer_list<size_t> dimensions_list) : dims(dimensions_list)
-    {
-        initialize();
-    }
-
-    T &at(const std::vector<size_t> &indices)
+    T &at(const std::array<size_t, N> &indices)
     {
         size_t index = compute_flat_index(indices);
         return data[index];
     }
 
-    const T &at(const std::vector<size_t> &indices) const
+    const T &at(const std::array<size_t, N> &indices) const
     {
         size_t index = compute_flat_index(indices);
         return data[index];
     }
 
-    T &at(std::initializer_list<size_t> indices_list)
+    T &at(size_t&&indices_list)
     {
-        std::vector<size_t> indices(indices_list);
+        std::array<size_t, N> indices{{std::forward<size_t>(indices_list)}};
         return at(indices);
     }
 
-    const T &at(std::initializer_list<size_t> indices_list) const
+    const T &at(size_t&&indices_list) const
     {
-        std::vector<size_t> indices(indices_list);
+        std::array<size_t, N> indices{{std::forward<size_t>(indices_list)}};
         return at(indices);
     }
 
-    const std::vector<size_t> &dimensions() const
+    const std::array<size_t, N> &dimensions() const
     {
         return dims;
     }
@@ -53,9 +57,28 @@ public:
         return total_size;
     }
 
+    std::string to_string() const {
+        if (dims.size() != 2) {
+            throw std::logic_error("to_string() is only supported for 2D matrices");
+        }
+
+        std::ostringstream oss;
+        size_t rows = dims[0];
+        size_t cols = dims[1];
+
+        for (size_t i = 0; i < rows; ++i) {
+            oss << "[ ";
+            for (size_t j = 0; j < cols; ++j) {
+                oss << std::setw(8) << get({i, j}) << " ";
+            }
+            oss << "]\n";
+        }
+        return oss.str();
+    }
+
 private:
-    std::vector<size_t> dims;    // Dimensions of the matrix
-    std::vector<size_t> strides; // Strides for each dimension
+    std::array<size_t, N> dims;  // Dimensions of the matrix
+    std::array<size_t, N> strides; // Strides for each dimension
     size_t total_size;           // Total number of elements
     std::vector<T> data;         // Flat data storage
 
@@ -68,8 +91,7 @@ private:
 
         // Calculate total size and strides
         total_size = 1;
-        strides.resize(dims.size());
-        for (int i = dims.size() - 1; i >= 0; --i)
+        for (int i = 0; i < N; i++)
         {
             strides[i] = total_size;
             total_size *= dims[i];
@@ -80,21 +102,21 @@ private:
     }
 
     // Compute the flat index from multi-dimensional indices
-    size_t compute_flat_index(const std::vector<size_t> &indices) const
+    inline size_t compute_flat_index(const std::array<size_t, N> &indices) const
     {
-        if (indices.size() != dims.size())
+        if (indices.size() != N)
         {
             throw std::invalid_argument("Number of indices must match number of dimensions");
         }
 
         size_t index = 0;
-        for (size_t i = 0; i < dims.size(); ++i)
+        for (size_t i = 0; i < N; i++)
         {
             if (indices[i] >= dims[i])
             {
                 throw std::out_of_range("Index out of bounds");
             }
-            index += indices[i] * strides[i];
+            index += indices[i] * dims[i];
         }
         return index;
     }
