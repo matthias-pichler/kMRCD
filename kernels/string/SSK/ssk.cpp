@@ -131,13 +131,13 @@ private:
         std::u16string t = *t_;
 
         size_t lens = s.length(), lent = t.length();
-        Matrix<double, 3> k_prim({n, lens, lent});
+        std::vector<std::vector<std::vector<double>>> k_prim(n, std::vector<std::vector<double>>(lens, std::vector<double>(lent, 0)));
 
         for (size_t i = 0; i < lens; ++i)
         {
             for (size_t j = 0; j < lent; ++j)
             {
-                k_prim.at({0, i, j}) = 1;
+                k_prim[0][i][j] = 1;
             }
         }
 
@@ -150,13 +150,13 @@ private:
                 {
                     if (s[sj - 1] == t[tk - 1])
                     {
-                        toret = lbda * (toret + lbda * k_prim.at({i - 1, sj - 1, tk - 1}));
+                        toret = lbda * (toret + lbda * k_prim[i - 1][sj - 1][tk - 1]);
                     }
                     else
                     {
                         toret *= lbda;
                     }
-                    k_prim.at({i, sj, tk}) = toret + lbda * k_prim.at({i, sj - 1, tk});
+                    k_prim[i][sj][tk] = toret + lbda * k_prim[i][sj - 1][tk];
                 }
             }
         }
@@ -170,7 +170,7 @@ private:
                 {
                     if (s[sj] == t[tk])
                     {
-                        k += lbda * lbda * k_prim.at({i, sj, tk});
+                        k += lbda * lbda * k_prim[i][sj][tk];
                     }
                 }
             }
