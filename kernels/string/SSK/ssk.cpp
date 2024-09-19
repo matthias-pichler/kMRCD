@@ -131,7 +131,7 @@ private:
         std::u16string t = *t_;
 
         size_t lens = s.length(), lent = t.length();
-        Matrix<double> k_prim({n, lens, lent});
+        Matrix<double, 3> k_prim({n, lens, lent});
 
         for (size_t i = 0; i < lens; ++i)
         {

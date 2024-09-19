@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <algorithm> // For std::copy
+#include <algorithm>
 
 template <typename T, size_t N>
 class Matrix
@@ -29,19 +29,19 @@ public:
         initialize();
     }
 
-    T &at(const std::array<size_t, N> &indices)
+    inline T &at(const std::array<size_t, N> &indices)
     {
         size_t index = compute_flat_index(indices);
         return data[index];
     }
 
-    const T &at(const std::array<size_t, N> &indices) const
+    inline const T &at(const std::array<size_t, N> &indices) const
     {
         size_t index = compute_flat_index(indices);
         return data[index];
     }
 
-    T &at(std::initializer_list<size_t> indices_list)
+    inline T &at(std::initializer_list<size_t> indices_list)
     {
         if (indices_list.size() != N)
         {
@@ -52,7 +52,7 @@ public:
         return at(indices);
     }
 
-    const T &at(std::initializer_list<size_t> indices_list) const
+    inline const T &at(std::initializer_list<size_t> indices_list) const
     {
         if (indices_list.size() != N)
         {
@@ -66,7 +66,7 @@ public:
     // to_string method for 2D matrices
     std::string to_string() const
     {
-        if constexpr (N != 2)
+        if (N != 2)
         {
             throw std::logic_error("to_string() is only supported for 2D matrices");
         }
@@ -87,7 +87,7 @@ public:
         return oss.str();
     }
 
-    size_t size() const
+    inline size_t size() const
     {
         return total_size;
     }
@@ -102,7 +102,7 @@ private:
     void initialize()
     {
         total_size = 1;
-        for (size_t i = N; i > 0; i--)
+        for (int i = static_cast<int>(N) - 1; i >= 0; i--)
         {
             strides[i] = total_size;
             total_size *= dims[i];
@@ -111,7 +111,7 @@ private:
     }
 
     // Compute the flat index from multi-dimensional indices
-    size_t compute_flat_index(const std::array<size_t, N> &indices) const
+    inline size_t compute_flat_index(const std::array<size_t, N> &indices) const
     {
         size_t index = 0;
         for (size_t i = 0; i < N; i++)
