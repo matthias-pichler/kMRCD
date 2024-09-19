@@ -1,25 +1,31 @@
-#ifndef MATRIX_HPP
-#define MATRIX_HPP
+#ifndef MATRIX_H
+#define MATRIX_H
 
+#include <array>
 #include <vector>
 #include <stdexcept>
 #include <initializer_list>
 #include <string>
 #include <sstream>
-#include <iomanip> // For formatting output
+#include <iomanip>
+#include <algorithm> // For std::copy
 
 template <typename T, size_t N>
 class Matrix
 {
 public:
-    Matrix(const std::vector<size_t> &dimensions)
+    Matrix(const std::array<size_t, N> &dimensions) : dims(dimensions)
     {
-        std::copy(dimensions.begin(), dimensions.end(), dims.begin());
         initialize();
     }
 
-    Matrix(size_t&&dimensions_list) : dims{{std::forward<size_t>(dimensions_list)}}
+    Matrix(std::initializer_list<size_t> dimensions_list)
     {
+        if (dimensions_list.size() != N)
+        {
+            throw std::invalid_argument("Number of dimensions must be " + std::to_string(N));
+        }
+        std::copy(dimensions_list.begin(), dimensions_list.end(), dims.begin());
         initialize();
     }
 
@@ -35,30 +41,33 @@ public:
         return data[index];
     }
 
-    T &at(size_t&&indices_list)
+    T &at(std::initializer_list<size_t> indices_list)
     {
-        std::array<size_t, N> indices{{std::forward<size_t>(indices_list)}};
+        if (indices_list.size() != N)
+        {
+            throw std::invalid_argument("Number of indices must be " + std::to_string(N));
+        }
+        std::array<size_t, N> indices;
+        std::copy(indices_list.begin(), indices_list.end(), indices.begin());
         return at(indices);
     }
 
-    const T &at(size_t&&indices_list) const
+    const T &at(std::initializer_list<size_t> indices_list) const
     {
-        std::array<size_t, N> indices{{std::forward<size_t>(indices_list)}};
+        if (indices_list.size() != N)
+        {
+            throw std::invalid_argument("Number of indices must be " + std::to_string(N));
+        }
+        std::array<size_t, N> indices;
+        std::copy(indices_list.begin(), indices_list.end(), indices.begin());
         return at(indices);
     }
 
-    const std::array<size_t, N> &dimensions() const
+    // to_string method for 2D matrices
+    std::string to_string() const
     {
-        return dims;
-    }
-
-    size_t size() const
-    {
-        return total_size;
-    }
-
-    std::string to_string() const {
-        if (dims.size() != 2) {
+        if constexpr (N != 2)
+        {
             throw std::logic_error("to_string() is only supported for 2D matrices");
         }
 
@@ -66,60 +75,55 @@ public:
         size_t rows = dims[0];
         size_t cols = dims[1];
 
-        for (size_t i = 0; i < rows; ++i) {
+        for (size_t i = 0; i < rows; i++)
+        {
             oss << "[ ";
-            for (size_t j = 0; j < cols; ++j) {
-                oss << std::setw(8) << get({i, j}) << " ";
+            for (size_t j = 0; j < cols; j++)
+            {
+                oss << std::setw(8) << at({i, j}) << " ";
             }
             oss << "]\n";
         }
         return oss.str();
     }
 
-private:
-    std::array<size_t, N> dims;  // Dimensions of the matrix
-    std::array<size_t, N> strides; // Strides for each dimension
-    size_t total_size;           // Total number of elements
-    std::vector<T> data;         // Flat data storage
+    size_t size() const
+    {
+        return total_size;
+    }
 
+private:
+    std::array<size_t, N> dims;    // Dimensions of the matrix
+    std::array<size_t, N> strides; // Strides for each dimension
+    size_t total_size;             // Total number of elements
+    std::vector<T> data;           // Flat data storage
+
+    // Common initialization function
     void initialize()
     {
-        if (dims.empty())
-        {
-            throw std::invalid_argument("Dimensions cannot be empty");
-        }
-
-        // Calculate total size and strides
         total_size = 1;
-        for (int i = 0; i < N; i++)
+        for (size_t i = N; i > 0; i--)
         {
             strides[i] = total_size;
             total_size *= dims[i];
         }
-
-        // Initialize the flat data vector
         data.resize(total_size);
     }
 
     // Compute the flat index from multi-dimensional indices
-    inline size_t compute_flat_index(const std::array<size_t, N> &indices) const
+    size_t compute_flat_index(const std::array<size_t, N> &indices) const
     {
-        if (indices.size() != N)
-        {
-            throw std::invalid_argument("Number of indices must match number of dimensions");
-        }
-
         size_t index = 0;
         for (size_t i = 0; i < N; i++)
         {
             if (indices[i] >= dims[i])
             {
-                throw std::out_of_range("Index out of bounds");
+                throw std::out_of_range("Index out of bounds in dimension " + std::to_string(i));
             }
-            index += indices[i] * dims[i];
+            index += indices[i] * strides[i];
         }
         return index;
     }
 };
 
-#endif // MATRIX_HPP
+#endif // MATRIX_H
