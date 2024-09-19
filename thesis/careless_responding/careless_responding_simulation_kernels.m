@@ -6,9 +6,6 @@ clear all;
 close all;
 rng(1634256, "twister");
 
-delete(gcp("nocreate"));
-parpool("Threads", 8);
-
 fileDir = fileparts(which(mfilename));
 projectDir = fileparts(fileparts(fileDir));
 
@@ -150,8 +147,20 @@ function stats = runSimulation(NameValueArgs)
         
         [unlabeledData, labels] = loadData(directory=NameValueArgs.directory, distribution=NameValueArgs.distribution, iteration=i);
         
-        kNames = {"Linear"; "RBF"; "Dirac"; "k1"; "Aitchison-Aitken"; "Li-Racin"; "Ordered Aitchison-Aitken"; "Ordered Li-Racin"; "Wang-Ryzin"};
-        kModels = {LinKernel(); AutoRbfKernel(unlabeledData); DiracKernel(); K1Kernel(unlabeledData); AitchisonAitkenKernel(unlabeledData); LiRacinKernel(unlabeledData); OrderedAitchisonAitkenKernel(unlabeledData); OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData))); WangRyzinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)))};
+        kNames = {"Linear"; "RBF"; ...
+            "Dirac"; "k1"; ...
+            "Aitchison-Aitken"; "Li-Racin"; ...
+            "Ordered Aitchison-Aitken"; ...
+            "Ordered Li-Racin"; ...
+            "Wang-Ryzin";...
+            "m3"; "SSK"};
+        kModels = {LinKernel(); AutoRbfKernel(unlabeledData); ...
+            DiracKernel(); K1Kernel(unlabeledData); ...
+            AitchisonAitkenKernel(unlabeledData); LiRacinKernel(unlabeledData); ...
+            OrderedAitchisonAitkenKernel(unlabeledData); ...
+            OrderedLiRacinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData))); ...
+            WangRyzinKernel(unlabeledData, lambda=repmat(0.01, 1, width(unlabeledData)));...
+            M3Kernel(unlabeledData); StringSubsequenceKernel(maxSubsequence=15, lambda=0.6)};
         kernels = struct('name', kNames, 'model', kModels);
         
         results = table(Size=[length(kernels), 7], VariableTypes={'double', 'double', 'double', 'double', 'double', 'double', 'string'}, VariableNames={'accuracy','precision','sensitivity','specificity','f1Score','aucpr','name'});
@@ -160,14 +169,6 @@ function stats = runSimulation(NameValueArgs)
             kModel = kernels(j).model;
             results(j,:) = runSingle(kModel, unlabeledData, labels, alpha, kernels(j).name);
         end
-
-        %% m3
-        kModel = M3Kernel(unlabeledData);
-        results = vertcat(results, runSingle(kModel, unlabeledData, labels, alpha, "m3"));
-        
-        %% String-Subsequence
-        kModel = StringSubsequenceKernel(maxSubsequence=15, lambda=0.6);
-        results = vertcat(results, runSingle(kModel, unlabeledData, labels, alpha, "SSK"));
 
         results.iteration = repmat(i, height(results), 1);
         writetable(results, file, WriteMode="append");
