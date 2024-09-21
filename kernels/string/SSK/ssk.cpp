@@ -126,29 +126,32 @@ private:
         return mat;
     }
 
-    double ssk(const matlab::data::MATLABString &s_, const matlab::data::MATLABString &t_, size_t n, double lbda)
+    double ssk(const matlab::data::MATLABString &s_, const matlab::data::MATLABString &t_, size_t p, double lbda)
     {
         std::u16string s = *s_;
         std::u16string t = *t_;
 
-        size_t lens = s.length(), lent = t.length();
-        std::vector<double> k_prim(n * lens * lent, 0.0);
-        auto k_prim_idx = [&](size_t i, size_t j, size_t k) { return i * lens * lent + j * lent + k;};
+        size_t n = s.length();
+        size_t m = t.length();
 
-        for (size_t i = 0; i < lens; ++i)
+        std::vector<double> k_prim(p * n * m, 0.0);
+        auto k_prim_idx = [&](size_t i, size_t j, size_t k)
+        { return i * n * m + j * m + k; };
+
+        for (size_t i = 0; i < n; ++i)
         {
-            for (size_t j = 0; j < lent; ++j)
+            for (size_t j = 0; j < m; ++j)
             {
                 k_prim[k_prim_idx(0, i, j)] = 1;
             }
         }
 
-        for (size_t i = 1; i < n; ++i)
+        for (size_t i = 1; i < p; ++i)
         {
-            for (size_t sj = i; sj < lens; ++sj)
+            for (size_t sj = i; sj < n; ++sj)
             {
                 double toret = 0.0;
-                for (size_t tk = i; tk < lent; ++tk)
+                for (size_t tk = i; tk < m; ++tk)
                 {
                     if (s[sj - 1] == t[tk - 1])
                     {
@@ -164,11 +167,11 @@ private:
         }
 
         double k = 0.0;
-        for (size_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < p; ++i)
         {
-            for (size_t sj = i; sj < lens; ++sj)
+            for (size_t sj = i; sj < n; ++sj)
             {
-                for (size_t tk = i; tk < lent; ++tk)
+                for (size_t tk = i; tk < m; ++tk)
                 {
                     if (s[sj] == t[tk])
                     {
