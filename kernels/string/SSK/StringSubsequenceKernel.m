@@ -1,5 +1,9 @@
 classdef StringSubsequenceKernel < KernelModel
 
+    properties (Access = private)
+        mh (1,1) matlab.mex.MexHost = mexhost
+    end
+
     properties (GetAccess = public, SetAccess = private)
         lambda (1,1) double {mustBeInRange(lambda, 0, 1)} = 0.5
         maxSubsequence (1,1) double {mustBeInteger, mustBePositive} = 1
@@ -24,7 +28,7 @@ classdef StringSubsequenceKernel < KernelModel
                 Xtest (:, 1) string = Xtrain
             end
             
-            K = ssk(Xtrain, Xtest, uint8(this.maxSubsequence), this.lambda);
+            K = feval(this.mh,'ssk',Xtrain, Xtest, uint8(this.maxSubsequence), this.lambda);
 
             assert(size(K, 1)==size(Xtrain, 1));
             assert(size(K, 2)==size(Xtest, 1));
