@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <execution>
 
-#include "Matrix.hpp"
-
 // Mex wrapper
 #include "mex.hpp"
 #include "mexAdapter.hpp"
@@ -136,7 +134,7 @@ private:
         size_t n = s.length();
         size_t m = t.length();
 
-        auto lambda_squared = lambda * lambda;
+        double lambda_squared = lambda * lambda;
 
         std::unique_ptr<double[]> k_prim{new double[p * n * m]{}};
         auto k_prim_idx = [=](const size_t i, const size_t j, const size_t k)
