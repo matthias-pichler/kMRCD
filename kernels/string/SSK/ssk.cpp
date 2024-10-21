@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <execution>
 
+#include <omp.h>
+
 // Mex wrapper
 #include "mex.hpp"
 #include "mexAdapter.hpp"
@@ -96,30 +98,26 @@ private:
 
         matlab::data::TypedArray<double> mat = this->factory.createArray<double>({len_xs, len_ys});
 
-        for (size_t i = 0; i < len_xs; ++i)
-        {
-            for (size_t j = 0; j < len_ys; ++j)
-            {
-                mat[i][j] = ssk(xs[i], ys[j], n, lambda);
-            }
-        }
-
         std::unique_ptr<double[]> mat_xs{new double[len_xs]};
         std::unique_ptr<double[]> mat_ys{new double[len_ys]};
 
-        std::transform(xs.begin(), xs.end(), mat_xs.get(),
-                       [&](const auto &x)
-                       { return ssk(x, x, n, lambda); });
+        #pragma omp parallel for
+        for (size_t i = 0; i < len_xs; ++i)
+        {
+            mat_xs[i] = ssk(xs[i], xs[i], n, lambda);
+        }
 
-        std::transform(ys.begin(), ys.end(), mat_ys.get(),
-                       [&](const auto &y)
-                       { return ssk(y, y, n, lambda); });
+        #pragma omp parallel for
+        for (size_t j = 0; j < len_ys; ++j)
+        {
+            mat_ys[j] = ssk(ys[j], ys[j], n, lambda);
+        }
 
         for (size_t i = 0; i < len_xs; ++i)
         {
             for (size_t j = 0; j < len_ys; ++j)
             {
-                mat[i][j] /= sqrt(mat_xs[i] * mat_ys[j]);
+                mat[i][j] = ssk(xs[i], ys[j], n, lambda) / sqrt(mat_xs[i] * mat_ys[j]);
             }
         }
 
