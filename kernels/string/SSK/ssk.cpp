@@ -85,7 +85,7 @@ private:
         }
     }
 
-    matlab::data::TypedArray<double> string_kernel(const matlab::data::StringArray &xs, const matlab::data::StringArray &ys, size_t n, double lbda)
+    matlab::data::TypedArray<double> string_kernel(const matlab::data::StringArray &xs, const matlab::data::StringArray &ys, size_t n, double lambda)
     {
         size_t lenxs = xs.getDimensions().at(0), lenys = ys.getDimensions().at(0);
 
@@ -100,7 +100,7 @@ private:
         {
             for (size_t j = 0; j < lenys; ++j)
             {
-                mat[i][j] = ssk(xs[i], ys[j], n, lbda);
+                mat[i][j] = ssk(xs[i], ys[j], n, lambda);
             }
         }
 
@@ -109,11 +109,11 @@ private:
 
         for (size_t i = 0; i < lenxs; ++i)
         {
-            mat_xs[i] = ssk(xs[i], xs[i], n, lbda);
+            mat_xs[i] = ssk(xs[i], xs[i], n, lambda);
         }
         for (size_t j = 0; j < lenys; ++j)
         {
-            mat_ys[j] = ssk(ys[j], ys[j], n, lbda);
+            mat_ys[j] = ssk(ys[j], ys[j], n, lambda);
         }
 
         for (size_t i = 0; i < lenxs; ++i)
@@ -127,7 +127,7 @@ private:
         return mat;
     }
 
-    double ssk(const matlab::data::MATLABString &s_, const matlab::data::MATLABString &t_, size_t p, double lbda)
+    double ssk(const matlab::data::MATLABString &s_, const matlab::data::MATLABString &t_, size_t p, double lambda)
     {
         std::u16string s = *s_;
         std::u16string t = *t_;
@@ -150,13 +150,13 @@ private:
                 {
                     if (s[s_j - 1] == t[t_k - 1])
                     {
-                        toret = lbda * (toret + lbda * k_prim[k_prim_idx(i - 1, s_j - 1, t_k - 1)]);
+                        toret = lambda * (toret + lambda * k_prim[k_prim_idx(i - 1, s_j - 1, t_k - 1)]);
                     }
                     else
                     {
-                        toret *= lbda;
+                        toret *= lambda;
                     }
-                    k_prim[k_prim_idx(i, s_j, t_k)] = toret + lbda * k_prim[k_prim_idx(i, s_j - 1, t_k)];
+                    k_prim[k_prim_idx(i, s_j, t_k)] = toret + lambda * k_prim[k_prim_idx(i, s_j - 1, t_k)];
                 }
             }
         }
@@ -170,7 +170,7 @@ private:
                 {
                     if (s[s_j] == t[t_k])
                     {
-                        k += lbda * lbda * k_prim[k_prim_idx(i, s_j, t_k)];
+                        k += lambda * lambda * k_prim[k_prim_idx(i, s_j, t_k)];
                     }
                 }
             }
