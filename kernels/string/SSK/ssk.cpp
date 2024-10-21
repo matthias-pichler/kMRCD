@@ -113,6 +113,7 @@ private:
             mat_ys[j] = ssk(ys[j], ys[j], n, lambda);
         }
 
+        #pragma omp parallel for collapse(2)
         for (size_t i = 0; i < len_xs; ++i)
         {
             for (size_t j = 0; j < len_ys; ++j)
