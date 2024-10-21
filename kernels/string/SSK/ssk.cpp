@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <algorithm>
 
 #include "Matrix.hpp"
 
@@ -138,11 +139,11 @@ private:
         auto k_prim_idx = [&](size_t i, size_t j, size_t k)
         { return i * n * m + j * m + k; };
 
-        for (size_t i = 0; i < n; ++i)
+        for (size_t j = 0; j < n; ++j)
         {
-            for (size_t j = 0; j < m; ++j)
+            for (size_t k = 0; k < m; ++k)
             {
-                k_prim[k_prim_idx(0, i, j)] = 1;
+                k_prim[k_prim_idx(0, j, k)] = 1;
             }
         }
 
