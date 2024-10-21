@@ -136,6 +136,8 @@ private:
         size_t n = s.length();
         size_t m = t.length();
 
+        auto lambda_squared = lambda * lambda;
+
         auto k_prim = new double[p * n * m]{};
         auto k_prim_idx = [&](size_t i, size_t j, size_t k)
         { return i * n * m + j * m + k; };
@@ -149,13 +151,11 @@ private:
                 double toret = 0.0;
                 for (size_t t_k = i; t_k < m; ++t_k)
                 {
+                    toret *= lambda;
+
                     if (s[s_j - 1] == t[t_k - 1])
                     {
-                        toret = lambda * (toret + lambda * k_prim[k_prim_idx(i - 1, s_j - 1, t_k - 1)]);
-                    }
-                    else
-                    {
-                        toret *= lambda;
+                        toret += lambda_squared * k_prim[k_prim_idx(i - 1, s_j - 1, t_k - 1)];
                     }
                     k_prim[k_prim_idx(i, s_j, t_k)] = toret + lambda * k_prim[k_prim_idx(i, s_j - 1, t_k)];
                 }
@@ -171,7 +171,7 @@ private:
                 {
                     if (s[s_j] == t[t_k])
                     {
-                        k += lambda * lambda * k_prim[k_prim_idx(i, s_j, t_k)];
+                        k += lambda_squared * k_prim[k_prim_idx(i, s_j, t_k)];
                     }
                 }
             }
