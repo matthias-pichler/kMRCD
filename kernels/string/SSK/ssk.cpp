@@ -135,34 +135,28 @@ private:
         size_t n = s.length();
         size_t m = t.length();
 
-        std::unique_ptr<double[]> k_prim {new double[ p * n * m ]};
+        auto k_prim = new double[p * n * m]{};
         auto k_prim_idx = [&](size_t i, size_t j, size_t k)
         { return i * n * m + j * m + k; };
 
-        for (size_t j = 0; j < n; ++j)
-        {
-            for (size_t k = 0; k < m; ++k)
-            {
-                k_prim[k_prim_idx(0, j, k)] = 1;
-            }
-        }
+        std::fill_n(k_prim, (n * m), 1); // k_prim[0][*][*] = 1
 
         for (size_t i = 1; i < p; ++i)
         {
-            for (size_t sj = i; sj < n; ++sj)
+            for (size_t s_j = i; s_j < n; ++s_j)
             {
                 double toret = 0.0;
-                for (size_t tk = i; tk < m; ++tk)
+                for (size_t t_k = i; t_k < m; ++t_k)
                 {
-                    if (s[sj - 1] == t[tk - 1])
+                    if (s[s_j - 1] == t[t_k - 1])
                     {
-                        toret = lbda * (toret + lbda * k_prim[k_prim_idx(i - 1, sj - 1, tk - 1)]);
+                        toret = lbda * (toret + lbda * k_prim[k_prim_idx(i - 1, s_j - 1, t_k - 1)]);
                     }
                     else
                     {
                         toret *= lbda;
                     }
-                    k_prim[k_prim_idx(i, sj, tk)] = toret + lbda * k_prim[k_prim_idx(i, sj - 1, tk)];
+                    k_prim[k_prim_idx(i, s_j, t_k)] = toret + lbda * k_prim[k_prim_idx(i, s_j - 1, t_k)];
                 }
             }
         }
@@ -170,17 +164,20 @@ private:
         double k = 0.0;
         for (size_t i = 0; i < p; ++i)
         {
-            for (size_t sj = i; sj < n; ++sj)
+            for (size_t s_j = i; s_j < n; ++s_j)
             {
-                for (size_t tk = i; tk < m; ++tk)
+                for (size_t t_k = i; t_k < m; ++t_k)
                 {
-                    if (s[sj] == t[tk])
+                    if (s[s_j] == t[t_k])
                     {
-                        k += lbda * lbda * k_prim[k_prim_idx(i, sj, tk)];
+                        k += lbda * lbda * k_prim[k_prim_idx(i, s_j, t_k)];
                     }
                 }
             }
         }
+
+        delete[] k_prim;
+
         return k;
     }
 };
