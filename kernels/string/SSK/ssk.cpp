@@ -109,14 +109,13 @@ private:
         std::unique_ptr<double[]> mat_xs{new double[len_xs]};
         std::unique_ptr<double[]> mat_ys{new double[len_ys]};
 
-        // Fill mat_xs using std::generate
-        std::generate(mat_xs.get(), mat_xs.get() + len_xs, [&, i = 0]() mutable
-                      { auto res = ssk(xs[i], xs[i], n, lambda); i++; return res; });
+        std::transform(std::execution::par, xs.begin(), xs.end(), mat_xs.get(),
+                       [&](const auto &x)
+                       { return ssk(x, x, n, lambda); });
 
-        // Fill mat_ys using std::generate
-        std::generate(mat_ys.get(), mat_ys.get() + len_ys, [&, i = 0]() mutable
-                      { auto res = ssk(ys[i], ys[i], n, lambda); i++; return res; });
-
+        std::transform(ys.begin(), ys.end(), mat_ys.get(),
+                       [&](const auto &y)
+                       { return ssk(y, y, n, lambda); });
 
         for (size_t i = 0; i < len_xs; ++i)
         {
