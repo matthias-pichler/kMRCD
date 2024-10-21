@@ -107,7 +107,7 @@ private:
         std::unique_ptr<double[]> mat_xs{new double[len_xs]};
         std::unique_ptr<double[]> mat_ys{new double[len_ys]};
 
-        std::transform(std::execution::par, xs.begin(), xs.end(), mat_xs.get(),
+        std::transform(xs.begin(), xs.end(), mat_xs.get(),
                        [&](const auto &x)
                        { return ssk(x, x, n, lambda); });
 
