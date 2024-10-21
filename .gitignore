@@ -47,3 +47,6 @@ datasets
 .Rproj.user
 .RData
 .Rhistory
+
+# misc
+tmp/

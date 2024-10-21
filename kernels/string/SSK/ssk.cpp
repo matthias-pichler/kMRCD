@@ -134,7 +134,7 @@ private:
         size_t n = s.length();
         size_t m = t.length();
 
-        std::vector<double> k_prim(p * n * m, 0.0);
+        std::unique_ptr<double[]> k_prim {new double[ p * n * m ]};
         auto k_prim_idx = [&](size_t i, size_t j, size_t k)
         { return i * n * m + j * m + k; };
 
