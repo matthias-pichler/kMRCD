@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <algorithm>
+#include <execution>
 
 #include "Matrix.hpp"
 
@@ -104,18 +105,18 @@ private:
                 mat[i][j] = ssk(xs[i], ys[j], n, lambda);
             }
         }
-        
+
         std::unique_ptr<double[]> mat_xs{new double[len_xs]};
         std::unique_ptr<double[]> mat_ys{new double[len_ys]};
 
-        for (size_t i = 0; i < len_xs; ++i)
-        {
-            mat_xs[i] = ssk(xs[i], xs[i], n, lambda);
-        }
-        for (size_t j = 0; j < len_ys; ++j)
-        {
-            mat_ys[j] = ssk(ys[j], ys[j], n, lambda);
-        }
+        // Fill mat_xs using std::generate
+        std::generate(mat_xs.get(), mat_xs.get() + len_xs, [&, i = 0]() mutable
+                      { auto res = ssk(xs[i], xs[i], n, lambda); i++; return res; });
+
+        // Fill mat_ys using std::generate
+        std::generate(mat_ys.get(), mat_ys.get() + len_ys, [&, i = 0]() mutable
+                      { auto res = ssk(ys[i], ys[i], n, lambda); i++; return res; });
+
 
         for (size_t i = 0; i < len_xs; ++i)
         {
@@ -139,7 +140,7 @@ private:
         auto lambda_squared = lambda * lambda;
 
         std::unique_ptr<double[]> k_prim{new double[p * n * m]{}};
-        auto k_prim_idx = [&](size_t i, size_t j, size_t k)
+        auto k_prim_idx = [=](const size_t i, const size_t j, const size_t k)
         { return i * n * m + j * m + k; };
 
         std::fill_n(k_prim.get(), (n * m), 1); // k_prim[0][*][*] = 1

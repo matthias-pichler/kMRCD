@@ -77,7 +77,12 @@
     "utility": "cpp",
     "format": "cpp",
     "cinttypes": "cpp",
-    "complex": "cpp"
+    "complex": "cpp",
+    "deque": "cpp",
+    "execution": "cpp",
+    "print": "cpp",
+    "queue": "cpp",
+    "stack": "cpp"
   },
   "cSpell.words": ["mrcd"]
 }
