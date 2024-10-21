@@ -87,38 +87,39 @@ private:
 
     matlab::data::TypedArray<double> string_kernel(const matlab::data::StringArray &xs, const matlab::data::StringArray &ys, size_t n, double lambda)
     {
-        size_t lenxs = xs.getDimensions().at(0), lenys = ys.getDimensions().at(0);
+        size_t len_xs = xs.getDimensions().at(0);
+        size_t len_ys = ys.getDimensions().at(0);
 
-        if (lenxs == 0 || lenys == 0)
+        if (len_xs == 0 || len_ys == 0)
         {
             throw std::runtime_error("Input strings must not be empty.");
         }
 
-        matlab::data::TypedArray<double> mat = this->factory.createArray<double>({lenxs, lenys});
+        matlab::data::TypedArray<double> mat = this->factory.createArray<double>({len_xs, len_ys});
 
-        for (size_t i = 0; i < lenxs; ++i)
+        for (size_t i = 0; i < len_xs; ++i)
         {
-            for (size_t j = 0; j < lenys; ++j)
+            for (size_t j = 0; j < len_ys; ++j)
             {
                 mat[i][j] = ssk(xs[i], ys[j], n, lambda);
             }
         }
 
-        matlab::data::TypedArray<double> mat_xs = this->factory.createArray<double>({lenxs}, {0.0});
-        matlab::data::TypedArray<double> mat_ys = this->factory.createArray<double>({lenys}, {0.0});
+        matlab::data::TypedArray<double> mat_xs = this->factory.createArray<double>({len_xs}, {0.0});
+        matlab::data::TypedArray<double> mat_ys = this->factory.createArray<double>({len_ys}, {0.0});
 
-        for (size_t i = 0; i < lenxs; ++i)
+        for (size_t i = 0; i < len_xs; ++i)
         {
             mat_xs[i] = ssk(xs[i], xs[i], n, lambda);
         }
-        for (size_t j = 0; j < lenys; ++j)
+        for (size_t j = 0; j < len_ys; ++j)
         {
             mat_ys[j] = ssk(ys[j], ys[j], n, lambda);
         }
 
-        for (size_t i = 0; i < lenxs; ++i)
+        for (size_t i = 0; i < len_xs; ++i)
         {
-            for (size_t j = 0; j < lenys; ++j)
+            for (size_t j = 0; j < len_ys; ++j)
             {
                 mat[i][j] /= sqrt(mat_xs[i] * mat_ys[j]);
             }
