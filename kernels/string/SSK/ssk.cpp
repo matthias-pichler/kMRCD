@@ -104,9 +104,9 @@ private:
                 mat[i][j] = ssk(xs[i], ys[j], n, lambda);
             }
         }
-
-        matlab::data::TypedArray<double> mat_xs = this->factory.createArray<double>({len_xs}, {0.0});
-        matlab::data::TypedArray<double> mat_ys = this->factory.createArray<double>({len_ys}, {0.0});
+        
+        std::unique_ptr<double[]> mat_xs{new double[len_xs]};
+        std::unique_ptr<double[]> mat_ys{new double[len_ys]};
 
         for (size_t i = 0; i < len_xs; ++i)
         {
@@ -138,11 +138,11 @@ private:
 
         auto lambda_squared = lambda * lambda;
 
-        auto k_prim = new double[p * n * m]{};
+        std::unique_ptr<double[]> k_prim{new double[p * n * m]{}};
         auto k_prim_idx = [&](size_t i, size_t j, size_t k)
         { return i * n * m + j * m + k; };
 
-        std::fill_n(k_prim, (n * m), 1); // k_prim[0][*][*] = 1
+        std::fill_n(k_prim.get(), (n * m), 1); // k_prim[0][*][*] = 1
 
         for (size_t i = 1; i < p; ++i)
         {
@@ -176,8 +176,6 @@ private:
                 }
             }
         }
-
-        delete[] k_prim;
 
         return k;
     }
