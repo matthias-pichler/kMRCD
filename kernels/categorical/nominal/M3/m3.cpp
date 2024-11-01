@@ -2,6 +2,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include <omp.h>
+
 // Mex wrapper
 #include "mex.hpp"
 #include "mexAdapter.hpp"
@@ -172,6 +174,7 @@ private:
 
         matlab::data::TypedArray<double> K = this->factory.createArray<double>({heightX, heightY});
 
+        #pragma omp parallel for collapse(2)
         for (size_t i = 0; i < heightX; ++i)
         {
             for (size_t j = 0; j < heightY; ++j)

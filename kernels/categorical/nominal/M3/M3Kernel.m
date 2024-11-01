@@ -9,6 +9,8 @@ classdef M3Kernel < KernelModel
     % h_a(z) = (1-z^a)^(1/a)
 
     properties (Access = private)
+        mh (1,1) matlab.mex.MexHost = mexhost
+
         columnCategories cell
         columnPmf cell
     end
@@ -117,7 +119,7 @@ classdef M3Kernel < KernelModel
             end
             
             % K = pdist2(Xtrain, Xtest, @this.m3dist);
-            K = m3(Xtrain, Xtest, this.columnCategories, this.columnPmf, this.alpha);
+            K = feval(this.mh, 'm3', Xtrain, Xtest, this.columnCategories, this.columnPmf, this.alpha);
 
             assert(size(K, 1)==size(Xtrain, 1));
             assert(size(K, 2)==size(Xtest, 1));

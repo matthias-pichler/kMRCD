@@ -2,7 +2,6 @@
 #include <cmath>
 #include <string>
 #include <algorithm>
-#include <execution>
 
 #include <omp.h>
 
